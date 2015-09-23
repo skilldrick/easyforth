@@ -45,7 +45,7 @@ function runStackTests() {
   stack.push(1);
   stack.push(2);
   stack.push(3);
-  assertEqual(stack.print(), "1 2 3 <- Top");
+  assertEqual(stack.print(), "1 2 3 <- Top ");
 }
 
 
@@ -60,17 +60,60 @@ function runDictionaryTests() {
 }
 
 function runForthTests() {
-  var forth = Forth();
+  (function () {
+    var forth = Forth();
 
-  console.log("Testing readLine");
-  forth.readLine("10 20 30");
-  assertEqual(forth.getStack(), "10 20 30 <- Top");
+    console.log("Testing readLine");
+    var output = forth.readLine("10 20 30");
+    assertEqual(forth.getStack(), "10 20 30 <- Top ");
+    assertEqual(output, "  ok");
+
+    console.log("Testing funky space");
+    forth.readLine("100\t200    300  ");
+
+    assertEqual(forth.getStack(), "10 20 30 100 200 300 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing +");
+    forth.readLine("10");
+    assertEqual(forth.getStack(), "10 <- Top ");
+    forth.readLine("3 4 +");
+    assertEqual(forth.getStack(), "10 7 <- Top ");
+
+    forth.readLine("+");
+    assertEqual(forth.getStack(), "17 <- Top ");
+
+    assertException(function () {
+      forth.readLine("+");
+    }, "Exception not thrown on empty stack");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing .");
+    var output = forth.readLine("1 2 3 .");
+    assertEqual(forth.getStack(), "1 2 <- Top ");
+    assertEqual(output, " 3 ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing .s");
+    var output = forth.readLine("1 2 3 .s");
+    assertEqual(forth.getStack(), "1 2 3 <- Top ");
+    assertEqual(output, " \n1 2 3 <- Top  ok");
+  })();
 }
 
 function runTests() {
   runStackTests();
-  runForthTests();
   runDictionaryTests();
+  runForthTests();
 }
 
 runTests();

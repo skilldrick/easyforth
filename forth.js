@@ -13,7 +13,7 @@ function Stack() {
       }
     },
     print: function () {
-      return arr.join(" ") + " <- Top";
+      return arr.join(" ") + " <- Top ";
     }
   };
 }
@@ -22,8 +22,19 @@ function Dictionary() {
   // The dict is searched from beginning to end, so new definitions
   // need to be unshifted. This is usually a linked list, but meh
   var dict = [
-    [ ".", function () { console.log("Not implemented"); } ],
-    [ "+", function () { console.log("Not implemented"); } ]
+    [ ".", function (stack, dictionary) {
+        return stack.pop();
+      }
+    ],
+    [ ".s", function (stack, dictionary) {
+        return "\n" + stack.print();
+      }
+    ],
+    [
+      "+", function (stack, dictionary) {
+        stack.push(stack.pop() + stack.pop());
+      }
+    ]
   ];
 
   function add(definition) {
@@ -53,11 +64,47 @@ function Forth() {
   var stack = Stack();
   var dictionary = Dictionary();
 
+  function isNumber(val) {
+    return +val + "" === val;
+  }
+
+  function invalidWord(word) {
+    return word + " ? "
+  }
+
+  // Convert value to string, but undefined to ""
+  function getString(output) {
+    if (output === undefined) {
+      return "";
+    } else {
+      return "" + output;
+    }
+  }
+
+  function processWord(word) {
+    var definition = dictionary.lookup(word);
+
+    if (definition !== null) {
+      return getString(definition(stack, dictionary));
+    } else if (isNumber(word)) {
+      stack.push(+word);
+    } else {
+      invalidWord(word);
+    }
+
+    return "";
+  }
+
   function readLine(line) {
-    var words = line.split(" ");
+    var words = line.split(/\s+/);
+    var output = "";
+
     words.forEach(function (word) {
-      stack.push(word);
+      output += processWord(word)
     });
+
+    // This will return something different if invalidWord throws error
+    return " " + output + " ok";
   }
 
   return {

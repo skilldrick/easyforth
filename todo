@@ -1,6 +1,10 @@
 * line.split improvements
   - needs to handle multiple spaces
   - needs to be smart about strings
+* readLine improvements
+  - invalidWord should throw an exception
+  - output ends after missing word
+  - output will be added to end of line in interactive editor
 * Implement dict
   - if in dict, call execute on definition, or just execute definition?
   - if not in dict, call number, which pushes the number onto the stack, if it's a number, otherwise outputs `?`
