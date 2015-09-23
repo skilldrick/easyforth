@@ -15,7 +15,7 @@ function assert(condition, message) {
 }
 
 function assertEqual(a, b) {
-  assert(a == b, "Not equal");
+  assert(a == b, a + " was not equal to " + b);
 }
 
 function assertException(func, message) {
@@ -35,17 +35,25 @@ function runStackTests() {
   stack.push(5);
 
   console.log("Testing pop");
-  assert(stack.pop() == 5, "Pop should be 5");
+  assertEqual(stack.pop(), 5, "Pop should be 5");
 
   assertException(function () {
     stack.pop();
   }, "Exception not thrown on empty stack");
+
+  console.log("Testing print");
+  stack.push(1);
+  stack.push(2);
+  stack.push(3);
+  assertEqual(stack.print(), "1 2 3 <- Top");
 }
 
 function runForthTests() {
   var forth = Forth();
 
-  forth.readLine("1 2 3");
+  console.log("Testing readLine");
+  forth.readLine("10 20 30");
+  assertEqual(forth.getStack(), "10 20 30 <- Top");
 }
 
 function runTests() {

@@ -12,18 +12,28 @@ function Stack() {
       } else {
         throw new Error("Stack underflow");
       }
+    },
+    print: function () {
+      return arr.join(" ") + " <- Top";
     }
   };
 }
 
 function Forth() {
-
+  var stack = Stack();
 
   function readLine(line) {
-
+    var words = line.split(" ");
+    words.forEach(function (word) {
+      stack.push(word);
+    });
   }
 
+
   return {
-    readLine: readLine
+    readLine: readLine,
+    getStack: function () {
+      return stack.print();
+    }
   };
 }
