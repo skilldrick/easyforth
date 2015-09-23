@@ -1,4 +1,3 @@
-
 function Stack() {
   var arr = [];
 
@@ -19,8 +18,40 @@ function Stack() {
   };
 }
 
+function Dictionary() {
+  // The dict is searched from beginning to end, so new definitions
+  // need to be unshifted. This is usually a linked list, but meh
+  var dict = [
+    [ ".", function () { console.log("Not implemented"); } ],
+    [ "+", function () { console.log("Not implemented"); } ]
+  ];
+
+  function add(definition) {
+
+  }
+
+  // Missing key returns null
+  function lookup(key) {
+    var item = dict.find(function (item) {
+      return item[0] === key;
+    });
+
+    if (item === undefined) {
+      return null;
+    } else {
+      return item[1];
+    }
+  }
+
+  return {
+    add: add,
+    lookup: lookup
+  };
+}
+
 function Forth() {
   var stack = Stack();
+  var dictionary = Dictionary();
 
   function readLine(line) {
     var words = line.split(" ");
@@ -28,7 +59,6 @@ function Forth() {
       stack.push(word);
     });
   }
-
 
   return {
     readLine: readLine,

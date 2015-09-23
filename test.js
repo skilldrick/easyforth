@@ -15,7 +15,7 @@ function assert(condition, message) {
 }
 
 function assertEqual(a, b) {
-  assert(a == b, a + " was not equal to " + b);
+  assert(a === b, a + " was not equal to " + b);
 }
 
 function assertException(func, message) {
@@ -48,6 +48,17 @@ function runStackTests() {
   assertEqual(stack.print(), "1 2 3 <- Top");
 }
 
+
+function runDictionaryTests() {
+  var dictionary = Dictionary();
+
+  console.log("Testing lookup of presets");
+  assertEqual(typeof dictionary.lookup("+"), "function");
+
+  console.log("Testing lookup of missing definition");
+  assertEqual(dictionary.lookup("missing"), null);
+}
+
 function runForthTests() {
   var forth = Forth();
 
@@ -59,6 +70,7 @@ function runForthTests() {
 function runTests() {
   runStackTests();
   runForthTests();
+  runDictionaryTests();
 }
 
 runTests();

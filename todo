@@ -1,0 +1,12 @@
+* line.split improvements
+  - needs to handle multiple spaces
+  - needs to be smart about strings
+* Implement dict
+  - if in dict, call execute on definition, or just execute definition?
+  - if not in dict, call number, which pushes the number onto the stack, if it's a number, otherwise outputs `?`
+  - case insensitive
+  - implement forget?
+* Allow definitions
+* Implement useful subset of preset definitions
+* Interactive editor
+  - highlight output differently maybe?
