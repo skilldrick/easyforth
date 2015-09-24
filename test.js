@@ -52,7 +52,11 @@ function runStackTests() {
 function runDictionaryTests() {
   var dictionary = Dictionary();
 
-  console.log("Testing lookup of presets");
+  dictionary.add("+", function (stack, dictionary) {
+    stack.push(stack.pop() + stack.pop());
+  });
+
+  console.log("Testing lookup of existing definitions");
   assertEqual(typeof dictionary.lookup("+"), "function");
 
   console.log("Testing lookup of missing definition");

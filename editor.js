@@ -19,6 +19,10 @@ function Editor(selector) {
       addLine(code, forth.readLine(code));
     }
   });
+
+  $editor.click(function () {
+    $input.focus();
+  });
 }
 
 var editor = Editor("#text");
