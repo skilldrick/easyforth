@@ -130,6 +130,16 @@ function runForthTests() {
     assertEqual(forth.getStack(), " <- Top ");
     assertEqual(output, " cool ok");
   })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing :");
+    forth.readLine(": add-10  10 + ;");
+    forth.readLine("5 add-10");
+    assertEqual(forth.getStack(), "15 <- Top ");
+  })();
+
 }
 
 function runTests() {

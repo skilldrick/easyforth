@@ -10,3 +10,4 @@
 * Implement useful subset of preset definitions
 * Interactive editor
   - highlight output differently maybe?
+  - will have to be sensitive to colon definitions, and wait for semicolon before interpreting

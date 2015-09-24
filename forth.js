@@ -42,6 +42,7 @@ function Dictionary() {
   add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
   });
+  compile(": space  32 emit ;");
 
   // Missing key returns null
   function lookup(key) {
@@ -98,8 +99,26 @@ function Forth() {
     return "";
   }
 
+  // This is wrong (naive and uses late binding of names) but will do for now...
+  function compile(words) {
+    words.pop(); // remove ;
+
+    dictionary.add(words.shift(), function () {
+      words.forEach(function (word) {
+        processWord(word)
+      });
+    });
+  }
+
+  // This could be cleaned up a lot
   function readLine(line) {
     var words = line.split(/\s+/);
+
+    if (words[0] === ":") {
+      compile(words.slice(1));
+      return " ok";
+    }
+
     var output = "";
 
     words.forEach(function (word) {
