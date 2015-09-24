@@ -155,6 +155,7 @@ function runForthTests() {
     assertEqual(output, " cool ok");
   })();
 
+  /*
   (function () {
     var forth = Forth();
 
@@ -163,6 +164,7 @@ function runForthTests() {
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "15 <- Top ");
   })();
+  */
 
 }
 

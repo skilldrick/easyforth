@@ -133,18 +133,21 @@ function Forth() {
 
   // This could be cleaned up a lot
   function readLine(line) {
-    var words = line.split(/\s+/);
+    var tokenizer = Tokenizer(line);
 
+    //TODO: reimplement this using tokenizer
+    /*
     if (words[0] === ":") {
       compile(words.slice(1));
       return " ok";
     }
+    */
 
     var output = "";
 
-    words.forEach(function (word) {
-      output += processWord(word)
-    });
+    while(tokenizer.hasMore()) {
+      output += processWord(tokenizer.nextToken());
+    }
 
     // This will return something different if invalidWord throws error
     return " " + output + " ok";
