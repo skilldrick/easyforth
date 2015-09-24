@@ -30,3 +30,9 @@
 .editor .output {
   color: #999;
 }
+
+
+.github {
+  font: 12px monospace;
+  color: #999;
+}
