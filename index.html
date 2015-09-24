@@ -1,9 +1,22 @@
 <!doctype html>
 <html>
-  <head></head>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
   <body>
     <h1>Forth</h1>
+
+    <div id="text" class="editor">
+      <div class="prev-lines">
+        <p>: foo 1 2 3 . . . ;  ok</p>
+        <p>foo 3 2 1  ok</p>
+      </div>
+      <input>
+    </div>
+
     <script src="forth.js"></script>
+    <script src="jquery-2.1.4.js"></script>
+    <script src="editor.js"></script>
     <script src="test.js"></script>
   </body>
 </html>

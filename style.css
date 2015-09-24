@@ -1,0 +1,16 @@
+.editor {
+  width: 500px;
+  height: 300px;
+  font: 12px monospace;
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.editor input {
+  width: 100%;
+  border: 0;
+  font: 12px monospace;
+  outline: 0;
+  border-bottom: 1px solid black;
+  padding: 0;
+}
