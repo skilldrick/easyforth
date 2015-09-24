@@ -27,23 +27,6 @@ function Dictionary() {
     dict.unshift([word, definition]);
   }
 
-  add(".",  function (stack, dictionary) {
-    return stack.pop();
-  });
-  add(".s", function (stack, dictionary) {
-    return "\n" + stack.print();
-  });
-  add("+", function (stack, dictionary) {
-    stack.push(stack.pop() + stack.pop());
-  });
-  add("cr", function (stack, dictionary) {
-    return "\n";
-  });
-  add("emit", function (stack, dictionary) {
-    return String.fromCharCode(stack.pop());
-  });
-  compile(": space  32 emit ;");
-
   // Missing key returns null
   function lookup(key) {
     key = key.toLowerCase();
@@ -128,6 +111,23 @@ function Forth() {
     // This will return something different if invalidWord throws error
     return " " + output + " ok";
   }
+
+
+  dictionary.add(".",  function (stack, dictionary) {
+    return stack.pop();
+  });
+  dictionary.add(".s", function (stack, dictionary) {
+    return "\n" + stack.print();
+  });
+  dictionary.add("+", function (stack, dictionary) {
+    stack.push(stack.pop() + stack.pop());
+  });
+  dictionary.add("cr", function (stack, dictionary) {
+    return "\n";
+  });
+  dictionary.add("emit", function (stack, dictionary) {
+    return String.fromCharCode(stack.pop());
+  });
 
   return {
     readLine: readLine,
