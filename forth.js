@@ -21,28 +21,28 @@ function Stack() {
 function Dictionary() {
   // The dict is searched from beginning to end, so new definitions
   // need to be unshifted. This is usually a linked list, but meh
-  var dict = [
-    [ ".", function (stack, dictionary) {
-        return stack.pop();
-      }
-    ],
-    [ ".s", function (stack, dictionary) {
-        return "\n" + stack.print();
-      }
-    ],
-    [
-      "+", function (stack, dictionary) {
-        stack.push(stack.pop() + stack.pop());
-      }
-    ]
-  ];
+  var dict = [];
 
-  function add(definition) {
-
+  function add(word, definition) {
+    dict.unshift([word, definition]);
   }
+
+  add(".",  function (stack, dictionary) {
+    return stack.pop();
+  });
+  add(".s", function (stack, dictionary) {
+    return "\n" + stack.print();
+  });
+  add("+", function (stack, dictionary) {
+    stack.push(stack.pop() + stack.pop());
+  });
+  add("cr", function (stack, dictionary) {
+    return "\n";
+  });
 
   // Missing key returns null
   function lookup(key) {
+    key = key.toLowerCase();
     var item = dict.find(function (item) {
       return item[0] === key;
     });

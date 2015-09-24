@@ -108,6 +108,15 @@ function runForthTests() {
     assertEqual(forth.getStack(), "1 2 3 <- Top ");
     assertEqual(output, " \n1 2 3 <- Top  ok");
   })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing cr");
+    var output = forth.readLine("1 2 . cr .");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 2\n1 ok");
+  })();
 }
 
 function runTests() {
