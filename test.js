@@ -1,3 +1,5 @@
+var failures = [];
+
 function success() {
   console.log(".");
 }
@@ -11,6 +13,7 @@ function assert(condition, message) {
     success();
   } else {
     failure(message);
+    failures.push(message);
   }
 }
 
@@ -61,6 +64,23 @@ function runDictionaryTests() {
 
   console.log("Testing lookup of missing definition");
   assertEqual(dictionary.lookup("missing"), null);
+}
+
+function runTokenizerTests() {
+  (function () {
+    console.log("Testing nextToken and hasMore");
+    var tokenizer = new Tokenizer(" 1 21 321 ");
+    assertEqual(tokenizer.hasMore(), true);
+    assertEqual(tokenizer.nextToken(), "1");
+    assertEqual(tokenizer.hasMore(), true);
+    assertEqual(tokenizer.nextToken(), "21");
+    assertEqual(tokenizer.hasMore(), true);
+    assertEqual(tokenizer.nextToken(), "321");
+    assertEqual(tokenizer.hasMore(), false);
+    assertException(function () {
+      tokenizer.nextToken();
+    }, "Tokenizer did not throw exception when no more tokens");
+  })();
 }
 
 function runForthTests() {
@@ -146,10 +166,17 @@ function runForthTests() {
 
 }
 
+// Wow such test runner
 function runTests() {
   runStackTests();
   runDictionaryTests();
+  runTokenizerTests();
   runForthTests();
+
+  if (failures.length) {
+    console.log("Failed tests");
+    console.log(failures.join("\n"));
+  }
 }
 
 runTests();

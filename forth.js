@@ -47,9 +47,47 @@ function Dictionary() {
   };
 }
 
+function Tokenizer(input) {
+  var index = 0;
+  var length = input.length;
+  var whitespace = /\s+/;
+  var validToken = /\S+/;
+
+  function hasMore() {
+    // Is there any non-whitespace remaining in the input?
+    return !!input.slice(index).match(validToken);
+  }
+
+  function nextToken() {
+    // Skip over leading whitespace
+    while (whitespace.test(input[index]) && index < length) {
+      index++;
+    }
+
+    // Collect valid token characters in a string
+    var token = "";
+    while (validToken.test(input[index]) && index < length) {
+      token += input[index];
+      index++;
+    }
+
+    if (!token) {
+      throw new Error("nextToken called with no more tokens");
+    }
+
+    return token;
+  }
+
+  return {
+    hasMore: hasMore,
+    nextToken: nextToken
+  };
+}
+
 function Forth() {
   var stack = Stack();
   var dictionary = Dictionary();
+
 
   function isNumber(val) {
     return +val + "" === val;

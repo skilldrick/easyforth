@@ -1,5 +1,6 @@
-* line.split improvements
+* Tokenizer
   - needs to be smart about strings
+  - strings only output in definitions
 * readLine improvements
   - invalidWord should throw an exception
   - output ends after missing word
