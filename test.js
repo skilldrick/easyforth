@@ -117,6 +117,19 @@ function runForthTests() {
     assertEqual(forth.getStack(), " <- Top ");
     assertEqual(output, " 2\n1 ok");
   })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing emit");
+    var output = forth.readLine("99 emit");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " c ok");
+
+    output = forth.readLine("108 111 111 99 emit emit emit emit");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " cool ok");
+  })();
 }
 
 function runTests() {

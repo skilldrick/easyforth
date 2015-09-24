@@ -39,6 +39,9 @@ function Dictionary() {
   add("cr", function (stack, dictionary) {
     return "\n";
   });
+  add("emit", function (stack, dictionary) {
+    return String.fromCharCode(stack.pop());
+  });
 
   // Missing key returns null
   function lookup(key) {
