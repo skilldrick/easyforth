@@ -6,11 +6,27 @@
   border: 1px solid black;
 }
 
+/* newlines in output will be treated like new paragraphs */
+.editor .prev-lines p {
+  white-space: pre;
+  margin: 0;
+  line-height: 1.5em;
+}
+
 .editor input {
+  height: 1.5em;
   width: 100%;
   border: 0;
   font: 12px monospace;
   outline: 0;
   border-bottom: 1px solid black;
   padding: 0;
+}
+
+.editor .code {
+  color: #333;
+}
+
+.editor .output {
+  color: #999;
 }
