@@ -82,6 +82,7 @@ function Dictionary() {
 function Tokenizer(input) {
   var index = 0;
   var length = input.length;
+  var stringMode = false;
   var whitespace = /\s+/;
   var validToken = /\S+/;
   var definitionStart = /^\s*:/;
@@ -100,24 +101,42 @@ function Tokenizer(input) {
     return input.match(definitionEnd);
   }
 
-  function nextToken() {
+  function skipWhitespace() {
     // Skip over leading whitespace
     while (whitespace.test(input[index]) && index < length) {
       index++;
     }
+  }
 
-    // Collect valid token characters in a string
+  function nextToken() {
+    skipWhitespace();
+    var isString = input[index] === '.' && input[index + 1] === '"';
+
     var token = "";
-    while (validToken.test(input[index]) && index < length) {
-      token += input[index];
-      index++;
+    if (isString) {
+      index += 3; // skip over ." and space
+      while (input[index] !== '"' && index < length) {
+        token += input[index];
+        index++;
+      }
+      index++; // skip over final "
+    } else {
+      while (validToken.test(input[index]) && index < length) {
+        token += input[index];
+        index++;
+      }
     }
 
     if (!token) {
       throw new EndOfInputError();
     }
 
-    return token;
+    var returnObject = {
+      token: token,
+      string: isString
+    };
+
+    return returnObject;
   }
 
   return {
@@ -132,16 +151,21 @@ function Definition(name, dictionary) {
   var toExecute = [];
 
   // This is currently copied from Forth so don't do that
-  function addWord(word) {
-    var definition = dictionary.lookup(word);
+  function addWord(token) {
+    var definition = dictionary.lookup(token.token);
+    var word = token.token;
 
     if (definition !== null) {
       toExecute.push(function (stack, dictionary) {
-        getString(definition(stack, dictionary));
+        return definition(stack, dictionary);
       });
     } else if (isNumber(word)) {
       toExecute.push(function (stack, dictionary) {
         stack.push(+word);
+      });
+    } else if (token.string) {
+      toExecute.push(function (stack, dictionary) {
+        return word;
       });
     } else {
       invalidWord(word);
@@ -150,9 +174,11 @@ function Definition(name, dictionary) {
 
   function compile() {
     dictionary.add(name, function (stack, dictionary) {
+      var output = "";
       toExecute.forEach(function (action) {
-        action(stack, dictionary);
+        output += getString(action(stack, dictionary));
       });
+      return output;
     });
   }
 
@@ -176,7 +202,13 @@ function Forth() {
     inDefinition = false;
   }
 
-  function processWord(word) {
+  function processWord(token) {
+    if (token.string) {
+      return "";
+    }
+
+    var word = token.token;
+
     var definition = dictionary.lookup(word);
 
     if (definition !== null) {
@@ -196,10 +228,11 @@ function Forth() {
     if (tokenizer.isDefinitionStart()) {
       startDefinition();
       tokenizer.nextToken(); // drop :
-      var definitionName = tokenizer.nextToken();
+      var definitionName = tokenizer.nextToken().token;
       currentDefinition = new Definition(definitionName, dictionary);
     }
 
+    // The duplication between this case and the other is pretty bad
     if (inDefinition) {
       while (tokenizer.hasMore()) {
         try {
@@ -218,7 +251,7 @@ function Forth() {
       if (tokenizer.isDefinitionEnd()) {
         endDefinition();
         currentDefinition.compile();
-        return " ok";
+        return "  ok";
       }
     } else {
       var output = "";
@@ -243,7 +276,7 @@ function Forth() {
 
 
   dictionary.add(".",  function (stack, dictionary) {
-    return stack.pop();
+    return stack.pop() + " ";
   });
   dictionary.add(".s", function (stack, dictionary) {
     return "\n" + stack.print();

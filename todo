@@ -1,17 +1,1 @@
-* Tokenizer
-  - needs to be smart about strings
-  - strings only output in definitions
-* Compiler/Interpreter
-  - should create these
-* readLine improvements
-  - invalidWord should throw an exception
-  - output ends after missing word
-  - output will be added to end of line in interactive editor
-* Implement dict
-  - implement forget?
-* Allow definitions
-  - definition ends on missing definition
 * Implement useful subset of preset definitions
-* Interactive editor
-  - highlight output differently maybe?
-  - will have to be sensitive to colon definitions, and wait for semicolon before interpreting

@@ -71,15 +71,23 @@ function runTokenizerTests() {
     console.log("Testing nextToken and hasMore");
     var tokenizer = new Tokenizer(" 1 21 321 ");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken(), "1");
+    assertEqual(tokenizer.nextToken().token, "1");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken(), "21");
+    assertEqual(tokenizer.nextToken().token, "21");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken(), "321");
+    assertEqual(tokenizer.nextToken().token, "321");
     assertEqual(tokenizer.hasMore(), false);
     assertException(function () {
       tokenizer.nextToken();
     }, "Tokenizer did not throw exception when no more tokens");
+  })();
+
+  (function () {
+    console.log("Testing string tokenizing");
+
+    var tokenizer = new Tokenizer(' 1 ." hello world" ');
+    assertEqual(tokenizer.nextToken().token, "1");
+    assertEqual(tokenizer.nextToken().token, "hello world");
   })();
 }
 
@@ -120,7 +128,7 @@ function runForthTests() {
     console.log("Testing .");
     var output = forth.readLine("1 2 3 .");
     assertEqual(forth.getStack(), "1 2 <- Top ");
-    assertEqual(output, " 3 ok");
+    assertEqual(output, " 3  ok");
   })();
 
   (function () {
@@ -138,7 +146,7 @@ function runForthTests() {
     console.log("Testing cr");
     var output = forth.readLine("1 2 . cr .");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 2\n1 ok");
+    assertEqual(output, " 2 \n1  ok");
   })();
 
   (function () {
@@ -159,7 +167,7 @@ function runForthTests() {
 
     console.log("Testing :");
     var output = forth.readLine(": add-10  10 + ;");
-    assertEqual(output, " ok");
+    assertEqual(output, "  ok");
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "15 <- Top ");
   })();
@@ -174,7 +182,7 @@ function runForthTests() {
     output = forth.readLine(" 5 + ");
     assertEqual(output, ""); // no output here
     output = forth.readLine(" 5 + ; ");
-    assertEqual(output, " ok"); // output ok after definition
+    assertEqual(output, "  ok"); // output ok after definition
     forth.readLine("5 add-20");
     assertEqual(forth.getStack(), "25 <- Top ");
   })();
@@ -186,7 +194,7 @@ function runForthTests() {
     output = forth.readLine(": add-20  10 + foo ");
     assertEqual(output, " foo ? "); // output error
     output = forth.readLine("5 5 + .");
-    assertEqual(output, " 10 ok"); // output because definition has finished
+    assertEqual(output, " 10  ok"); // output because definition has finished
   })();
 
   (function () {
