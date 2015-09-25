@@ -158,26 +158,45 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
-    // TODO: test output
     console.log("Testing :");
-    forth.readLine(": add-10  10 + ;");
+    var output = forth.readLine(": add-10  10 + ;");
+    assertEqual(output, " ok");
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "15 <- Top ");
-
-
-    forth = Forth();
-
-    console.log("Testing multiline :");
-    forth.readLine(": add-20  10 + ");
-    forth.readLine(" 5 + ");
-    forth.readLine(" 5 + ; ");
-    forth.readLine("5 add-20");
-    assertEqual(forth.getStack(), "25 <- Top ");
-
-    // TODO: test missing words in definitions
   })();
 
-  // TODO: test missing words in interpreter
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing multiline :");
+    output = forth.readLine(": add-20  10 + ");
+    assertEqual(output, ""); // no output here
+    output = forth.readLine(" 5 + ");
+    assertEqual(output, ""); // no output here
+    output = forth.readLine(" 5 + ; ");
+    assertEqual(output, " ok"); // output ok after definition
+    forth.readLine("5 add-20");
+    assertEqual(forth.getStack(), "25 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing missing words in :");
+    output = forth.readLine(": add-20  10 + foo ");
+    assertEqual(output, " foo ? "); // output error
+    output = forth.readLine("5 5 + .");
+    assertEqual(output, " 10 ok"); // output because definition has finished
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing missing words in interpreter");
+    output = forth.readLine("10 10 + foo ");
+    assertEqual(output, " foo ? "); // output error
+  })();
 
 }
 

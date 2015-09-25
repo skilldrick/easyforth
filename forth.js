@@ -10,6 +10,25 @@ function MissingWordError(word) {
   this.message = " " + word + " ? ";
 }
 
+function isNumber(val) {
+  return +val + "" === val;
+}
+
+function invalidWord(word) {
+  if (word !== ";") { // Can safely skip ;
+    throw new MissingWordError(word);
+  }
+}
+
+// Convert value to string, but undefined to ""
+function getString(output) {
+  if (output === undefined) {
+    return "";
+  } else {
+    return "" + output;
+  }
+}
+
 
 function Stack() {
   var arr = [];
@@ -112,28 +131,6 @@ function Tokenizer(input) {
 function Definition(name, dictionary) {
   var toExecute = [];
 
-  // Copied
-  function isNumber(val) {
-    return +val + "" === val;
-  }
-
-  // Copied
-  function invalidWord(word) {
-    if (word !== ";") { // Can safely skip ;
-      throw new MissingWordError(word);
-    }
-  }
-
-  // Copied
-  function getString(output) {
-    if (output === undefined) {
-      return "";
-    } else {
-      return "" + output;
-    }
-  }
-
-
   // This is currently copied from Forth so don't do that
   function addWord(word) {
     var definition = dictionary.lookup(word);
@@ -179,25 +176,6 @@ function Forth() {
     inDefinition = false;
   }
 
-  function isNumber(val) {
-    return +val + "" === val;
-  }
-
-  function invalidWord(word) {
-    if (word !== ";") { // Can safely skip ;
-      throw new MissingWordError(word);
-    }
-  }
-
-  // Convert value to string, but undefined to ""
-  function getString(output) {
-    if (output === undefined) {
-      return "";
-    } else {
-      return "" + output;
-    }
-  }
-
   function processWord(word) {
     var definition = dictionary.lookup(word);
 
@@ -223,8 +201,6 @@ function Forth() {
     }
 
     if (inDefinition) {
-      var output = "";
-
       while (tokenizer.hasMore()) {
         try {
           currentDefinition.addWord(tokenizer.nextToken());
@@ -259,9 +235,10 @@ function Forth() {
         }
       }
 
-      // This will return something different if invalidWord throws error
       return " " + output + " ok";
     }
+
+    return "";
   }
 
 
