@@ -14,13 +14,16 @@
   line-height: 1.5em;
 }
 
-.editor input {
+.editor .input {
   height: 1.5em;
   width: 100%;
   border: 0;
   font: 12px monospace;
   outline: 0;
   border-bottom: 1px solid black;
+  margin: 0;
+  margin-top: 2px; /* hack to make textarea line up with prev-lines paragraph */
+  resize: none;
   padding: 0;
 }
 

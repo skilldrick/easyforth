@@ -3,7 +3,7 @@ function Editor(selector) {
 
   var $editor = $(selector);
   var $prevLines = $editor.find(".prev-lines");
-  var $input = $editor.find("input");
+  var $input = $editor.find(".input");
 
   function addLine(code, output) {
     var $codeSpan = $("<span>").addClass("code").text(code);
@@ -12,12 +12,24 @@ function Editor(selector) {
     $newLine.appendTo($prevLines);
   }
 
+  function readInput() {
+    var code = $input.val();
+    // handle multiple lines - this will only come up when text is pasted
+    code.split("\n").forEach(function (codeLine) {
+      addLine(codeLine, forth.readLine(codeLine));
+    });
+    $input.val("");
+  }
+
+  function adjustScroll() {
+    $editor.scrollTop($editor[0].scrollHeight);
+  }
+
   $input.on("keydown", function (e) {
     if (e.keyCode === 13) { // Enter/Return
-      var code = $input.val();
-      $input.val("");
-      addLine(code, forth.readLine(code));
-      $editor.scrollTop($editor[0].scrollHeight);
+      e.preventDefault(); // don't actually insert newline
+      readInput();
+      adjustScroll();
     }
   });
 
