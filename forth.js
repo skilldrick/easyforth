@@ -1,8 +1,10 @@
-function StackUnderflowError() { }
-StackUnderflowError.prototype = new Error("Stack underflow");
+function StackUnderflowError() {
+  this.message = "Stack underflow";
+}
 
-function EndOfInputError() { }
-EndOfInputError.prototype = new Error("nextToken called with no more tokens");
+function EndOfInputError() {
+  this.message = "nextToken called with no more tokens";
+}
 
 function MissingWordError(word) {
   this.message = " " + word + " ? ";
