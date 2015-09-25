@@ -1,6 +1,8 @@
 * Tokenizer
   - needs to be smart about strings
   - strings only output in definitions
+* Compiler/Interpreter
+  - should create these
 * readLine improvements
   - invalidWord should throw an exception
   - output ends after missing word

@@ -155,7 +155,6 @@ function runForthTests() {
     assertEqual(output, " cool ok");
   })();
 
-  /*
   (function () {
     var forth = Forth();
 
@@ -163,8 +162,17 @@ function runForthTests() {
     forth.readLine(": add-10  10 + ;");
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "15 <- Top ");
+
+
+    forth = Forth();
+
+    console.log("Testing multiline :");
+    forth.readLine(": add-20  10 + ");
+    forth.readLine(" 5 + ");
+    forth.readLine(" 5 + ; ");
+    forth.readLine("5 add-20");
+    assertEqual(forth.getStack(), "25 <- Top ");
   })();
-  */
 
 }
 

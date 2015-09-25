@@ -52,10 +52,20 @@ function Tokenizer(input) {
   var length = input.length;
   var whitespace = /\s+/;
   var validToken = /\S+/;
+  var definitionStart = /^\s*:/;
+  var definitionEnd = /;\s*$/;
 
   function hasMore() {
     // Is there any non-whitespace remaining in the input?
     return !!input.slice(index).match(validToken);
+  }
+
+  function isDefinitionStart() {
+    return input.match(definitionStart);
+  }
+
+  function isDefinitionEnd() {
+    return input.match(definitionEnd);
   }
 
   function nextToken() {
@@ -80,14 +90,84 @@ function Tokenizer(input) {
 
   return {
     hasMore: hasMore,
-    nextToken: nextToken
+    nextToken: nextToken,
+    isDefinitionStart: isDefinitionStart,
+    isDefinitionEnd: isDefinitionEnd
+  };
+}
+
+function Definition(name, dictionary) {
+  var toExecute = [];
+
+  // Copied
+  function isNumber(val) {
+    return +val + "" === val;
+  }
+
+  // Copied
+  function invalidWord(word) {
+    if (word === ";") { // Can safely skip ;
+      return "";
+    }
+    return word + " ? "
+  }
+
+  // Copied
+  function getString(output) {
+    if (output === undefined) {
+      return "";
+    } else {
+      return "" + output;
+    }
+  }
+
+
+  // This is currently copied from Forth so don't do that
+  function addWord(word) {
+    var definition = dictionary.lookup(word);
+
+    if (definition !== null) {
+      toExecute.push(function (stack, dictionary) {
+        getString(definition(stack, dictionary));
+      });
+    } else if (isNumber(word)) {
+      toExecute.push(function (stack, dictionary) {
+        stack.push(+word);
+      });
+    } else {
+      return invalidWord(word);
+    }
+
+    return "";
+  }
+
+  function compile() {
+    dictionary.add(name, function (stack, dictionary) {
+      toExecute.forEach(function (action) {
+        action(stack, dictionary);
+      });
+    });
+  }
+
+  return {
+    addWord: addWord,
+    compile: compile
   };
 }
 
 function Forth() {
+  var inDefinition = false;
+  var currentDefinition = null;
   var stack = Stack();
   var dictionary = Dictionary();
 
+  function startDefinition() {
+    inDefinition = true;
+  }
+
+  function endDefinition() {
+    inDefinition = false;
+  }
 
   function isNumber(val) {
     return +val + "" === val;
@@ -120,37 +200,36 @@ function Forth() {
     return "";
   }
 
-  // This is wrong (naive and uses late binding of names) but will do for now...
-  function compile(words) {
-    words.pop(); // remove ;
-
-    dictionary.add(words.shift(), function () {
-      words.forEach(function (word) {
-        processWord(word)
-      });
-    });
-  }
-
-  // This could be cleaned up a lot
   function readLine(line) {
     var tokenizer = Tokenizer(line);
 
-    //TODO: reimplement this using tokenizer
-    /*
-    if (words[0] === ":") {
-      compile(words.slice(1));
-      return " ok";
-    }
-    */
-
-    var output = "";
-
-    while(tokenizer.hasMore()) {
-      output += processWord(tokenizer.nextToken());
+    if (tokenizer.isDefinitionStart()) {
+      startDefinition();
+      tokenizer.nextToken(); // drop :
+      var definitionName = tokenizer.nextToken();
+      currentDefinition = new Definition(definitionName, dictionary);
     }
 
-    // This will return something different if invalidWord throws error
-    return " " + output + " ok";
+    if (inDefinition) {
+      var output = "";
+      while (tokenizer.hasMore()) {
+        output += currentDefinition.addWord(tokenizer.nextToken());
+      }
+
+      if (tokenizer.isDefinitionEnd()) {
+        endDefinition();
+        currentDefinition.compile();
+      }
+    } else {
+      var output = "";
+
+      while (tokenizer.hasMore()) {
+        output += processWord(tokenizer.nextToken());
+      }
+
+      // This will return something different if invalidWord throws error
+      return " " + output + " ok";
+    }
   }
 
 
