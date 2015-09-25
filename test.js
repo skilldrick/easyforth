@@ -169,6 +169,18 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    console.log("Testing =");
+    forth.readLine("10");
+    forth.readLine("5 5 =");
+    assertEqual(forth.getStack(), "10 -1 <- Top ");
+
+    forth.readLine("4 5 =");
+    assertEqual(forth.getStack(), "10 -1 0 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
     console.log("Testing swap");
     forth.readLine("10 5");
     assertEqual(forth.getStack(), "10 5 <- Top ");

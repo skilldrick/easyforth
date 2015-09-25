@@ -319,6 +319,9 @@ function Forth() {
     var a = stack.pop(), b = stack.pop();
     stack.push(Math.floor(b % a));
   });
+  dictionary.add("=", function (stack, dictionary) {
+    stack.push(stack.pop() === stack.pop() ? "-1" : "0");
+  });
   dictionary.add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
   });
