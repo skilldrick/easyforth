@@ -10,6 +10,7 @@
 * Implement dict
   - implement forget?
 * Allow definitions
+  - definition ends on missing definition
 * Implement useful subset of preset definitions
 * Interactive editor
   - highlight output differently maybe?

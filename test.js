@@ -158,6 +158,7 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    // TODO: test output
     console.log("Testing :");
     forth.readLine(": add-10  10 + ;");
     forth.readLine("5 add-10");
@@ -172,7 +173,11 @@ function runForthTests() {
     forth.readLine(" 5 + ; ");
     forth.readLine("5 add-20");
     assertEqual(forth.getStack(), "25 <- Top ");
+
+    // TODO: test missing words in definitions
   })();
+
+  // TODO: test missing words in interpreter
 
 }
 

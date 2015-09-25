@@ -1,3 +1,14 @@
+function StackUnderflowError() { }
+StackUnderflowError.prototype = new Error("Stack underflow");
+
+function EndOfInputError() { }
+EndOfInputError.prototype = new Error("nextToken called with no more tokens");
+
+function MissingWordError(word) {
+  this.message = " " + word + " ? ";
+}
+
+
 function Stack() {
   var arr = [];
 
@@ -9,7 +20,7 @@ function Stack() {
       if (arr.length > 0) {
         return arr.pop();
       } else {
-        throw new Error("Stack underflow");
+        throw new StackUnderflowError();
       }
     },
     print: function () {
@@ -82,7 +93,7 @@ function Tokenizer(input) {
     }
 
     if (!token) {
-      throw new Error("nextToken called with no more tokens");
+      throw new EndOfInputError();
     }
 
     return token;
@@ -106,10 +117,9 @@ function Definition(name, dictionary) {
 
   // Copied
   function invalidWord(word) {
-    if (word === ";") { // Can safely skip ;
-      return "";
+    if (word !== ";") { // Can safely skip ;
+      throw new MissingWordError(word);
     }
-    return word + " ? "
   }
 
   // Copied
@@ -135,10 +145,8 @@ function Definition(name, dictionary) {
         stack.push(+word);
       });
     } else {
-      return invalidWord(word);
+      invalidWord(word);
     }
-
-    return "";
   }
 
   function compile() {
@@ -174,7 +182,9 @@ function Forth() {
   }
 
   function invalidWord(word) {
-    return word + " ? "
+    if (word !== ";") { // Can safely skip ;
+      throw new MissingWordError(word);
+    }
   }
 
   // Convert value to string, but undefined to ""
@@ -212,19 +222,39 @@ function Forth() {
 
     if (inDefinition) {
       var output = "";
+
       while (tokenizer.hasMore()) {
-        output += currentDefinition.addWord(tokenizer.nextToken());
+        try {
+          currentDefinition.addWord(tokenizer.nextToken());
+        } catch (e) {
+          if (e instanceof EndOfInputError || e instanceof MissingWordError) {
+            endDefinition();
+            currentDefinition = null;
+            return e.message;
+          } else {
+            throw e;
+          }
+        }
       }
 
       if (tokenizer.isDefinitionEnd()) {
         endDefinition();
         currentDefinition.compile();
+        return " ok";
       }
     } else {
       var output = "";
 
       while (tokenizer.hasMore()) {
-        output += processWord(tokenizer.nextToken());
+        try {
+          output += processWord(tokenizer.nextToken());
+        } catch (e) {
+          if (e instanceof EndOfInputError || e instanceof MissingWordError) {
+            return e.message;
+          } else {
+            throw e;
+          }
+        }
       }
 
       // This will return something different if invalidWord throws error
