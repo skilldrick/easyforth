@@ -284,6 +284,22 @@ function Forth() {
   dictionary.add("+", function (stack, dictionary) {
     stack.push(stack.pop() + stack.pop());
   });
+  dictionary.add("*", function (stack, dictionary) {
+    stack.push(stack.pop() * stack.pop());
+  });
+  dictionary.add("/", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop();
+    stack.push(Math.floor(b / a));
+  });
+  dictionary.add("/mod", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop();
+    stack.push(Math.floor(b % a));
+    stack.push(Math.floor(b / a));
+  });
+  dictionary.add("mod", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop();
+    stack.push(Math.floor(b % a));
+  });
   dictionary.add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
   });
