@@ -110,9 +110,8 @@ function runForthTests() {
     forth.readLine("+");
     assertEqual(forth.getStack(), "17 <- Top ");
 
-    assertException(function () {
-      forth.readLine("+");
-    }, "Exception not thrown on empty stack");
+    var output = forth.readLine("+");
+    assertEqual(output, " Stack underflow");
   })();
 
   (function () {

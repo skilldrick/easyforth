@@ -7,7 +7,7 @@ function EndOfInputError() {
 }
 
 function MissingWordError(word) {
-  this.message = " " + word + " ? ";
+  this.message = word + " ? ";
 }
 
 function isNumber(val) {
@@ -208,7 +208,7 @@ function Forth() {
           if (e instanceof EndOfInputError || e instanceof MissingWordError) {
             endDefinition();
             currentDefinition = null;
-            return e.message;
+            return " " + e.message;
           } else {
             throw e;
           }
@@ -227,8 +227,8 @@ function Forth() {
         try {
           output += processWord(tokenizer.nextToken());
         } catch (e) {
-          if (e instanceof EndOfInputError || e instanceof MissingWordError) {
-            return e.message;
+          if (e instanceof EndOfInputError || e instanceof MissingWordError || e instanceof StackUnderflowError) {
+            return " " + e.message;
           } else {
             throw e;
           }
