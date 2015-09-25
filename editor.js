@@ -17,6 +17,7 @@ function Editor(selector) {
       var code = $input.val();
       $input.val("");
       addLine(code, forth.readLine(code));
+      $editor.scrollTop($editor[0].scrollHeight);
     }
   });
 
