@@ -284,11 +284,14 @@ function Forth() {
   dictionary.add("+", function (stack, dictionary) {
     stack.push(stack.pop() + stack.pop());
   });
-  dictionary.add("cr", function (stack, dictionary) {
-    return "\n";
-  });
   dictionary.add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
+  });
+  readLine(": cr 10 emit ;");
+  readLine(": space 32 emit ;");
+  // can implement this as a readLine when we have loops
+  dictionary.add("spaces", function (stack, dictionary) {
+    return new Array(stack.pop() + 1).join(" ");
   });
 
   return {

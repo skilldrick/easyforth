@@ -152,6 +152,24 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    console.log("Testing space");
+    var output = forth.readLine("1 2 . space space .");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 2   1  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing spaces");
+    var output = forth.readLine("1 2 . 5 spaces .");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 2      1  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
     console.log("Testing emit");
     var output = forth.readLine("99 emit");
     assertEqual(forth.getStack(), " <- Top ");
