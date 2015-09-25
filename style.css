@@ -4,6 +4,7 @@
   font: 12px monospace;
   padding: 5px;
   border: 1px solid black;
+  overflow-y: scroll;
 }
 
 /* newlines in output will be treated like new paragraphs */
