@@ -89,6 +89,14 @@ function runTokenizerTests() {
     assertEqual(tokenizer.nextToken().token, "1");
     assertEqual(tokenizer.nextToken().token, "hello world");
   })();
+
+  (function () {
+    console.log("Testing comment tokenizing");
+
+    var tokenizer = new Tokenizer(' 1 ( this is a comment ) 2 ');
+    assertEqual(tokenizer.nextToken().token, "1");
+    assertEqual(tokenizer.nextToken().token, "2");
+  })();
 }
 
 function runForthTests() {

@@ -108,9 +108,20 @@ function Tokenizer(input) {
     }
   }
 
+  // Does input have these tokens at this index?
+  function hasTokens(tokens, startIndex) {
+    for (var i = 0; i < tokens.length; i++) {
+      if (input[startIndex + i] != tokens[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   function nextToken() {
     skipWhitespace();
-    var isString = input[index] === '.' && input[index + 1] === '"';
+    var isString = hasTokens('." ', index);
+    var isComment = hasTokens('( ', index);
 
     var token = "";
     if (isString) {
@@ -120,6 +131,14 @@ function Tokenizer(input) {
         index++;
       }
       index++; // skip over final "
+    } else if (isComment) {
+      index += 2; // skip over ( and space
+      while (input[index] !== ')' && index < length) {
+        index++;
+      }
+
+      index++; // skip over final )
+      return nextToken(); // ignore this token and return the next one
     } else {
       while (validToken.test(input[index]) && index < length) {
         token += input[index];
