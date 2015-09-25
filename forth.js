@@ -56,7 +56,7 @@ function Dictionary() {
   var dict = [];
 
   function add(word, definition) {
-    dict.unshift([word, definition]);
+    dict.unshift([word.toLowerCase(), definition]);
   }
 
   // Missing key returns null
