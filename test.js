@@ -125,6 +125,92 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    console.log("Testing *");
+    forth.readLine("10");
+    forth.readLine("22 4 *");
+    assertEqual(forth.getStack(), "10 88 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing /");
+    forth.readLine("10");
+    forth.readLine("22 4 /");
+    assertEqual(forth.getStack(), "10 5 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing mod");
+    forth.readLine("10");
+    forth.readLine("22 4 mod");
+    assertEqual(forth.getStack(), "10 2 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing /mod");
+    forth.readLine("10");
+    forth.readLine("22 4 /mod");
+    assertEqual(forth.getStack(), "10 2 5 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing swap");
+    forth.readLine("10 5");
+    assertEqual(forth.getStack(), "10 5 <- Top ");
+    forth.readLine("swap");
+    assertEqual(forth.getStack(), "5 10 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing dup");
+    forth.readLine("10 5");
+    assertEqual(forth.getStack(), "10 5 <- Top ");
+    forth.readLine("dup");
+    assertEqual(forth.getStack(), "10 5 5 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing over");
+    forth.readLine("10 5");
+    assertEqual(forth.getStack(), "10 5 <- Top ");
+    forth.readLine("over");
+    assertEqual(forth.getStack(), "10 5 10 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing rot");
+    forth.readLine("1 2 3");
+    assertEqual(forth.getStack(), "1 2 3 <- Top ");
+    forth.readLine("rot");
+    assertEqual(forth.getStack(), "2 3 1 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing drop");
+    forth.readLine("1 2 3");
+    assertEqual(forth.getStack(), "1 2 3 <- Top ");
+    forth.readLine("drop");
+    assertEqual(forth.getStack(), "1 2 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
     console.log("Testing .");
     var output = forth.readLine("1 2 3 .");
     assertEqual(forth.getStack(), "1 2 <- Top ");

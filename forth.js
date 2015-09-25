@@ -303,6 +303,31 @@ function Forth() {
   dictionary.add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
   });
+  dictionary.add("swap", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop();
+    stack.push(a);
+    stack.push(b);
+  });
+  dictionary.add("dup", function (stack, dictionary) {
+    var a = stack.pop();
+    stack.push(a);
+    stack.push(a);
+  });
+  dictionary.add("over", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop();
+    stack.push(b);
+    stack.push(a);
+    stack.push(b);
+  });
+  dictionary.add("rot", function (stack, dictionary) {
+    var a = stack.pop(), b = stack.pop(), c = stack.pop();
+    stack.push(b);
+    stack.push(a);
+    stack.push(c);
+  });
+  dictionary.add("drop", function (stack, dictionary) {
+    stack.pop();
+  });
   readLine(": cr 10 emit ;");
   readLine(": space 32 emit ;");
   // can implement this as a readLine when we have loops
