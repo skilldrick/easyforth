@@ -46,17 +46,22 @@ function Definition(name, dictionary) {
 
       toExecute.forEach(function (action) {
         if (action.isControlCode) {
+          var parentShouldExecute = shouldExecute(controlStack.peek());
           switch (action.code) {
             case "if":
-              var parentShouldExecute = shouldExecute(controlStack.peek());
-              // keep track of if we're in a non-executing outer scope.
-              // if so, don't pop the stack
-              controlStack.push({
-                parentShouldExecute: parentShouldExecute,
-                inConditional: true,
-                inIf: true,
-                trueCondition: parentShouldExecute && stack.pop() !== FALSE
-              });
+              if (parentShouldExecute) {
+                controlStack.push({
+                  parentShouldExecute: true,
+                  inConditional: true,
+                  inIf: true,
+                  trueCondition: stack.pop() !== FALSE
+                });
+              } else {
+                controlStack.push({
+                  parentShouldExecute: false,
+                  inConditional: true
+                });
+              }
               break;
             case "else":
               controlStack.peek().inIf = false;
