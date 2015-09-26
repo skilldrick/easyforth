@@ -60,7 +60,7 @@ function Forth() {
 
       if (tokenizer.isDefinitionEnd()) {
         endDefinition();
-        currentDefinition.compile();
+        currentDefinition.addToDictionary();
         return "  ok";
       }
     } else {
