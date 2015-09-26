@@ -1,10 +1,20 @@
 .editor {
   width: 500px;
-  height: 300px;
   font: 12px monospace;
   padding: 5px;
   border: 1px solid black;
+}
+
+.editor .text {
+  height: 303px;
   overflow-y: scroll;
+}
+
+.editor .stack-viewer {
+  padding: 5px;
+  border: 1px solid black;
+  margin-bottom: 5px;
+  overflow-x: scroll;
 }
 
 /* newlines in output will be treated like new paragraphs */

@@ -2,8 +2,9 @@ function Editor(selector) {
   var forth = new Forth();
 
   var $editor = $(selector);
-  var $prevLines = $editor.find(".prev-lines");
-  var $input = $editor.find(".input");
+  var $text = $editor.find(".text");
+  var $prevLines = $text.find(".prev-lines");
+  var $input = $text.find(".input");
 
   function addLine(code, output) {
     var $codeSpan = $("<span>").addClass("code").text(code);
@@ -18,11 +19,12 @@ function Editor(selector) {
     code.split("\n").forEach(function (codeLine) {
       addLine(codeLine, forth.readLine(codeLine));
     });
+    $(".stack-viewer").text(forth.getStack());
     $input.val("");
   }
 
   function adjustScroll() {
-    $editor.scrollTop($editor[0].scrollHeight);
+    $text.scrollTop($text[0].scrollHeight);
   }
 
   $input.on("keydown", function (e) {
@@ -33,9 +35,9 @@ function Editor(selector) {
     }
   });
 
-  $editor.click(function () {
+  $text.click(function () {
     $input.focus();
   });
 }
 
-var editor = Editor("#text");
+var editor = Editor(".editor");
