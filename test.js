@@ -329,6 +329,24 @@ function runForthTests() {
     assertEqual(output, " foo ? "); // output error
   })();
 
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing if/else/then with true condition");
+    forth.readLine(": foo  -1 if 1 else 2 then 3 ; ");
+    forth.readLine("foo");
+    assertEqual(forth.getStack(), "1 3 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing if/else/then with false condition");
+    forth.readLine(": foo  0 if 1 else 2 then 3 ; ");
+    forth.readLine("foo");
+    assertEqual(forth.getStack(), "2 3 <- Top ");
+  })();
+
 }
 
 // Wow such test runner

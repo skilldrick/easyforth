@@ -1,3 +1,13 @@
+var FALSE = 0;
+var TRUE = -1;
+
+function controlCode(code) {
+  return {
+    isControlCode: true,
+    code: code
+  };
+}
+
 function StackUnderflowError() {
   this.message = "Stack underflow";
 }
@@ -175,9 +185,13 @@ function Definition(name, dictionary) {
     var word = token.token;
 
     if (definition !== null) {
-      toExecute.push(function (stack, dictionary) {
-        return definition(stack, dictionary);
-      });
+      if (definition.isControlCode) {
+        toExecute.push(definition);
+      } else {
+        toExecute.push(function (stack, dictionary) {
+          return definition(stack, dictionary);
+        });
+      }
     } else if (isNumber(word)) {
       toExecute.push(function (stack, dictionary) {
         stack.push(+word);
@@ -194,8 +208,44 @@ function Definition(name, dictionary) {
   function compile() {
     dictionary.add(name, function (stack, dictionary) {
       var output = "";
+      var controlCode = "";
+      var inConditional = false;
+      var trueCondition = false;
+      var inIf = false;
+      var inElse = false;
+
       toExecute.forEach(function (action) {
-        output += getString(action(stack, dictionary));
+        if (action.isControlCode) {
+          switch (action.code) {
+            case "if":
+              inConditional = true;
+              inIf = true;
+              inElse = false;
+              trueCondition = stack.pop() !== FALSE;
+              break;
+            case "else":
+              inIf = false;
+              inElse = true;
+              break;
+            case "then":
+              inConditional = false;
+              inIf = false;
+              inElse = false;
+              break;
+          }
+        } else {
+          // Execute if not in a conditional or in the if part when true
+          // or in the else part when false
+          var shouldExecute = !inConditional ||
+            ((trueCondition && inIf) || (!trueCondition && inElse));
+          console.log('inConditional', inConditional, 'trueCondition', trueCondition, 'inIf', inIf, 'inElse', inElse);
+          console.log('shouldExecute', shouldExecute);
+
+          if (shouldExecute) {
+            var result = action(stack, dictionary);
+            output += getString(result);
+          }
+        }
       });
       return output;
     });
@@ -320,7 +370,7 @@ function Forth() {
     stack.push(Math.floor(b % a));
   });
   dictionary.add("=", function (stack, dictionary) {
-    stack.push(stack.pop() === stack.pop() ? "-1" : "0");
+    stack.push(stack.pop() === stack.pop() ? TRUE : FALSE);
   });
   dictionary.add("emit", function (stack, dictionary) {
     return String.fromCharCode(stack.pop());
@@ -350,6 +400,9 @@ function Forth() {
   dictionary.add("drop", function (stack, dictionary) {
     stack.pop();
   });
+  dictionary.add("if", controlCode("if"));
+  dictionary.add("else", controlCode("else"));
+  dictionary.add("then", controlCode("then"));
   readLine(": cr 10 emit ;");
   readLine(": space 32 emit ;");
   // can implement this as a readLine when we have loops
