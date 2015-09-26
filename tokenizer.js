@@ -26,6 +26,7 @@ function tokenize(input) {
     skipWhitespace();
     var isString = hasTokens('." ', index);
     var isParenComment = hasTokens('( ', index);
+    var isSlashComment = hasTokens('\\ ', index);
 
     var token = "";
     if (isString) {
@@ -43,6 +44,8 @@ function tokenize(input) {
 
       index++; // skip over final )
       return getNextToken(); // ignore this token and return the next one
+    } else if (isSlashComment) {
+      throw new EndOfInputError();
     } else {
       while (validToken.test(input[index]) && index < length) {
         token += input[index];

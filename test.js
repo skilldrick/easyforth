@@ -91,13 +91,22 @@ function runTokenizerTests() {
   })();
 
   (function () {
-    console.log("Testing comment tokenizing");
+    console.log("Testing paren comment tokenizing");
 
     var tokenizer = new Tokenizer(' 1 ( this is a comment ) 2 ');
     assertEqual(tokenizer.nextToken().token, "1");
     assertEqual(tokenizer.nextToken().token, "2");
+    assert(!tokenizer.hasMore(), "tokenizer should not have more");
 
     tokenizer = new Tokenizer('( this is a comment )');
+    assert(!tokenizer.hasMore(), "tokenizer should not have more");
+  })();
+
+  (function () {
+    console.log("Testing slash comment tokenizing");
+
+    var tokenizer = new Tokenizer(' 1 \\ this is a comment 2 ');
+    assertEqual(tokenizer.nextToken().token, "1");
     assert(!tokenizer.hasMore(), "tokenizer should not have more");
   })();
 }

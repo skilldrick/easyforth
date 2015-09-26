@@ -1,4 +1,2 @@
 * Implement useful subset of preset definitions
 * loops
-* Comment tokenizing doesn't work when comment is at end of line
-  - also \ comment not implemented
