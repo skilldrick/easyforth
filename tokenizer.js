@@ -1,24 +1,9 @@
-function Tokenizer(input) {
+function tokenize(input) {
   var index = 0;
   var length = input.length;
   var stringMode = false;
   var whitespace = /\s+/;
   var validToken = /\S+/;
-  var definitionStart = /^\s*:/;
-  var definitionEnd = /;\s*$/;
-
-  function hasMore() {
-    // Is there any non-whitespace remaining in the input?
-    return !!input.slice(index).match(validToken);
-  }
-
-  function isDefinitionStart() {
-    return input.match(definitionStart);
-  }
-
-  function isDefinitionEnd() {
-    return input.match(definitionEnd);
-  }
 
   function skipWhitespace() {
     // Skip over leading whitespace
@@ -37,7 +22,7 @@ function Tokenizer(input) {
     return true;
   }
 
-  function nextToken() {
+  function getNextToken() {
     skipWhitespace();
     var isString = hasTokens('." ', index);
     var isParenComment = hasTokens('( ', index);
@@ -57,7 +42,7 @@ function Tokenizer(input) {
       }
 
       index++; // skip over final )
-      return nextToken(); // ignore this token and return the next one
+      return getNextToken(); // ignore this token and return the next one
     } else {
       while (validToken.test(input[index]) && index < length) {
         token += input[index];
@@ -75,6 +60,49 @@ function Tokenizer(input) {
     };
 
     return returnObject;
+  }
+
+  var allTokens = [];
+  try {
+    while (true) {
+      allTokens.push(getNextToken());
+    }
+  } catch (e) {
+    if (!e instanceof EndOfInputError) {
+      throw e;
+    }
+  }
+
+  return allTokens;
+}
+
+function Tokenizer(input) {
+  var definitionStart = /^\s*:/;
+  var definitionEnd = /;\s*$/;
+
+  // Convert tokens to array to simplify things
+  var allTokens = tokenize(input);
+  var tokenIndex = 0;
+
+  function isDefinitionStart() {
+    return input.match(definitionStart);
+  }
+
+  function isDefinitionEnd() {
+    return input.match(definitionEnd);
+  }
+
+  function hasMore() {
+    return tokenIndex < allTokens.length;
+  }
+
+  function nextToken() {
+    if (!hasMore()) {
+      throw new EndOfInputError();
+    }
+    var token = allTokens[tokenIndex];
+    tokenIndex++;
+    return token;
   }
 
   return {

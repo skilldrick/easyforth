@@ -96,6 +96,9 @@ function runTokenizerTests() {
     var tokenizer = new Tokenizer(' 1 ( this is a comment ) 2 ');
     assertEqual(tokenizer.nextToken().token, "1");
     assertEqual(tokenizer.nextToken().token, "2");
+
+    tokenizer = new Tokenizer('( this is a comment )');
+    assert(!tokenizer.hasMore(), "tokenizer should not have more");
   })();
 }
 
