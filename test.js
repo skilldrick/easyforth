@@ -386,11 +386,11 @@ function runForthTests() {
     console.log("Testing complex nested if/else/then");
     // example from http://www.forth.com/starting-forth/sf4/sf4.html
     forth.readLine(': eggsize   dup  18 < if  ." reject "      else');
-      forth.readLine('            dup  21 < if  ." small "       else');
-        forth.readLine('            dup  24 < if  ." medium "      else');
-          forth.readLine('            dup  27 < if  ." large "       else');
-            forth.readLine('            dup  30 < if  ." extra large " else');
-              forth.readLine('                    ." error "');
+    forth.readLine('            dup  21 < if  ." small "       else');
+    forth.readLine('            dup  24 < if  ." medium "      else');
+    forth.readLine('            dup  27 < if  ." large "       else');
+    forth.readLine('            dup  30 < if  ." extra large " else');
+    forth.readLine('                    ." error "');
     forth.readLine('            then then then then then drop ;');
 
     var output = forth.readLine('23 eggsize');
