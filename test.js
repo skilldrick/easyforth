@@ -371,6 +371,40 @@ function runForthTests() {
     assertEqual(forth.getStack(), "2 3 <- Top ");
   })();
 
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing simple nested if/else/then");
+    forth.readLine(": foo  0 if 0 else -1 if 1 else 2 then then ; ");
+    forth.readLine("foo");
+    assertEqual(forth.getStack(), "1 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing complex nested if/else/then");
+    // example from http://www.forth.com/starting-forth/sf4/sf4.html
+    forth.readLine(': eggsize   dup  18 < if  ." reject "      else');
+      forth.readLine('            dup  21 < if  ." small "       else');
+        forth.readLine('            dup  24 < if  ." medium "      else');
+          forth.readLine('            dup  27 < if  ." large "       else');
+            forth.readLine('            dup  30 < if  ." extra large " else');
+              forth.readLine('                    ." error "');
+    forth.readLine('            then then then then then drop ;');
+
+    var output = forth.readLine('23 eggsize');
+    assertEqual(output, " medium  ok");
+
+    output = forth.readLine('29 eggsize');
+    assertEqual(output, " extra large  ok");
+
+    output = forth.readLine('31 eggsize');
+    assertEqual(output, " error  ok");
+
+    assertEqual(forth.getStack(), " <- Top ");
+  })();
+
 }
 
 // Wow such test runner

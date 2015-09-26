@@ -131,7 +131,7 @@ function Tokenizer(input) {
   function nextToken() {
     skipWhitespace();
     var isString = hasTokens('." ', index);
-    var isComment = hasTokens('( ', index);
+    var isParenComment = hasTokens('( ', index);
 
     var token = "";
     if (isString) {
@@ -141,7 +141,7 @@ function Tokenizer(input) {
         index++;
       }
       index++; // skip over final "
-    } else if (isComment) {
+    } else if (isParenComment) {
       index += 2; // skip over ( and space
       while (input[index] !== ')' && index < length) {
         index++;
@@ -205,43 +205,48 @@ function Definition(name, dictionary) {
     }
   }
 
+  function shouldExecute(context) {
+    context = context || {};
+    return !context.inConditional ||
+      (context.parentShouldExecute &&
+        (context.trueCondition === context.inIf));
+
+  }
+
   function compile() {
     dictionary.add(name, function (stack, dictionary) {
+      var controlStack = []; // used for keeping track of control structures
+      controlStack.peek = function () {
+        return this[this.length - 1];
+      };
+
       var output = "";
-      var controlCode = "";
-      var inConditional = false;
-      var trueCondition = false;
-      var inIf = false;
-      var inElse = false;
 
       toExecute.forEach(function (action) {
         if (action.isControlCode) {
           switch (action.code) {
             case "if":
-              inConditional = true;
-              inIf = true;
-              inElse = false;
-              trueCondition = stack.pop() !== FALSE;
+              var parentShouldExecute = shouldExecute(controlStack.peek());
+              // keep track of if we're in a non-executing outer scope.
+              // if so, don't pop the stack
+              controlStack.push({
+                parentShouldExecute: parentShouldExecute,
+                inConditional: true,
+                inIf: true,
+                trueCondition: parentShouldExecute && stack.pop() !== FALSE
+              });
               break;
             case "else":
-              inIf = false;
-              inElse = true;
+              controlStack.peek().inIf = false;
               break;
             case "then":
-              inConditional = false;
-              inIf = false;
-              inElse = false;
+              controlStack.pop();
               break;
           }
         } else {
           // Execute if not in a conditional or in the if part when true
           // or in the else part when false
-          var shouldExecute = !inConditional ||
-            ((trueCondition && inIf) || (!trueCondition && inElse));
-          console.log('inConditional', inConditional, 'trueCondition', trueCondition, 'inIf', inIf, 'inElse', inElse);
-          console.log('shouldExecute', shouldExecute);
-
-          if (shouldExecute) {
+          if (shouldExecute(controlStack.peek())) {
             var result = action(stack, dictionary);
             output += getString(result);
           }
