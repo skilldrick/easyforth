@@ -35,12 +35,12 @@ function assertException(func, message) {
 }
 
 function runStackTests() {
-  var stack = Stack();
+  var stack = Stack('test stack');
 
   stack.push(5);
 
   console.log("Testing pop");
-  assertEqual(stack.pop(), 5, "Pop should be 5");
+  assertEqual(stack.pop(), 5);
 
   assertException(function () {
     stack.pop();
@@ -50,6 +50,10 @@ function runStackTests() {
   stack.push(1);
   stack.push(2);
   stack.push(3);
+  assertEqual(stack.print(), "1 2 3 <- Top ");
+
+  console.log("Testing peek");
+  assertEqual(stack.peek(), 3);
   assertEqual(stack.print(), "1 2 3 <- Top ");
 }
 
