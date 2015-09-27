@@ -37,8 +37,11 @@ function Editor(selector) {
     }
   });
 
-  $text.click(function () {
-    $input.focus();
+  $editor.click(function (e) {
+    // Don't include clicks on prev lines or we won't be able to select that text
+    if ($(e.target).closest('.prev-lines').length === 0) {
+      $input.focus();
+    }
   });
 }
 
