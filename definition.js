@@ -39,13 +39,12 @@ function compile(dictionary, toCompile) {
             currentControlStructure = currentControlStructure.parentControlStructure;
             break;
           case "do":
-            currentControlStructure = new Loop(currentControlStructure, currentControlStructure);
+            currentControlStructure = new Loop(currentContext, currentControlStructure);
             currentContext.push(currentControlStructure);
             // context is conditional consequent now
             currentContext = currentControlStructure.body;
             break;
         }
-
       } else {
         currentContext.push(action);
       }
