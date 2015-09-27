@@ -41,7 +41,7 @@ function compile(dictionary, toCompile) {
           case "do":
             currentControlStructure = new Loop(currentContext, currentControlStructure);
             currentContext.push(currentControlStructure);
-            // context is conditional consequent now
+            // context is loop body now
             currentContext = currentControlStructure.body;
             break;
         }
@@ -90,7 +90,7 @@ function compile(dictionary, toCompile) {
 function DefinitionBuilder(name, dictionary) {
   var toCompile = [];
 
-  // This is currently copied from Forth so don't do that
+  // TODO: This is currently copied from Forth so don't do that
   function addWord(token) {
     var definition = dictionary.lookup(token.value);
     var word = token.value;

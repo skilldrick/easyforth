@@ -25,7 +25,6 @@ function Forth() {
 
     var word = token.value;
 
-    // TODO: find a better name for "definition" here
     var definition = dictionary.lookup(word);
 
     if (definition !== null) {
