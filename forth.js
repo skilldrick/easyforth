@@ -7,6 +7,17 @@ function Forth() {
   var returnStack = Stack('Return Stack');
   var dictionary = Dictionary();
 
+  // Throw if error is not of one of these types
+  function throwIfNot(e, errorTypes) {
+    var shouldHandle = errorTypes.some(function (errorType) {
+      return e instanceof errorType;
+    });
+
+    if (!shouldHandle) {
+      throw e;
+    }
+  }
+
   function processWord(token) {
     if (token.isStringLiteral) {
       return "";
@@ -44,13 +55,10 @@ function Forth() {
         try {
           currentDefinition.addWord(tokenizer.nextToken());
         } catch (e) {
-          if (e instanceof EndOfInputError || e instanceof MissingWordError) {
-            inDefinition = false;
-            currentDefinition = null;
-            return " " + e.message;
-          } else {
-            throw e;
-          }
+          throwIfNot(e, [EndOfInputError, MissingWordError]);
+          inDefinition = false;
+          currentDefinition = null;
+          return " " + e.message;
         }
       }
 
@@ -67,11 +75,8 @@ function Forth() {
         try {
           output += processWord(tokenizer.nextToken());
         } catch (e) {
-          if (e instanceof EndOfInputError || e instanceof MissingWordError || e instanceof StackUnderflowError) {
-            return " " + e.message;
-          } else {
-            throw e;
-          }
+          throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
+          return " " + e.message;
         }
       }
 
