@@ -87,7 +87,7 @@ function compile(dictionary, toCompile) {
   };
 }
 
-function Definition(name, dictionary) {
+function DefinitionBuilder(name, dictionary) {
   var toCompile = [];
 
   // This is currently copied from Forth so don't do that

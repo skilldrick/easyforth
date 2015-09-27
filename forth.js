@@ -7,14 +7,6 @@ function Forth() {
   var returnStack = Stack('Return Stack');
   var dictionary = Dictionary();
 
-  function startDefinition() {
-    inDefinition = true;
-  }
-
-  function endDefinition() {
-    inDefinition = false;
-  }
-
   function processWord(token) {
     if (token.isStringLiteral) {
       return "";
@@ -40,10 +32,10 @@ function Forth() {
     var tokenizer = Tokenizer(line);
 
     if (tokenizer.isDefinitionStart()) {
-      startDefinition();
+      inDefinition = true;
       tokenizer.nextToken(); // drop :
       var definitionName = tokenizer.nextToken().value;
-      currentDefinition = new Definition(definitionName, dictionary);
+      currentDefinition = new DefinitionBuilder(definitionName, dictionary);
     }
 
     // The duplication between this case and the other is pretty bad
@@ -53,7 +45,7 @@ function Forth() {
           currentDefinition.addWord(tokenizer.nextToken());
         } catch (e) {
           if (e instanceof EndOfInputError || e instanceof MissingWordError) {
-            endDefinition();
+            inDefinition = false;
             currentDefinition = null;
             return " " + e.message;
           } else {
@@ -63,11 +55,12 @@ function Forth() {
       }
 
       if (tokenizer.isDefinitionEnd()) {
-        endDefinition();
         currentDefinition.addToDictionary();
+        inDefinition = false;
+        currentDefinition = null;
         return "  ok";
       }
-    } else {
+    } else { // not in definition, i.e. interactive mode
       var output = "";
 
       while (tokenizer.hasMore()) {
