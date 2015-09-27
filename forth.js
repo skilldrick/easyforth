@@ -39,6 +39,12 @@ function Forth() {
     return "";
   }
 
+  function eachToken(tokenizer, callback) {
+    while (tokenizer.hasMore()) {
+      callback();
+    }
+  }
+
   function readLine(line) {
     var tokenizer = Tokenizer(line);
 
@@ -49,17 +55,16 @@ function Forth() {
       currentDefinition = new DefinitionBuilder(definitionName, dictionary);
     }
 
-    // The duplication between this case and the other is pretty bad
     if (inDefinition) {
-      while (tokenizer.hasMore()) {
-        try {
+      try {
+        eachToken(tokenizer, function () {
           currentDefinition.addWord(tokenizer.nextToken());
-        } catch (e) {
-          throwIfNot(e, [EndOfInputError, MissingWordError]);
-          inDefinition = false;
-          currentDefinition = null;
-          return " " + e.message;
-        }
+        });
+      } catch (e) {
+        throwIfNot(e, [EndOfInputError, MissingWordError]);
+        inDefinition = false;
+        currentDefinition = null;
+        return " " + e.message;
       }
 
       if (tokenizer.isDefinitionEnd()) {
@@ -71,13 +76,13 @@ function Forth() {
     } else { // not in definition, i.e. interactive mode
       var output = "";
 
-      while (tokenizer.hasMore()) {
-        try {
+      try {
+        eachToken(tokenizer, function () {
           output += processWord(tokenizer.nextToken());
-        } catch (e) {
-          throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
-          return " " + e.message;
-        }
+        });
+      } catch (e) {
+        throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
+        return " " + e.message;
       }
 
       return " " + output + " ok";
