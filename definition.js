@@ -96,15 +96,15 @@ function Definition(name, dictionary) {
     var definition = dictionary.lookup(token.token);
     var word = token.token;
 
-    if (definition !== null) {
+    if (token.string) {
+      toCompile.push(function (stack, dictionary, returnStack) {
+        return word;
+      });
+    } else if (definition !== null) {
       toCompile.push(definition);
     } else if (isNumber(word)) {
       toCompile.push(function (stack, dictionary, returnStack) {
         stack.push(+word);
-      });
-    } else if (token.string) {
-      toCompile.push(function (stack, dictionary, returnStack) {
-        return word;
       });
     } else {
       invalidWord(word);

@@ -3,8 +3,8 @@ function Dictionary() {
   // need to be unshifted. This is usually a linked list, but meh
   var dict = [];
 
-  function add(word, definition) {
-    dict.unshift([word.toLowerCase(), definition]);
+  function add(name, definition) {
+    dict.unshift([name.toLowerCase(), definition]);
   }
 
   // Missing key returns null

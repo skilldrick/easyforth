@@ -3,8 +3,8 @@
 function Forth() {
   var inDefinition = false;
   var currentDefinition = null;
-  var stack = Stack();
-  var returnStack = Stack();
+  var stack = Stack('Argument Stack');
+  var returnStack = Stack('Return Stack');
   var dictionary = Dictionary();
 
   function startDefinition() {
@@ -185,6 +185,9 @@ function Forth() {
 
   readLine(": space  32 emit ;");
   readLine(": spaces  0 do space loop ;");
+  readLine(": 0=  0 = ;");
+  readLine(": 0<  0 < ;");
+  readLine(": 0>  0 > ;");
 
   return {
     readLine: readLine,
