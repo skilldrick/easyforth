@@ -1,7 +1,10 @@
+'use strict';
+
 function Forth() {
   var inDefinition = false;
   var currentDefinition = null;
   var stack = Stack();
+  var returnStack = Stack();
   var dictionary = Dictionary();
 
   function startDefinition() {
@@ -19,10 +22,11 @@ function Forth() {
 
     var word = token.token;
 
+    // TODO: find a better name for "definition" here
     var definition = dictionary.lookup(word);
 
     if (definition !== null) {
-      return getString(definition(stack, dictionary));
+      return getString(definition(stack, dictionary, returnStack));
     } else if (isNumber(word)) {
       stack.push(+word);
     } else {
@@ -85,96 +89,104 @@ function Forth() {
   }
 
 
-  dictionary.add(".",  function (stack, dictionary) {
+  dictionary.add(".",  function (stack, dictionary, returnStack) {
     return stack.pop() + " ";
   });
 
-  dictionary.add(".s", function (stack, dictionary) {
+  dictionary.add(".s", function (stack, dictionary, returnStack) {
     return "\n" + stack.print();
   });
 
-  dictionary.add("+", function (stack, dictionary) {
+  dictionary.add("+", function (stack, dictionary, returnStack) {
     stack.push(stack.pop() + stack.pop());
   });
 
-  dictionary.add("*", function (stack, dictionary) {
+  dictionary.add("*", function (stack, dictionary, returnStack) {
     stack.push(stack.pop() * stack.pop());
   });
 
-  dictionary.add("/", function (stack, dictionary) {
+  dictionary.add("/", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("/mod", function (stack, dictionary) {
+  dictionary.add("/mod", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(Math.floor(b % a));
     stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("mod", function (stack, dictionary) {
+  dictionary.add("mod", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(Math.floor(b % a));
   });
 
-  dictionary.add("=", function (stack, dictionary) {
+  dictionary.add("=", function (stack, dictionary, returnStack) {
     stack.push(stack.pop() === stack.pop() ? TRUE : FALSE);
   });
 
-  dictionary.add("<", function (stack, dictionary) {
+  dictionary.add("<", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(b < a ? TRUE : FALSE);
   });
 
-  dictionary.add(">", function (stack, dictionary) {
+  dictionary.add(">", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(b > a ? TRUE : FALSE);
   });
 
-  dictionary.add("emit", function (stack, dictionary) {
+  dictionary.add("i", function (stack, dictionary, returnStack) {
+    stack.push(returnStack.peek(1));
+  });
+
+  dictionary.add("j", function (stack, dictionary, returnStack) {
+    stack.push(returnStack.peek(2));
+  });
+
+  dictionary.add("emit", function (stack, dictionary, returnStack) {
     return String.fromCharCode(stack.pop());
   });
 
-  dictionary.add("swap", function (stack, dictionary) {
+  dictionary.add("swap", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(a);
     stack.push(b);
   });
 
-  dictionary.add("dup", function (stack, dictionary) {
+  dictionary.add("dup", function (stack, dictionary, returnStack) {
     var a = stack.pop();
     stack.push(a);
     stack.push(a);
   });
 
-  dictionary.add("over", function (stack, dictionary) {
+  dictionary.add("over", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop();
     stack.push(b);
     stack.push(a);
     stack.push(b);
   });
 
-  dictionary.add("rot", function (stack, dictionary) {
+  dictionary.add("rot", function (stack, dictionary, returnStack) {
     var a = stack.pop(), b = stack.pop(), c = stack.pop();
     stack.push(b);
     stack.push(a);
     stack.push(c);
   });
 
-  dictionary.add("drop", function (stack, dictionary) {
+  dictionary.add("drop", function (stack, dictionary, returnStack) {
     stack.pop();
   });
 
-  dictionary.add("if", controlCode("if"));
-  dictionary.add("else", controlCode("else"));
-  dictionary.add("then", controlCode("then"));
+  ["if", "else", "then", "do", "loop"].forEach(function (code) {
+    dictionary.add(code, controlCode(code));
+  });
 
   readLine(": cr 10 emit ;");
 
   readLine(": space 32 emit ;");
 
   // can implement this as a readLine when we have loops
-  dictionary.add("spaces", function (stack, dictionary) {
+  dictionary.add("spaces", function (stack, dictionary, returnStack) {
     return new Array(stack.pop() + 1).join(" ");
   });
 

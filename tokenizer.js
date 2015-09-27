@@ -1,3 +1,5 @@
+'use strict';
+
 function tokenize(input) {
   var index = 0;
   var length = input.length;

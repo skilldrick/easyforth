@@ -1,3 +1,5 @@
+'use strict';
+
 var FALSE = 0;
 var TRUE = -1;
 

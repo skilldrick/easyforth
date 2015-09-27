@@ -1,3 +1,5 @@
+'use strict';
+
 function Editor(selector) {
   var forth = new Forth();
 

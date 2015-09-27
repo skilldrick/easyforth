@@ -1,40 +1,49 @@
+'use strict';
+
 function compile(dictionary, toCompile) {
-  function Conditional(parentContext, parentConditional) {
+  function Conditional(parentContext, parentControlStructure) {
     this.parentContext = parentContext;
-    this.parentConditional = parentConditional;
+    this.parentControlStructure = parentControlStructure;
     this.consequent = [];
     this.alternative = [];
+  }
+
+  function Loop(parentContext, parentControlStructure) {
+    this.parentContext = parentContext;
+    this.parentControlStructure = parentControlStructure;
+    this.body = [];
   }
 
   function compileConditionals(toCompile) {
     var compiledToExecute = [];
     var currentContext = compiledToExecute;
-    var currentConditional = null;
+    var currentControlStructure = null;
 
     toCompile.forEach(function (action) {
       if (action.isControlCode) {
         switch (action.code) {
           case "if":
-            currentConditional = new Conditional(currentContext, currentConditional);
-            currentContext.push(currentConditional);
+            currentControlStructure = new Conditional(currentContext, currentControlStructure);
+            currentContext.push(currentControlStructure);
             // context is conditional consequent now
-            currentContext = currentConditional.consequent;
+            currentContext = currentControlStructure.consequent;
             break;
           case "else":
             // context is conditional alternative now
-            currentContext = currentConditional.alternative;
+            currentContext = currentControlStructure.alternative;
             break;
           case "then":
-            // context is parent context now
-            currentContext = currentConditional.parentContext;
-            currentConditional = currentConditional.parentConditional;
-            break;
-            /*
-          case "do":
-            break;
           case "loop":
+            // context is parent context now
+            currentContext = currentControlStructure.parentContext;
+            currentControlStructure = currentControlStructure.parentControlStructure;
             break;
-            */
+          case "do":
+            currentControlStructure = new Loop(currentControlStructure, currentControlStructure);
+            currentContext.push(currentControlStructure);
+            // context is conditional consequent now
+            currentContext = currentControlStructure.body;
+            break;
         }
 
       } else {
@@ -45,18 +54,27 @@ function compile(dictionary, toCompile) {
     return compiledToExecute;
   }
 
-  function execute(toExecute, stack, dictionary) {
+  function execute(toExecute, stack, dictionary, returnStack) {
     var output = "";
 
     toExecute.forEach(function (action) {
       if (action instanceof Conditional) {
         if (stack.pop() !== FALSE) {
-          output += execute(action.consequent, stack, dictionary);
+          output += execute(action.consequent, stack, dictionary, returnStack);
         } else {
-          output += execute(action.alternative, stack, dictionary);
+          output += execute(action.alternative, stack, dictionary, returnStack);
+        }
+      } else if (action instanceof Loop) {
+        var startIndex = stack.pop();
+        var endIndex = stack.pop();
+
+        for (var i = startIndex; i < endIndex; i++) {
+          returnStack.push(i);
+          output += execute(action.body, stack, dictionary, returnStack);
+          returnStack.pop();
         }
       } else {
-        var result = action(stack, dictionary);
+        var result = action(stack, dictionary, returnStack);
         output += getString(result);
       }
     });
@@ -64,9 +82,9 @@ function compile(dictionary, toCompile) {
     return output;
   }
 
-  return function (stack, dictionary) {
+  return function (stack, dictionary, returnStack) {
     var toExecute = compileConditionals(toCompile);
-    return execute(toExecute, stack, dictionary);
+    return execute(toExecute, stack, dictionary, returnStack);
   };
 }
 
@@ -81,11 +99,11 @@ function Definition(name, dictionary) {
     if (definition !== null) {
       toCompile.push(definition);
     } else if (isNumber(word)) {
-      toCompile.push(function (stack, dictionary) {
+      toCompile.push(function (stack, dictionary, returnStack) {
         stack.push(+word);
       });
     } else if (token.string) {
-      toCompile.push(function (stack, dictionary) {
+      toCompile.push(function (stack, dictionary, returnStack) {
         return word;
       });
     } else {

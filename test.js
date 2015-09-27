@@ -1,3 +1,5 @@
+'use strict';
+
 var failures = [];
 
 function success() {
@@ -337,7 +339,7 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing multiline :");
-    output = forth.readLine(": add-20  10 + ");
+    var output = forth.readLine(": add-20  10 + ");
     assertEqual(output, ""); // no output here
     output = forth.readLine(" 5 + ");
     assertEqual(output, ""); // no output here
@@ -351,7 +353,7 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing missing words in :");
-    output = forth.readLine(": add-20  10 + foo ");
+    var output = forth.readLine(": add-20  10 + foo ");
     assertEqual(output, " foo ? "); // output error
     output = forth.readLine("5 5 + .");
     assertEqual(output, " 10  ok"); // output because definition has finished
@@ -361,7 +363,7 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing missing words in interpreter");
-    output = forth.readLine("10 10 + foo ");
+    var output = forth.readLine("10 10 + foo ");
     assertEqual(output, " foo ? "); // output error
   })();
 
@@ -395,6 +397,17 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    console.log("Testing simple nested if/else/then with output");
+    forth.readLine(': foo  0 if ." if1 " 0 else ." else1 "');
+    forth.readLine('  -1 if ." if2 " 1 else ." else2 " 2 then then ; ');
+    var output = forth.readLine("foo");
+    assertEqual(forth.getStack(), "1 <- Top ");
+    assertEqual(output, " else1 if2  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
     console.log("Testing complex nested if/else/then");
     // example from http://www.forth.com/starting-forth/sf4/sf4.html
     forth.readLine(': eggsize   dup  18 < if  ." reject "      else');
@@ -415,6 +428,37 @@ function runForthTests() {
     assertEqual(output, " error  ok");
 
     assertEqual(forth.getStack(), " <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing do loop");
+    var output = forth.readLine(': foo  4 0 do ." hello! " i . loop ; ');
+    assertEqual(output, "  ok");
+    output = forth.readLine("foo");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " hello! 0 hello! 1 hello! 2 hello! 3  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing do loop");
+    forth.readLine(': foo  4 0 do ." hello! " loop ; ');
+    var output = forth.readLine("foo");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " hello! hello! hello! hello!  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing nested do loop");
+    forth.readLine(': foo  3 0 do 2 0 do i . j . ."  " loop loop ; ');
+    var output = forth.readLine("foo");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 0 0  1 0  0 1  1 1  0 2  1 2   ok");
   })();
 
 }
