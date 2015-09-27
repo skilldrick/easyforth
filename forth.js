@@ -16,7 +16,7 @@ function Forth() {
   }
 
   function processWord(token) {
-    if (token.string) {
+    if (token.isStringLiteral) {
       return "";
     }
 

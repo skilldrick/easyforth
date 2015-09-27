@@ -26,12 +26,12 @@ function tokenize(input) {
 
   function getNextToken() {
     skipWhitespace();
-    var isString = hasTokens('." ', index);
+    var isStringLiteral = hasTokens('." ', index);
     var isParenComment = hasTokens('( ', index);
     var isSlashComment = hasTokens('\\ ', index);
 
     var token = "";
-    if (isString) {
+    if (isStringLiteral) {
       index += 3; // skip over ." and space
       while (input[index] !== '"' && index < length) {
         token += input[index];
@@ -59,12 +59,10 @@ function tokenize(input) {
       throw new EndOfInputError();
     }
 
-    var returnObject = {
+    return {
       token: token,
-      string: isString
+      isStringLiteral: isStringLiteral
     };
-
-    return returnObject;
   }
 
   var allTokens = [];

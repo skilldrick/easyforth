@@ -95,7 +95,7 @@ function Definition(name, dictionary) {
     var definition = dictionary.lookup(token.token);
     var word = token.token;
 
-    if (token.string) {
+    if (token.isStringLiteral) {
       toCompile.push(function (stack, dictionary, returnStack) {
         return word;
       });
