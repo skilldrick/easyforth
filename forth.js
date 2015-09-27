@@ -181,14 +181,10 @@ function Forth() {
     dictionary.add(code, controlCode(code));
   });
 
-  readLine(": cr 10 emit ;");
+  readLine(": cr  10 emit ;");
 
-  readLine(": space 32 emit ;");
-
-  // can implement this as a readLine when we have loops
-  dictionary.add("spaces", function (stack, dictionary, returnStack) {
-    return new Array(stack.pop() + 1).join(" ");
-  });
+  readLine(": space  32 emit ;");
+  readLine(": spaces  0 do space loop ;");
 
   return {
     readLine: readLine,
