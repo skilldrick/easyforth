@@ -20,7 +20,7 @@ function Forth() {
       return "";
     }
 
-    var word = token.token;
+    var word = token.value;
 
     // TODO: find a better name for "definition" here
     var definition = dictionary.lookup(word);
@@ -42,7 +42,7 @@ function Forth() {
     if (tokenizer.isDefinitionStart()) {
       startDefinition();
       tokenizer.nextToken(); // drop :
-      var definitionName = tokenizer.nextToken().token;
+      var definitionName = tokenizer.nextToken().value;
       currentDefinition = new Definition(definitionName, dictionary);
     }
 

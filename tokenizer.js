@@ -30,11 +30,11 @@ function tokenize(input) {
     var isParenComment = hasTokens('( ', index);
     var isSlashComment = hasTokens('\\ ', index);
 
-    var token = "";
+    var value = "";
     if (isStringLiteral) {
       index += 3; // skip over ." and space
       while (input[index] !== '"' && index < length) {
-        token += input[index];
+        value += input[index];
         index++;
       }
       index++; // skip over final "
@@ -50,17 +50,17 @@ function tokenize(input) {
       throw new EndOfInputError();
     } else {
       while (validToken.test(input[index]) && index < length) {
-        token += input[index];
+        value += input[index];
         index++;
       }
     }
 
-    if (!token) {
+    if (!value) {
       throw new EndOfInputError();
     }
 
     return {
-      token: token,
+      value: value,
       isStringLiteral: isStringLiteral
     };
   }

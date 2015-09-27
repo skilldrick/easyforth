@@ -73,11 +73,11 @@ function runTokenizerTests() {
     console.log("Testing nextToken and hasMore");
     var tokenizer = new Tokenizer(" 1 21 321 ");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken().token, "1");
+    assertEqual(tokenizer.nextToken().value, "1");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken().token, "21");
+    assertEqual(tokenizer.nextToken().value, "21");
     assertEqual(tokenizer.hasMore(), true);
-    assertEqual(tokenizer.nextToken().token, "321");
+    assertEqual(tokenizer.nextToken().value, "321");
     assertEqual(tokenizer.hasMore(), false);
     assertException(function () {
       tokenizer.nextToken();
@@ -88,16 +88,16 @@ function runTokenizerTests() {
     console.log("Testing string tokenizing");
 
     var tokenizer = new Tokenizer(' 1 ." hello world" ');
-    assertEqual(tokenizer.nextToken().token, "1");
-    assertEqual(tokenizer.nextToken().token, "hello world");
+    assertEqual(tokenizer.nextToken().value, "1");
+    assertEqual(tokenizer.nextToken().value, "hello world");
   })();
 
   (function () {
     console.log("Testing paren comment tokenizing");
 
     var tokenizer = new Tokenizer(' 1 ( this is a comment ) 2 ');
-    assertEqual(tokenizer.nextToken().token, "1");
-    assertEqual(tokenizer.nextToken().token, "2");
+    assertEqual(tokenizer.nextToken().value, "1");
+    assertEqual(tokenizer.nextToken().value, "2");
     assert(!tokenizer.hasMore(), "tokenizer should not have more");
 
     tokenizer = new Tokenizer('( this is a comment )');
@@ -108,7 +108,7 @@ function runTokenizerTests() {
     console.log("Testing slash comment tokenizing");
 
     var tokenizer = new Tokenizer(' 1 \\ this is a comment 2 ');
-    assertEqual(tokenizer.nextToken().token, "1");
+    assertEqual(tokenizer.nextToken().value, "1");
     assert(!tokenizer.hasMore(), "tokenizer should not have more");
   })();
 }

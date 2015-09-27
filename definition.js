@@ -92,8 +92,8 @@ function Definition(name, dictionary) {
 
   // This is currently copied from Forth so don't do that
   function addWord(token) {
-    var definition = dictionary.lookup(token.token);
-    var word = token.token;
+    var definition = dictionary.lookup(token.value);
+    var word = token.value;
 
     if (token.isStringLiteral) {
       toCompile.push(function (stack, dictionary, returnStack) {
