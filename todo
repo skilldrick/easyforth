@@ -1,4 +1,6 @@
+* Refactor ugliness
 * Implement useful subset of preset definitions
-* compile should treat block body as unit
-* loops
+* do/+loop begin/until
 * Implement the return stack :O
+* Add variables and constants
+* Add arrays
