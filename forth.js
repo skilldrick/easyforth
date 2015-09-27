@@ -49,6 +49,10 @@ function Forth() {
     }
   }
 
+  function addDefinitionToDictionary(definition) {
+    dictionary.add(definition.name, compile(dictionary, definition.toCompile));
+  }
+
   function readLine(line) {
     var tokenizer = Tokenizer(line);
 
@@ -56,13 +60,13 @@ function Forth() {
       inDefinition = true;
       tokenizer.nextToken(); // drop :
       var definitionName = tokenizer.nextToken().value;
-      currentDefinition = new DefinitionBuilder(definitionName, dictionary);
+      currentDefinition = { name: definitionName, toCompile: [] };
     }
 
     if (inDefinition) {
       try {
         eachTokenAsAction(tokenizer, function (action) {
-          currentDefinition.addWord(action);
+          currentDefinition.toCompile.push(action);
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError]);
@@ -72,7 +76,7 @@ function Forth() {
       }
 
       if (tokenizer.isDefinitionEnd()) {
-        currentDefinition.addToDictionary();
+        addDefinitionToDictionary(currentDefinition);
         inDefinition = false;
         currentDefinition = null;
         return "  ok";

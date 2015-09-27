@@ -85,20 +85,3 @@ function compile(dictionary, toCompile) {
     return execute(toExecute, stack, dictionary, returnStack);
   };
 }
-
-function DefinitionBuilder(name, dictionary) {
-  var toCompile = [];
-
-  function addWord(word) {
-    toCompile.push(word);
-  }
-
-  function addToDictionary() {
-    dictionary.add(name, compile(dictionary, toCompile));
-  }
-
-  return {
-    addWord: addWord,
-    addToDictionary: addToDictionary
-  };
-}
