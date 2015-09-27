@@ -19,7 +19,7 @@
 
 /* newlines in output will be treated like new paragraphs */
 .editor .prev-lines p {
-  white-space: pre;
+  white-space: pre-wrap;
   margin: 0;
   line-height: 1.5em;
 }
