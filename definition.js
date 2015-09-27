@@ -73,8 +73,7 @@ function compile(dictionary, toCompile) {
           returnStack.pop();
         }
       } else {
-        var result = action(stack, dictionary, returnStack);
-        output += getString(result);
+        output += getString(action(stack, dictionary, returnStack));
       }
     });
 
@@ -90,24 +89,8 @@ function compile(dictionary, toCompile) {
 function DefinitionBuilder(name, dictionary) {
   var toCompile = [];
 
-  // TODO: This is currently copied from Forth so don't do that
-  function addWord(token) {
-    var definition = dictionary.lookup(token.value);
-    var word = token.value;
-
-    if (token.isStringLiteral) {
-      toCompile.push(function (stack, dictionary, returnStack) {
-        return word;
-      });
-    } else if (definition !== null) {
-      toCompile.push(definition);
-    } else if (isNumber(word)) {
-      toCompile.push(function (stack, dictionary, returnStack) {
-        stack.push(+word);
-      });
-    } else {
-      invalidWord(word);
-    }
+  function addWord(word) {
+    toCompile.push(word);
   }
 
   function addToDictionary() {

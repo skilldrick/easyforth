@@ -18,29 +18,34 @@ function Forth() {
     }
   }
 
-  function processWord(token) {
-    if (token.isStringLiteral) {
-      return "";
-    }
-
+  function tokenToAction(token) {
     var word = token.value;
-
     var definition = dictionary.lookup(word);
 
-    if (definition !== null) {
-      return getString(definition(stack, dictionary, returnStack));
+    if (token.isStringLiteral) {
+      return function (stack, dictionary, returnStack) {
+        return word;
+      };
+    } else if (definition !== null) {
+      return definition;
     } else if (isNumber(word)) {
-      stack.push(+word);
+      return function (stack, dictionary, returnStack) {
+        stack.push(+word);
+      };
     } else {
       invalidWord(word);
     }
 
-    return "";
+    return function () {
+      return "";
+    };
   }
 
-  function eachToken(tokenizer, callback) {
+  // iterate through tokens, converting to action function
+  function eachTokenAsAction(tokenizer, callback) {
     while (tokenizer.hasMore()) {
-      callback();
+      var action = tokenToAction(tokenizer.nextToken());
+      callback(action);
     }
   }
 
@@ -56,8 +61,8 @@ function Forth() {
 
     if (inDefinition) {
       try {
-        eachToken(tokenizer, function () {
-          currentDefinition.addWord(tokenizer.nextToken());
+        eachTokenAsAction(tokenizer, function (action) {
+          currentDefinition.addWord(action);
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError]);
@@ -76,8 +81,8 @@ function Forth() {
       var output = "";
 
       try {
-        eachToken(tokenizer, function () {
-          output += processWord(tokenizer.nextToken());
+        eachTokenAsAction(tokenizer, function (action) {
+          output += getString(action(stack, dictionary, returnStack));
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
