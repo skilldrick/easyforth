@@ -1,70 +1,77 @@
-function compile(dictionary, toExecute) {
-  function shouldExecute(context) {
-    context = context || {};
-    return !context.inConditional ||
-      (context.parentShouldExecute &&
-        (context.trueCondition === context.inIf));
-
+function compile(dictionary, toCompile) {
+  function Conditional(parentContext, parentConditional) {
+    this.parentContext = parentContext;
+    this.parentConditional = parentConditional;
+    this.consequent = [];
+    this.alternative = [];
   }
 
-  return function (stack, dictionary) {
-    var controlStack = []; // used for keeping track of control structures
-    controlStack.peek = function () {
-      return this[this.length - 1];
-    };
+  function compileConditionals(toCompile) {
+    var compiledToExecute = [];
+    var currentContext = compiledToExecute;
+    var currentConditional = null;
 
+    toCompile.forEach(function (action) {
+      if (action.isControlCode) {
+        switch (action.code) {
+          case "if":
+            currentConditional = new Conditional(currentContext, currentConditional);
+            currentContext.push(currentConditional);
+            // context is conditional consequent now
+            currentContext = currentConditional.consequent;
+            break;
+          case "else":
+            // context is conditional alternative now
+            currentContext = currentConditional.alternative;
+            break;
+          case "then":
+            // context is parent context now
+            currentContext = currentConditional.parentContext;
+            currentConditional = currentConditional.parentConditional;
+            break;
+            /*
+          case "do":
+            break;
+          case "loop":
+            break;
+            */
+        }
+
+      } else {
+        currentContext.push(action);
+      }
+    });
+
+    return compiledToExecute;
+  }
+
+  function execute(toExecute, stack, dictionary) {
     var output = "";
 
     toExecute.forEach(function (action) {
-      if (action.isControlCode) {
-        var parentShouldExecute = shouldExecute(controlStack.peek());
-        switch (action.code) {
-          case "if":
-            if (parentShouldExecute) {
-              controlStack.push({
-                parentShouldExecute: true,
-                inConditional: true,
-                inIf: true,
-                trueCondition: stack.pop() !== FALSE
-              });
-            } else {
-              controlStack.push({
-                parentShouldExecute: false,
-                inConditional: true
-              });
-            }
-            break;
-          case "else":
-            controlStack.peek().inIf = false;
-            break;
-          case "then":
-            controlStack.pop();
-            break;
-          case "do":
-            controlStack.push({
-              parentShouldExecute: parentShouldExecute,
-              inLoop: true
-            });
-            break;
-          case "loop":
-            controlStack.pop();
-            break;
+      if (action instanceof Conditional) {
+        if (stack.pop() !== FALSE) {
+          output += execute(action.consequent, stack, dictionary);
+        } else {
+          output += execute(action.alternative, stack, dictionary);
         }
       } else {
-        // Execute if not in a conditional or in the if part when true
-        // or in the else part when false
-        if (shouldExecute(controlStack.peek())) {
-          var result = action(stack, dictionary);
-          output += getString(result);
-        }
+        var result = action(stack, dictionary);
+        output += getString(result);
       }
     });
+
     return output;
+  }
+
+  return function (stack, dictionary) {
+    var toExecute = compileConditionals(toCompile);
+    return execute(toExecute, stack, dictionary);
   };
 }
 
 function Definition(name, dictionary) {
-  var toExecute = [];
+  var toCompile = [];
 
   // This is currently copied from Forth so don't do that
   function addWord(token) {
@@ -72,19 +79,13 @@ function Definition(name, dictionary) {
     var word = token.token;
 
     if (definition !== null) {
-      if (definition.isControlCode) {
-        toExecute.push(definition);
-      } else {
-        toExecute.push(function (stack, dictionary) {
-          return definition(stack, dictionary);
-        });
-      }
+      toCompile.push(definition);
     } else if (isNumber(word)) {
-      toExecute.push(function (stack, dictionary) {
+      toCompile.push(function (stack, dictionary) {
         stack.push(+word);
       });
     } else if (token.string) {
-      toExecute.push(function (stack, dictionary) {
+      toCompile.push(function (stack, dictionary) {
         return word;
       });
     } else {
@@ -93,7 +94,7 @@ function Definition(name, dictionary) {
   }
 
   function addToDictionary() {
-    dictionary.add(name, compile(dictionary, toExecute));
+    dictionary.add(name, compile(dictionary, toCompile));
   }
 
   return {

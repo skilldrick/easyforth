@@ -4,10 +4,21 @@
 * Implement the return stack :O
 
 
-": foo  0 if 1 2 3 else 4 5 6 then ;"
+": foo  0 if 1 0 if 10 else 20 then 2 3 else 4 5 6 then ;"
 
 
-"0 if 1 2 3 else 4 5 6 then"
+0 :if 1 0 :if 10 :else 20 :then 2 3 :else 4 5 6 :then
+
+0 IF[SUB[1 0 :if 10 :else 20 :then 2 3], ALT[4 5 6]]
+
+0 IF[SUB[1 0 IF[SUB[10], ALT[20]] 2 3], ALT[4 5 6]]
 
 
-0 if "1 2 3" else "4 5 6" then
+0 if "1 0 if 10 else 20 then 2 3" else "4 5 6" then
+
+0 if [compile "1 0 if 10 else 20 then 2 3"] else [compile "4 5 6"] then
+0 if [compile "1 0 if "10 else 20 then 2 3"] else [compile "4 5 6"] then
+
+
+
+[ 0, 1, 2, { consequent: [1, 2, 3], alternative: [3, 4, 5] }, 
