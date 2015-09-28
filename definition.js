@@ -1,6 +1,6 @@
 'use strict';
 
-function compile(dictionary, toCompile) {
+function compile(dictionary, actions) {
   function Conditional(parentContext, parentControlStructure) {
     this.parentContext = parentContext;
     this.parentControlStructure = parentControlStructure;
@@ -14,12 +14,12 @@ function compile(dictionary, toCompile) {
     this.body = [];
   }
 
-  function compileConditionals(toCompile) {
+  function compileConditionals(actions) {
     var compiledToExecute = [];
     var currentContext = compiledToExecute;
     var currentControlStructure = null;
 
-    toCompile.forEach(function (action) {
+    actions.forEach(function (action) {
       if (action.isControlCode) {
         switch (action.code) {
           case "if":
@@ -81,7 +81,7 @@ function compile(dictionary, toCompile) {
   }
 
   return function (stack, dictionary, returnStack) {
-    var toExecute = compileConditionals(toCompile);
+    var toExecute = compileConditionals(actions);
     return execute(toExecute, stack, dictionary, returnStack);
   };
 }

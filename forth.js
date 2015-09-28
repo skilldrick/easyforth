@@ -50,7 +50,7 @@ function Forth() {
   }
 
   function addDefinitionToDictionary(definition) {
-    dictionary.add(definition.name, compile(dictionary, definition.toCompile));
+    dictionary.add(definition.name, compile(dictionary, definition.actions));
   }
 
   function readLine(line) {
@@ -60,13 +60,13 @@ function Forth() {
       inDefinition = true;
       tokenizer.nextToken(); // drop :
       var definitionName = tokenizer.nextToken().value;
-      currentDefinition = { name: definitionName, toCompile: [] };
+      currentDefinition = { name: definitionName, actions: [] };
     }
 
     if (inDefinition) {
       try {
         eachTokenAsAction(tokenizer, function (action) {
-          currentDefinition.toCompile.push(action);
+          currentDefinition.actions.push(action);
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError]);
