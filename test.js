@@ -39,7 +39,7 @@ function runStackTests() {
 
   stack.push(5);
 
-  console.log("Testing pop");
+  console.log("Testing pop (should cause underflow warning)");
   assertEqual(stack.pop(), 5);
 
   assertException(function () {

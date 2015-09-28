@@ -49,8 +49,9 @@ function Forth() {
     }
   }
 
-  function addDefinitionToDictionary(definition) {
-    dictionary.add(definition.name, compile(dictionary, definition.actions));
+  function addToDictionary(name, actions) {
+    var definition = compile(dictionary, actions);
+    dictionary.add(name, definition);
   }
 
   function readLine(line) {
@@ -76,7 +77,7 @@ function Forth() {
       }
 
       if (tokenizer.isDefinitionEnd()) {
-        addDefinitionToDictionary(currentDefinition);
+        addToDictionary(currentDefinition.name, currentDefinition.actions);
         inDefinition = false;
         currentDefinition = null;
         return "  ok";

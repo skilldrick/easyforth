@@ -13,7 +13,7 @@ function Stack(name) {
       if (arr.length > 0) {
         return arr.pop();
       } else {
-        console.log("Stack underflow in " + name);
+        console.warn("Stack underflow in " + name);
         throw new StackUnderflowError();
       }
     },

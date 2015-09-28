@@ -14,6 +14,8 @@ function compile(dictionary, actions) {
     this.body = [];
   }
 
+  // compileConditionals converts a one-dimensional list of actions interspersed
+  // with controlCodes into a structured format with Loop and Conditional structs
   function compileConditionals(actions) {
     var compiledToExecute = [];
     var currentContext = compiledToExecute;
