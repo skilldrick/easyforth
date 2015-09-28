@@ -7,6 +7,16 @@ function Forth() {
   var returnStack = Stack('Return Stack');
   var dictionary = Dictionary();
 
+  function isNumber(val) {
+    return +val + "" === val;
+  }
+
+  function invalidWord(word) {
+    if (word !== ";") { // Can safely skip ;
+      throw new MissingWordError(word);
+    }
+  }
+
   // Throw if error is not of one of these types
   function throwIfNot(e, errorTypes) {
     var shouldHandle = errorTypes.some(function (errorType) {

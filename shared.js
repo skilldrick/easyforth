@@ -22,15 +22,6 @@ function MissingWordError(word) {
   this.message = word + " ? ";
 }
 
-function isNumber(val) {
-  return +val + "" === val;
-}
-
-function invalidWord(word) {
-  if (word !== ";") { // Can safely skip ;
-    throw new MissingWordError(word);
-  }
-}
 
 // Convert value to string, but undefined to ""
 function getString(output) {
