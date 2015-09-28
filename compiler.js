@@ -7,6 +7,10 @@ function UnbalancedControlStructureError() {
 function compile(dictionary, actions) {
   function Main() {
     this.body = [];
+
+    this.run = function (stack, dictionary, returnStack) {
+      return execute(this.body, stack, dictionary, returnStack);
+    };
   }
 
   function Conditional(parentContext, parentControlStructure) {
@@ -14,12 +18,40 @@ function compile(dictionary, actions) {
     this.parentControlStructure = parentControlStructure;
     this.consequent = [];
     this.alternative = [];
+
+    this.run = function (stack, dictionary, returnStack) {
+      if (stack.pop() !== FALSE) {
+        return execute(this.consequent, stack, dictionary, returnStack);
+      } else {
+        return execute(this.alternative, stack, dictionary, returnStack);
+      }
+    };
   }
 
   function Loop(parentContext, parentControlStructure) {
     this.parentContext = parentContext;
     this.parentControlStructure = parentControlStructure;
     this.body = [];
+
+    this.run = function (stack, dictionary, returnStack) {
+      var startIndex = stack.pop();
+      var endIndex = stack.pop();
+      var output = "";
+
+      for (var i = startIndex; i < endIndex; i++) {
+        returnStack.push(i);
+        output += execute(this.body, stack, dictionary, returnStack);
+        returnStack.pop();
+      }
+
+      return output;
+    };
+  }
+
+  function Action(action) {
+    this.run = function (stack, dictionary, returnStack) {
+      return action(stack, dictionary, returnStack);
+    };
   }
 
   // compileControlStructures converts a one-dimensional list of actions interspersed
@@ -56,7 +88,7 @@ function compile(dictionary, actions) {
             break;
         }
       } else {
-        currentContext.push(action);
+        currentContext.push(new Action(action));
       }
     });
 
@@ -67,33 +99,13 @@ function compile(dictionary, actions) {
     return main;
   }
 
+  // Each action may recursively call execute to execute its children actions
   function execute(toExecute, stack, dictionary, returnStack) {
-    var output = "";
-
-    toExecute.forEach(function (action) {
-      if (action instanceof Main) {
-        output += execute(action.body, stack, dictionary, returnStack);
-      } else if (action instanceof Conditional) {
-        if (stack.pop() !== FALSE) {
-          output += execute(action.consequent, stack, dictionary, returnStack);
-        } else {
-          output += execute(action.alternative, stack, dictionary, returnStack);
-        }
-      } else if (action instanceof Loop) {
-        var startIndex = stack.pop();
-        var endIndex = stack.pop();
-
-        for (var i = startIndex; i < endIndex; i++) {
-          returnStack.push(i);
-          output += execute(action.body, stack, dictionary, returnStack);
-          returnStack.pop();
-        }
-      } else {
-        output += action(stack, dictionary, returnStack);
-      }
+    var output = toExecute.map(function (action) {
+      return action.run(stack, dictionary, returnStack);
     });
 
-    return output;
+    return output.join("");
   }
 
   var main = compileControlStructures(actions);
