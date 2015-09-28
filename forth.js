@@ -1,10 +1,17 @@
 'use strict';
 
+var FALSE = 0;
+var TRUE = -1;
+
 function Forth() {
   // Core structures
   var stack = Stack('Argument Stack');
   var returnStack = Stack('Return Stack');
   var dictionary = Dictionary();
+
+  function MissingWordError(word) {
+    this.message = word + " ? ";
+  }
 
   // Convert token into an action that executes that token's behavior
   function tokenToAction(token) {

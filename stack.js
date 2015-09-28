@@ -1,3 +1,7 @@
+function StackUnderflowError() {
+  this.message = "Stack underflow";
+}
+
 function Stack(name) {
   var arr = [];
 
