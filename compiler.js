@@ -5,11 +5,19 @@ function UnbalancedControlStructureError() {
 }
 
 function compile(dictionary, actions) {
+  function executeActions(actions, stack, dictionary, returnStack) {
+    var output = actions.map(function (action) {
+      return action.execute(stack, dictionary, returnStack);
+    });
+
+    return output.join("");
+  }
+
   function Main() {
     this.body = [];
 
-    this.run = function (stack, dictionary, returnStack) {
-      return execute(this.body, stack, dictionary, returnStack);
+    this.execute = function (stack, dictionary, returnStack) {
+      return executeActions(this.body, stack, dictionary, returnStack);
     };
   }
 
@@ -19,11 +27,11 @@ function compile(dictionary, actions) {
     this.consequent = [];
     this.alternative = [];
 
-    this.run = function (stack, dictionary, returnStack) {
+    this.execute = function (stack, dictionary, returnStack) {
       if (stack.pop() !== FALSE) {
-        return execute(this.consequent, stack, dictionary, returnStack);
+        return executeActions(this.consequent, stack, dictionary, returnStack);
       } else {
-        return execute(this.alternative, stack, dictionary, returnStack);
+        return executeActions(this.alternative, stack, dictionary, returnStack);
       }
     };
   }
@@ -33,14 +41,14 @@ function compile(dictionary, actions) {
     this.parentControlStructure = parentControlStructure;
     this.body = [];
 
-    this.run = function (stack, dictionary, returnStack) {
+    this.execute = function (stack, dictionary, returnStack) {
       var startIndex = stack.pop();
       var endIndex = stack.pop();
       var output = "";
 
       for (var i = startIndex; i < endIndex; i++) {
         returnStack.push(i);
-        output += execute(this.body, stack, dictionary, returnStack);
+        output += executeActions(this.body, stack, dictionary, returnStack);
         returnStack.pop();
       }
 
@@ -49,7 +57,7 @@ function compile(dictionary, actions) {
   }
 
   function Action(action) {
-    this.run = function (stack, dictionary, returnStack) {
+    this.execute = function (stack, dictionary, returnStack) {
       return action(stack, dictionary, returnStack);
     };
   }
@@ -99,21 +107,9 @@ function compile(dictionary, actions) {
     return main;
   }
 
-  // Each action may recursively call execute to execute its children actions
-  function execute(toExecute, stack, dictionary, returnStack) {
-    var output = toExecute.map(function (action) {
-      return action.run(stack, dictionary, returnStack);
-    });
-
-    return output.join("");
-  }
-
   var main = compileControlStructures(actions);
 
-  // TODO: should be able to change this so we're just calling
-  // main.execute which calls each child.execute
-  // rather than this weird double-recursive thing going on right now
   return function (stack, dictionary, returnStack) {
-    return execute([main], stack, dictionary, returnStack);
+    return main.execute(stack, dictionary, returnStack);
   };
 }
