@@ -65,7 +65,13 @@ function tokenize(input) {
     };
   }
 
+  return getNextToken;
+}
+
+function getAllTokens(input) {
+  var getNextToken = tokenize(input);
   var allTokens = [];
+
   try {
     while (true) {
       allTokens.push(getNextToken());
@@ -84,7 +90,7 @@ function Tokenizer(input) {
   var definitionEnd = /;\s*$/;
 
   // Convert tokens to array to simplify things
-  var allTokens = tokenize(input);
+  var allTokens = getAllTokens(input);
   var tokenIndex = 0;
 
   function isDefinitionStart() {
