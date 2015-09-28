@@ -77,7 +77,7 @@ function Forth() {
   }
 
   // Throw if error is not of one of these types
-  function throwIfNot(e, errorTypes) {
+  function throwIfNotOneOf(e, errorTypes) {
     var shouldHandle = errorTypes.some(function (errorType) {
       return e instanceof errorType;
     });
@@ -108,7 +108,7 @@ function Forth() {
           currentDefinition.actions.push(action);
         });
       } catch (e) {
-        throwIfNot(e, [MissingWordError]);
+        throwIfNotOneOf(e, [MissingWordError]);
         currentDefinition = null;
         return " " + e.message;
       }
@@ -129,7 +129,7 @@ function Forth() {
           output += action(stack, dictionary, returnStack);
         });
       } catch (e) {
-        throwIfNot(e, [MissingWordError, StackUnderflowError]);
+        throwIfNotOneOf(e, [MissingWordError, StackUnderflowError]);
         return " " + e.message;
       }
 
