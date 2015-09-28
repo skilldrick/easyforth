@@ -1,5 +1,9 @@
 'use strict';
 
+function UnbalancedControlStructureError() {
+  this.message = "Unbalanced control structure";
+}
+
 function compile(dictionary, actions) {
   function Main() {
     this.body = [];
@@ -56,6 +60,10 @@ function compile(dictionary, actions) {
       }
     });
 
+    if (currentControlStructure !== main) {
+      throw new UnbalancedControlStructureError();
+    }
+
     return main;
   }
 
@@ -88,8 +96,9 @@ function compile(dictionary, actions) {
     return output;
   }
 
+  var main = compileControlStructures(actions);
+
   return function (stack, dictionary, returnStack) {
-    var main = compileControlStructures(actions);
     return execute([main], stack, dictionary, returnStack);
   };
 }

@@ -104,18 +104,18 @@ function Forth() {
           // Add action to list of actions in current definition
           currentDefinition.actions.push(action);
         });
+
+        // If this line is the end of the definition (it includes ;) compile
+        // the current definition and add it to the dictionary
+        if (tokenizer.isDefinitionEnd()) {
+          compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
+          currentDefinition = null;
+          return "  ok";
+        }
       } catch (e) {
-        throwIfNotOneOf(e, [MissingWordError]);
+        throwIfNotOneOf(e, [MissingWordError, UnbalancedControlStructureError]);
         currentDefinition = null;
         return " " + e.message;
-      }
-
-      // If this line is the end of the definition (it includes ;) compile
-      // the current definition and add it to the dictionary
-      if (tokenizer.isDefinitionEnd()) {
-        compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
-        currentDefinition = null;
-        return "  ok";
       }
     } else { // not in definition, i.e. interactive mode
       var output = "";
