@@ -18,14 +18,13 @@ function Tokenizer(input) {
   }
 
   function skipWhitespace() {
-    // Skip over leading whitespace
     while (whitespace.test(input[index]) && index < length) {
       index++;
     }
   }
 
-  // Does input have these tokens at this index?
-  function hasTokens(tokens, startIndex) {
+  // Does input have these characters at this index?
+  function hasCharsAtIndex(tokens, startIndex) {
     for (var i = 0; i < tokens.length; i++) {
       if (input[startIndex + i] != tokens[i]) {
         return false;
@@ -34,35 +33,52 @@ function Tokenizer(input) {
     return true;
   }
 
+  function processString() {
+    var value = "";
+    index += 3; // skip over ." and space
+    while (input[index] !== '"' && index < length) {
+      value += input[index];
+      index++;
+    }
+    index++; // skip over final "
+    return value;
+  }
+
+  function processParenComment() {
+    index += 2; // skip over ( and space
+    while (input[index] !== ')' && index < length) {
+      index++;
+    }
+
+    index++; // skip over final )
+  }
+
+  function processNormalToken() {
+    var value = "";
+    while (validToken.test(input[index]) && index < length) {
+      value += input[index];
+      index++;
+    }
+    return value;
+  }
+
   function getNextToken() {
     skipWhitespace();
-    var isStringLiteral = hasTokens('." ', index);
-    var isParenComment = hasTokens('( ', index);
-    var isSlashComment = hasTokens('\\ ', index);
+    var isStringLiteral = hasCharsAtIndex('." ', index);
+    var isParenComment = hasCharsAtIndex('( ', index);
+    var isSlashComment = hasCharsAtIndex('\\ ', index);
 
     var value = "";
-    if (isStringLiteral) {
-      index += 3; // skip over ." and space
-      while (input[index] !== '"' && index < length) {
-        value += input[index];
-        index++;
-      }
-      index++; // skip over final "
-    } else if (isParenComment) {
-      index += 2; // skip over ( and space
-      while (input[index] !== ')' && index < length) {
-        index++;
-      }
 
-      index++; // skip over final )
+    if (isStringLiteral) {
+      value = processString();
+    } else if (isParenComment) {
+      processParenComment();
       return getNextToken(); // ignore this token and return the next one
     } else if (isSlashComment) {
-      return null;
+      value = null
     } else {
-      while (validToken.test(input[index]) && index < length) {
-        value += input[index];
-        index++;
-      }
+      value = processNormalToken();
     }
 
     if (!value || value === ';') { // don't count end of definition as token

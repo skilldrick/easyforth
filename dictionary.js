@@ -1,9 +1,9 @@
 function Dictionary() {
-  // The dict is searched from beginning to end, so new definitions
-  // need to be unshifted. This is usually a linked list, but meh
   var dict = [];
 
   function add(name, definition) {
+    // The dict is searched from beginning to end, so new definitions
+    // need to be unshifted.
     dict.unshift([name.toLowerCase(), definition]);
   }
 
