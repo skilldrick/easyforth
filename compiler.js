@@ -1,5 +1,42 @@
 'use strict';
 
+/*
+* compile works by first calling compileControlStructures to turn the
+* flat sequence of actions into a nested arrangement of control structures.
+*
+* Main: one body, executed once
+* Conditional: two bodies, executed conditional on top stack value
+* Loop: one body, executed multiple times based on top stack values
+*
+* For example, the following input:
+*
+*    : foo  -1 if 10 0 do i . loop 2 then 1 ;
+*
+* would be transformed into the following structure:
+*
+*    Main {
+*      body: [
+*        Action { -1 },
+*        Conditional {
+*          consequent: [
+*            Action { 10 },
+*            Action { 0 },
+*            Loop {
+*              body: [ Action { i }, Action { . } ]
+*            },
+*            Action { 0 }
+*          ]
+*          alternative: []
+*        },
+*        Action { 1 }
+*      ]
+*    }
+*
+* Each control structure has its own execute method, which (with the help
+* of executeActions) executes the appropriate child control structures.
+*
+*/
+
 function UnbalancedControlStructureError() {
   this.message = "Unbalanced control structure";
 }
@@ -63,7 +100,8 @@ function compile(dictionary, actions) {
   }
 
   // compileControlStructures converts a one-dimensional list of actions interspersed
-  // with controlCodes into a nested format with Loop and Conditional actions
+  // with controlCodes into a nested format with Main, Loop and Conditional structures.
+  // Every action is wrapped in an Action structure.
   function compileControlStructures(actions) {
     var main = new Main();
     var currentContext = main.body;
