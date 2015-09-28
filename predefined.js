@@ -1,4 +1,11 @@
 function addPredefinedWords(dictionary, readLine) {
+  function controlCode(code) {
+    return {
+      isControlCode: true,
+      code: code
+    };
+  }
+
   ["if", "else", "then", "do", "loop"].forEach(function (code) {
     dictionary.add(code, controlCode(code));
   });

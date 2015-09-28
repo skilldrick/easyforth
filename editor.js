@@ -17,10 +17,13 @@ function Editor(selector) {
 
   function readInput() {
     var code = $input.val();
+
     // handle multiple lines - this will only come up when text is pasted
     code.split("\n").forEach(function (codeLine) {
-      addLine(codeLine, forth.readLine(codeLine));
+      var output = forth.readLine(codeLine) || "";
+      addLine(codeLine, output);
     });
+
     $(".stack-viewer").text(forth.getStack());
     $input.val("");
   }

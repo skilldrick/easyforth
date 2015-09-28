@@ -344,9 +344,9 @@ function runForthTests() {
 
     console.log("Testing multiline :");
     var output = forth.readLine(": add-20  10 + ");
-    assertEqual(output, ""); // no output here
+    assert(!output, "No output should be produced");
     output = forth.readLine(" 5 + ");
-    assertEqual(output, ""); // no output here
+    assert(!output, "No output should be produced");
     output = forth.readLine(" 5 + ; ");
     assertEqual(output, "  ok"); // output ok after definition
     forth.readLine("5 add-20");

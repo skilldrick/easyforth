@@ -40,11 +40,32 @@ function Forth() {
     };
   }
 
+  // Convert value to string, but undefined to ""
+  function getString(output) {
+    if (output === undefined) {
+      return "";
+    } else {
+      return "" + output;
+    }
+  }
+
+  function makeActionReturnString(action) {
+    if (action.isControlCode) {
+      // control codes are not functions
+      return action;
+    } else {
+      // If an action returns undefined, make it return a string instead
+      return function (stack, dictionary, returnStack) {
+        return getString(action(stack, dictionary, returnStack));
+      };
+    }
+  }
+
   // iterate through tokens, converting to action function
   function eachTokenAsAction(tokenizer, callback) {
     while (tokenizer.hasMore()) {
-      var action = tokenToAction(tokenizer.nextToken());
-      callback(action);
+      var action = tokenToAction(tokenizer.nextToken())
+      callback(makeActionReturnString(action));
     }
   }
 
@@ -65,36 +86,36 @@ function Forth() {
     }
   }
 
-  // These state variables are shared across multiple calls to readLine,
+  // This variable is shared across multiple calls to readLine,
   // as definitions can span multiple lines
-  var inDefinition = false;
   var currentDefinition = null;
 
+  // Read a line of input. Return value is output for this line.
   function readLine(line) {
     var tokenizer = Tokenizer(line);
 
     if (tokenizer.isDefinitionStart()) {
-      inDefinition = true;
       tokenizer.nextToken(); // drop :
       var definitionName = tokenizer.nextToken().value;
       currentDefinition = { name: definitionName, actions: [] };
     }
 
-    if (inDefinition) {
+    if (currentDefinition) {
       try {
         eachTokenAsAction(tokenizer, function (action) {
+          // Add action to list of actions in current definition
           currentDefinition.actions.push(action);
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError]);
-        inDefinition = false;
         currentDefinition = null;
         return " " + e.message;
       }
 
+      // If this line is the end of the definition (it includes ;) compile
+      // the current definition and add it to the dictionary
       if (tokenizer.isDefinitionEnd()) {
         compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
-        inDefinition = false;
         currentDefinition = null;
         return "  ok";
       }
@@ -103,7 +124,8 @@ function Forth() {
 
       try {
         eachTokenAsAction(tokenizer, function (action) {
-          output += getString(action(stack, dictionary, returnStack));
+          // Execute action and append output
+          output += action(stack, dictionary, returnStack);
         });
       } catch (e) {
         throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
@@ -112,8 +134,6 @@ function Forth() {
 
       return " " + output + " ok";
     }
-
-    return "";
   }
 
   addPredefinedWords(dictionary, readLine);

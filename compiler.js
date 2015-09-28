@@ -15,7 +15,7 @@ function compile(dictionary, actions) {
   }
 
   // compileConditionals converts a one-dimensional list of actions interspersed
-  // with controlCodes into a structured format with Loop and Conditional structs
+  // with controlCodes into a structured format with Loop and Conditional actions
   function compileConditionals(actions) {
     var compiledToExecute = [];
     var currentContext = compiledToExecute;
@@ -75,7 +75,7 @@ function compile(dictionary, actions) {
           returnStack.pop();
         }
       } else {
-        output += getString(action(stack, dictionary, returnStack));
+        output += action(stack, dictionary, returnStack);
       }
     });
 
