@@ -110,6 +110,9 @@ function compile(dictionary, actions) {
 
   var main = compileControlStructures(actions);
 
+  // TODO: should be able to change this so we're just calling
+  // main.execute which calls each child.execute
+  // rather than this weird double-recursive thing going on right now
   return function (stack, dictionary, returnStack) {
     return execute([main], stack, dictionary, returnStack);
   };
