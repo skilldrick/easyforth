@@ -65,7 +65,7 @@ function Tokenizer(input) {
       }
     }
 
-    if (!value) {
+    if (!value || value === ';') { // don't count end of definition as token
       return null;
     }
 

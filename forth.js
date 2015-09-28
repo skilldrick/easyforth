@@ -8,16 +8,6 @@ function Forth() {
 
   // Convert token into an action that executes that token's behavior
   function tokenToAction(token) {
-    function isNumber(val) {
-      return +val + "" === val;
-    }
-
-    function invalidWord(word) {
-      if (word !== ";") { // Can safely skip ;
-        throw new MissingWordError(word);
-      }
-    }
-
     var word = token.value;
     var definition = dictionary.lookup(word);
 
@@ -27,12 +17,12 @@ function Forth() {
       };
     } else if (definition !== null) {
       return definition;
-    } else if (isNumber(word)) {
+    } else if (isFinite(word)) {
       return function (stack, dictionary, returnStack) {
         stack.push(+word);
       };
     } else {
-      invalidWord(word);
+      throw new MissingWordError(word);
     }
 
     return function () {
