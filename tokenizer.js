@@ -1,11 +1,21 @@
 'use strict';
 
-function tokenize(input) {
+function Tokenizer(input) {
   var index = 0;
   var length = input.length;
   var stringMode = false;
   var whitespace = /\s+/;
   var validToken = /\S+/;
+  var definitionStart = /^\s*:/;
+  var definitionEnd = /;\s*$/;
+
+  function isDefinitionStart() {
+    return input.match(definitionStart);
+  }
+
+  function isDefinitionEnd() {
+    return input.match(definitionEnd);
+  }
 
   function skipWhitespace() {
     // Skip over leading whitespace
@@ -47,7 +57,7 @@ function tokenize(input) {
       index++; // skip over final )
       return getNextToken(); // ignore this token and return the next one
     } else if (isSlashComment) {
-      throw new EndOfInputError();
+      return null;
     } else {
       while (validToken.test(input[index]) && index < length) {
         value += input[index];
@@ -56,7 +66,7 @@ function tokenize(input) {
     }
 
     if (!value) {
-      throw new EndOfInputError();
+      return null;
     }
 
     return {
@@ -65,57 +75,11 @@ function tokenize(input) {
     };
   }
 
-  return getNextToken;
-}
-
-function getAllTokens(input) {
-  var getNextToken = tokenize(input);
-  var allTokens = [];
-
-  try {
-    while (true) {
-      allTokens.push(getNextToken());
-    }
-  } catch (e) {
-    if (!e instanceof EndOfInputError) {
-      throw e;
-    }
-  }
-
-  return allTokens;
-}
-
-function Tokenizer(input) {
-  var definitionStart = /^\s*:/;
-  var definitionEnd = /;\s*$/;
-
-  // Convert tokens to array to simplify things
-  var allTokens = getAllTokens(input);
-  var tokenIndex = 0;
-
-  function isDefinitionStart() {
-    return input.match(definitionStart);
-  }
-
-  function isDefinitionEnd() {
-    return input.match(definitionEnd);
-  }
-
-  function hasMore() {
-    return tokenIndex < allTokens.length;
-  }
-
   function nextToken() {
-    if (!hasMore()) {
-      throw new EndOfInputError();
-    }
-    var token = allTokens[tokenIndex];
-    tokenIndex++;
-    return token;
+    return getNextToken();
   }
 
   return {
-    hasMore: hasMore,
     nextToken: nextToken,
     isDefinitionStart: isDefinitionStart,
     isDefinitionEnd: isDefinitionEnd

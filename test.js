@@ -74,18 +74,12 @@ function runDictionaryTests() {
 
 function runTokenizerTests() {
   (function () {
-    console.log("Testing nextToken and hasMore");
+    console.log("Testing nextToken");
     var tokenizer = new Tokenizer(" 1 21 321 ");
-    assertEqual(tokenizer.hasMore(), true);
     assertEqual(tokenizer.nextToken().value, "1");
-    assertEqual(tokenizer.hasMore(), true);
     assertEqual(tokenizer.nextToken().value, "21");
-    assertEqual(tokenizer.hasMore(), true);
     assertEqual(tokenizer.nextToken().value, "321");
-    assertEqual(tokenizer.hasMore(), false);
-    assertException(function () {
-      tokenizer.nextToken();
-    }, "Tokenizer did not throw exception when no more tokens");
+    assertEqual(tokenizer.nextToken(), null);
   })();
 
   (function () {
@@ -102,10 +96,10 @@ function runTokenizerTests() {
     var tokenizer = new Tokenizer(' 1 ( this is a comment ) 2 ');
     assertEqual(tokenizer.nextToken().value, "1");
     assertEqual(tokenizer.nextToken().value, "2");
-    assert(!tokenizer.hasMore(), "tokenizer should not have more");
+    assertEqual(tokenizer.nextToken(), null);
 
     tokenizer = new Tokenizer('( this is a comment )');
-    assert(!tokenizer.hasMore(), "tokenizer should not have more");
+    assertEqual(tokenizer.nextToken(), null);
   })();
 
   (function () {
@@ -113,7 +107,7 @@ function runTokenizerTests() {
 
     var tokenizer = new Tokenizer(' 1 \\ this is a comment 2 ');
     assertEqual(tokenizer.nextToken().value, "1");
-    assert(!tokenizer.hasMore(), "tokenizer should not have more");
+    assertEqual(tokenizer.nextToken(), null);
   })();
 }
 

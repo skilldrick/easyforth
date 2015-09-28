@@ -63,8 +63,9 @@ function Forth() {
 
   // iterate through tokens, converting to action function
   function eachTokenAsAction(tokenizer, callback) {
-    while (tokenizer.hasMore()) {
-      var action = tokenToAction(tokenizer.nextToken())
+    var nextToken;
+    while (nextToken = tokenizer.nextToken()) {
+      var action = tokenToAction(nextToken)
       callback(makeActionReturnString(action));
     }
   }
@@ -107,7 +108,7 @@ function Forth() {
           currentDefinition.actions.push(action);
         });
       } catch (e) {
-        throwIfNot(e, [EndOfInputError, MissingWordError]);
+        throwIfNot(e, [MissingWordError]);
         currentDefinition = null;
         return " " + e.message;
       }
@@ -128,7 +129,7 @@ function Forth() {
           output += action(stack, dictionary, returnStack);
         });
       } catch (e) {
-        throwIfNot(e, [EndOfInputError, MissingWordError, StackUnderflowError]);
+        throwIfNot(e, [MissingWordError, StackUnderflowError]);
         return " " + e.message;
       }
 

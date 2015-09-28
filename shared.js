@@ -7,10 +7,6 @@ function StackUnderflowError() {
   this.message = "Stack underflow";
 }
 
-function EndOfInputError() {
-  this.message = "nextToken called with no more tokens";
-}
-
 function MissingWordError(word) {
   this.message = word + " ? ";
 }
