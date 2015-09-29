@@ -6,7 +6,7 @@ function addPredefinedWords(dictionary, readLine) {
     };
   }
 
-  ["if", "else", "then", "do", "loop"].forEach(function (code) {
+  ["if", "else", "then", "do", "loop", "+loop", "begin", "until"].forEach(function (code) {
     dictionary.add(code, controlCode(code));
   });
 

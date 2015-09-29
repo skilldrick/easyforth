@@ -459,6 +459,26 @@ function runForthTests() {
     assertEqual(output, " 0 0  1 0  0 1  1 1  0 2  1 2   ok");
   })();
 
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing do +loop");
+    forth.readLine(': foo  128 1 do i . i +loop ; ');
+    var output = forth.readLine("foo");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 1 2 4 8 16 32 64  ok");
+  })();
+
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing begin until");
+    forth.readLine(': foo  10 begin dup . 1- dup 0= until drop ; ');
+    var output = forth.readLine("foo");
+    assertEqual(forth.getStack(), " <- Top ");
+    assertEqual(output, " 10 9 8 7 6 5 4 3 2 1  ok");
+  })();
+
 }
 
 // Wow such test runner

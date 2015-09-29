@@ -6,7 +6,7 @@
 *
 * Main: one body, executed once
 * Conditional: two bodies, executed conditional on top stack value
-* Loop: one body, executed multiple times based on top stack values
+* DoLoop: one body, executed multiple times based on top stack values
 *
 * For example, the following input:
 *
@@ -21,7 +21,7 @@
 *          consequent: [
 *            Action { 10 },
 *            Action { 0 },
-*            Loop {
+*            DoLoop {
 *              body: [ Action { i }, Action { . } ]
 *            },
 *            Action { 0 }
@@ -73,21 +73,46 @@ function compile(dictionary, actions) {
     };
   }
 
-  function Loop(parentContext, parentControlStructure) {
+  function DoLoop(parentContext, parentControlStructure) {
     this.parentContext = parentContext;
     this.parentControlStructure = parentControlStructure;
     this.body = [];
+    this.isPlusLoop = false;
 
     this.execute = function (stack, dictionary, returnStack) {
       var startIndex = stack.pop();
       var endIndex = stack.pop();
       var output = "";
+      var i = startIndex;
 
-      for (var i = startIndex; i < endIndex; i++) {
+      while (i < endIndex) {
         returnStack.push(i);
         output += executeActions(this.body, stack, dictionary, returnStack);
         returnStack.pop();
+
+        // +loop increments i by stack value
+        if (this.isPlusLoop) {
+          i += stack.pop();
+        } else { // loop increments i by 1
+          i++;
+        }
       }
+
+      return output;
+    };
+  }
+
+  function BeginUntil(parentContext, parentControlStructure) {
+    this.parentContext = parentContext;
+    this.parentControlStructure = parentControlStructure;
+    this.body = [];
+
+    this.execute = function (stack, dictionary, returnStack) {
+      var output = "";
+
+      do {
+        output += executeActions(this.body, stack, dictionary, returnStack);
+      } while (stack.pop() !== TRUE);
 
       return output;
     };
@@ -99,8 +124,8 @@ function compile(dictionary, actions) {
     };
   }
 
-  // compileControlStructures converts a one-dimensional list of actions interspersed
-  // with controlCodes into a nested format with Main, Loop and Conditional structures.
+  // compileControlStructures converts a one-dimensional list of actions interspersed with
+  // controlCodes into a nested format with Main, DoLoop, BeginUntil, and Conditional structures.
   // Every action is wrapped in an Action structure.
   function compileControlStructures(actions) {
     var main = new Main();
@@ -116,21 +141,32 @@ function compile(dictionary, actions) {
             // context is conditional consequent now
             currentContext = currentControlStructure.consequent;
             break;
+          case "do":
+            currentControlStructure = new DoLoop(currentContext, currentControlStructure);
+            currentContext.push(currentControlStructure);
+            // context is loop body now
+            currentContext = currentControlStructure.body;
+            break;
+          case "begin":
+            currentControlStructure = new BeginUntil(currentContext, currentControlStructure);
+            currentContext.push(currentControlStructure);
+            // context is loop body now
+            currentContext = currentControlStructure.body;
+            break;
           case "else":
             // context is conditional alternative now
             currentContext = currentControlStructure.alternative;
             break;
+          case "+loop":
+            // +loop is special case of loop
+            currentControlStructure.isPlusLoop = true;
+            // fallthrough
           case "then":
           case "loop":
+          case "until":
             // context is parent context now
             currentContext = currentControlStructure.parentContext;
             currentControlStructure = currentControlStructure.parentControlStructure;
-            break;
-          case "do":
-            currentControlStructure = new Loop(currentContext, currentControlStructure);
-            currentContext.push(currentControlStructure);
-            // context is loop body now
-            currentContext = currentControlStructure.body;
             break;
         }
       } else {
