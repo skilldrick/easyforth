@@ -107,14 +107,9 @@ function compile(dictionary, actions) {
     this.parentControlStructure = parentControlStructure;
     this.body = [];
 
-    this.execute = function (stack, dictionary, returnStack) {
-      var output = "";
-
-      do {
-        output += executeActions(this.body, stack, dictionary, returnStack);
-      } while (stack.pop() !== TRUE);
-
-      return output;
+    this.execute = function(stack, dictionary, returnStack, output) {
+      var ret = (output || "") + executeActions(this.body, stack, dictionary, returnStack);
+      return stack.pop() === TRUE ? ret : this.execute(stack, dictionary, returnStack, ret);
     };
   }
 
