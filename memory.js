@@ -26,10 +26,15 @@ function Memory() {
     return memArray[address];
   }
 
+  function allot(cells) {
+    _memPointer += cells;
+  }
+
   return {
     addVariable: addVariable,
     getVariable: getVariable,
     setValue: setValue,
-    getValue: getValue
+    getValue: getValue,
+    allot: allot
   };
 }

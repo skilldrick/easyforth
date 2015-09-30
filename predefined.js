@@ -138,6 +138,11 @@ function addPredefinedWords(dictionary, readLine) {
     context.stack.push(context.memory.getValue(address));
   });
 
+  dictionary.add("allot", function (context) {
+    context.memory.allot(context.stack.pop());
+  });
+
+  readLine(": cells  1 * ;");
   readLine(": cr  10 emit ;");
   readLine(": space  32 emit ;");
   readLine(": spaces  0 do space loop ;");

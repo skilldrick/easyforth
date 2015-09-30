@@ -74,6 +74,7 @@ function runDictionaryTests() {
 
 function runMemoryTests() {
   var memory = Memory();
+  var cellSize = 1;
 
   console.log("Testing Memory");
 
@@ -88,8 +89,12 @@ function runMemoryTests() {
   assertEqual(memory.getValue(pointerBar), 20);
 
   assertEqual(memory.getValue(pointerFoo), 10);
+  assertEqual(pointerBar, pointerFoo + cellSize);
 
-  assert(pointerFoo !== pointerBar, "Memory pointers should be different");
+  memory.allot(10);
+
+  var pointerBaz = memory.addVariable("baz");
+  assertEqual(pointerBaz, pointerBar + (cellSize * 10) + 1);
 }
 
 function runTokenizerTests() {
@@ -515,6 +520,11 @@ function runForthTests() {
 
     forth.readLine('foo @  bar @');
     assertEqual(forth.getStack(), "0 1 100 200 <- Top ");
+
+    forth.readLine('10 cells allot');
+    forth.readLine('variable baz');
+    forth.readLine('baz');
+    assertEqual(forth.getStack(), "0 1 100 200 12 <- Top ");
   })();
 
 }
