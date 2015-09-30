@@ -8,6 +8,7 @@ function Tokenizer(input) {
   var validToken = /\S+/;
   var definitionStart = /^\s*:/;
   var definitionEnd = /;\s*$/;
+  var variableDeclaration = /^\s*variable/i;
 
   function isDefinitionStart() {
     return input.match(definitionStart);
@@ -15,6 +16,10 @@ function Tokenizer(input) {
 
   function isDefinitionEnd() {
     return input.match(definitionEnd);
+  }
+
+  function isVariableDeclaration() {
+    return input.match(variableDeclaration);
   }
 
   function skipWhitespace() {
@@ -98,6 +103,7 @@ function Tokenizer(input) {
   return {
     nextToken: nextToken,
     isDefinitionStart: isDefinitionStart,
-    isDefinitionEnd: isDefinitionEnd
+    isDefinitionEnd: isDefinitionEnd,
+    isVariableDeclaration: isVariableDeclaration,
   };
 }

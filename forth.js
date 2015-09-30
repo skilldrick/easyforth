@@ -8,7 +8,8 @@ function Forth() {
   var context = {
     stack: Stack('Argument Stack'),
     returnStack: Stack('Return Stack'),
-    dictionary: Dictionary()
+    dictionary: Dictionary(),
+    memory: Memory()
   };
 
   function MissingWordError(word) {
@@ -86,6 +87,13 @@ function Forth() {
     }
   }
 
+  function createVariable(name) {
+    var pointer = context.memory.addVariable(name);
+    context.dictionary.add(name, function (context) {
+      context.stack.push(pointer);
+    });
+  }
+
   // This variable is shared across multiple calls to readLine,
   // as definitions can span multiple lines
   var currentDefinition = null;
@@ -98,6 +106,11 @@ function Forth() {
       tokenizer.nextToken(); // drop :
       var definitionName = tokenizer.nextToken().value;
       currentDefinition = { name: definitionName, actions: [] };
+    }
+
+    if (tokenizer.isVariableDeclaration()) {
+      tokenizer.nextToken(); // drop `variable`
+      createVariable(tokenizer.nextToken().value);
     }
 
     if (currentDefinition) {

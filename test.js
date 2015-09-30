@@ -72,6 +72,26 @@ function runDictionaryTests() {
   assertEqual(dictionary.lookup("missing"), null);
 }
 
+function runMemoryTests() {
+  var memory = Memory();
+
+  console.log("Testing Memory");
+
+  memory.addVariable("foo");
+  var pointerFoo = memory.getVariable("foo");
+  memory.setValue(pointerFoo, 10);
+  assertEqual(memory.getValue(pointerFoo), 10);
+
+  memory.addVariable("bar");
+  var pointerBar = memory.getVariable("bar");
+  memory.setValue(pointerBar, 20);
+  assertEqual(memory.getValue(pointerBar), 20);
+
+  assertEqual(memory.getValue(pointerFoo), 10);
+
+  assert(pointerFoo !== pointerBar, "Memory pointers should be different");
+}
+
 function runTokenizerTests() {
   (function () {
     console.log("Testing nextToken");
@@ -479,12 +499,25 @@ function runForthTests() {
     assertEqual(output, " 10 9 8 7 6 5 4 3 2 1  ok");
   })();
 
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing variables");
+    var output = forth.readLine('variable foo');
+    assertEqual(output, "  ok");
+    forth.readLine('variable bar');
+    forth.readLine('foo bar');
+    // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
+    assertEqual(forth.getStack(), "0 1 <- Top ");
+  })();
+
 }
 
 // Wow such test runner
 function runTests() {
   runStackTests();
   runDictionaryTests();
+  runMemoryTests();
   runTokenizerTests();
   runForthTests();
 
