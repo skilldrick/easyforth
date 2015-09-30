@@ -127,6 +127,17 @@ function addPredefinedWords(dictionary, readLine) {
     context.stack.pop();
   });
 
+  dictionary.add("!", function (context) {
+    var address = context.stack.pop();
+    var value = context.stack.pop();
+    context.memory.setValue(address, value);
+  });
+
+  dictionary.add("@", function (context) {
+    var address = context.stack.pop();
+    context.stack.push(context.memory.getValue(address));
+  });
+
   readLine(": cr  10 emit ;");
   readLine(": space  32 emit ;");
   readLine(": spaces  0 do space loop ;");

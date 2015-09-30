@@ -509,6 +509,12 @@ function runForthTests() {
     forth.readLine('foo bar');
     // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
     assertEqual(forth.getStack(), "0 1 <- Top ");
+
+    forth.readLine('100 foo !  200 bar !');
+    assertEqual(forth.getStack(), "0 1 <- Top ");
+
+    forth.readLine('foo @  bar @');
+    assertEqual(forth.getStack(), "0 1 100 200 <- Top ");
   })();
 
 }

@@ -8,9 +8,9 @@ function Memory() {
   }
 
   function addVariable(name) {
-    var pointer = newMemPointer();
-    variables[name.toLowerCase()] = pointer;
-    memArray[pointer] = 0;
+    var address = newMemPointer();
+    variables[name.toLowerCase()] = address;
+    memArray[address] = 0;
     return getVariable(name);
   }
 
@@ -18,12 +18,12 @@ function Memory() {
     return variables[name.toLowerCase()];
   }
 
-  function setValue(pointer, value) {
-    memArray[pointer] = value;
+  function setValue(address, value) {
+    memArray[address] = value;
   }
 
-  function getValue(pointer) {
-    return memArray[pointer];
+  function getValue(address) {
+    return memArray[address];
   }
 
   return {
