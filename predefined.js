@@ -10,121 +10,121 @@ function addPredefinedWords(dictionary, readLine) {
     dictionary.add(code, controlCode(code));
   });
 
-  dictionary.add(".",  function (stack, dictionary, returnStack) {
-    return stack.pop() + " ";
+  dictionary.add(".",  function (context) {
+    return context.stack.pop() + " ";
   });
 
-  dictionary.add(".s", function (stack, dictionary, returnStack) {
-    return "\n" + stack.print();
+  dictionary.add(".s", function (context) {
+    return "\n" + context.stack.print();
   });
 
-  dictionary.add("+", function (stack, dictionary, returnStack) {
-    stack.push(stack.pop() + stack.pop());
+  dictionary.add("+", function (context) {
+    context.stack.push(context.stack.pop() + context.stack.pop());
   });
 
-  dictionary.add("-", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(b - a);
+  dictionary.add("-", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(b - a);
   });
 
-  dictionary.add("*", function (stack, dictionary, returnStack) {
-    stack.push(stack.pop() * stack.pop());
+  dictionary.add("*", function (context) {
+    context.stack.push(context.stack.pop() * context.stack.pop());
   });
 
-  dictionary.add("/", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(Math.floor(b / a));
+  dictionary.add("/", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("/mod", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(Math.floor(b % a));
-    stack.push(Math.floor(b / a));
+  dictionary.add("/mod", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(Math.floor(b % a));
+    context.stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("mod", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(Math.floor(b % a));
+  dictionary.add("mod", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(Math.floor(b % a));
   });
 
-  dictionary.add("=", function (stack, dictionary, returnStack) {
-    stack.push(stack.pop() === stack.pop() ? TRUE : FALSE);
+  dictionary.add("=", function (context) {
+    context.stack.push(context.stack.pop() === context.stack.pop() ? TRUE : FALSE);
   });
 
-  dictionary.add("<", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(b < a ? TRUE : FALSE);
+  dictionary.add("<", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(b < a ? TRUE : FALSE);
   });
 
-  dictionary.add(">", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(b > a ? TRUE : FALSE);
+  dictionary.add(">", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(b > a ? TRUE : FALSE);
   });
 
-  dictionary.add("and", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(a !== FALSE && b !== FALSE ? TRUE : FALSE);
+  dictionary.add("and", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(a !== FALSE && b !== FALSE ? TRUE : FALSE);
   });
 
-  dictionary.add("or", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(a !== FALSE || b !== FALSE ? TRUE : FALSE);
+  dictionary.add("or", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(a !== FALSE || b !== FALSE ? TRUE : FALSE);
   });
 
-  dictionary.add("i", function (stack, dictionary, returnStack) {
-    stack.push(returnStack.peek(1));
+  dictionary.add("i", function (context) {
+    context.stack.push(context.returnStack.peek(1));
   });
 
-  dictionary.add("j", function (stack, dictionary, returnStack) {
-    stack.push(returnStack.peek(2));
+  dictionary.add("j", function (context) {
+    context.stack.push(context.returnStack.peek(2));
   });
 
   // I don't understand the difference between i and r@
   // http://www.forth.com/starting-forth/sf5/sf5.html
-  dictionary.add("r@", function (stack, dictionary, returnStack) {
-    stack.push(returnStack.peek(1));
+  dictionary.add("r@", function (context) {
+    context.stack.push(context.returnStack.peek(1));
   });
 
-  dictionary.add(">r", function (stack, dictionary, returnStack) {
-    returnStack.push(stack.pop());
+  dictionary.add(">r", function (context) {
+    context.returnStack.push(context.stack.pop());
   });
 
-  dictionary.add("r>", function (stack, dictionary, returnStack) {
-    stack.push(returnStack.pop());
+  dictionary.add("r>", function (context) {
+    context.stack.push(context.returnStack.pop());
   });
 
-  dictionary.add("emit", function (stack, dictionary, returnStack) {
-    return String.fromCharCode(stack.pop());
+  dictionary.add("emit", function (context) {
+    return String.fromCharCode(context.stack.pop());
   });
 
-  dictionary.add("swap", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(a);
-    stack.push(b);
+  dictionary.add("swap", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(a);
+    context.stack.push(b);
   });
 
-  dictionary.add("dup", function (stack, dictionary, returnStack) {
-    var a = stack.pop();
-    stack.push(a);
-    stack.push(a);
+  dictionary.add("dup", function (context) {
+    var a = context.stack.pop();
+    context.stack.push(a);
+    context.stack.push(a);
   });
 
-  dictionary.add("over", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop();
-    stack.push(b);
-    stack.push(a);
-    stack.push(b);
+  dictionary.add("over", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop();
+    context.stack.push(b);
+    context.stack.push(a);
+    context.stack.push(b);
   });
 
-  dictionary.add("rot", function (stack, dictionary, returnStack) {
-    var a = stack.pop(), b = stack.pop(), c = stack.pop();
-    stack.push(b);
-    stack.push(a);
-    stack.push(c);
+  dictionary.add("rot", function (context) {
+    var a = context.stack.pop(), b = context.stack.pop(), c = context.stack.pop();
+    context.stack.push(b);
+    context.stack.push(a);
+    context.stack.push(c);
   });
 
-  dictionary.add("drop", function (stack, dictionary, returnStack) {
-    stack.pop();
+  dictionary.add("drop", function (context) {
+    context.stack.pop();
   });
 
   readLine(": cr  10 emit ;");

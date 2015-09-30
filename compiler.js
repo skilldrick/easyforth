@@ -42,9 +42,9 @@ function UnbalancedControlStructureError() {
 }
 
 function compile(dictionary, actions) {
-  function executeActions(actions, stack, dictionary, returnStack) {
+  function executeActions(actions, context) {
     var output = actions.map(function (action) {
-      return action.execute(stack, dictionary, returnStack);
+      return action.execute(context);
     });
 
     return output.join("");
@@ -53,8 +53,8 @@ function compile(dictionary, actions) {
   function Main() {
     this.body = [];
 
-    this.execute = function (stack, dictionary, returnStack) {
-      return executeActions(this.body, stack, dictionary, returnStack);
+    this.execute = function (context) {
+      return executeActions(this.body, context);
     };
   }
 
@@ -64,11 +64,11 @@ function compile(dictionary, actions) {
     this.consequent = [];
     this.alternative = [];
 
-    this.execute = function (stack, dictionary, returnStack) {
-      if (stack.pop() !== FALSE) {
-        return executeActions(this.consequent, stack, dictionary, returnStack);
+    this.execute = function (context) {
+      if (context.stack.pop() !== FALSE) {
+        return executeActions(this.consequent, context);
       } else {
-        return executeActions(this.alternative, stack, dictionary, returnStack);
+        return executeActions(this.alternative, context);
       }
     };
   }
@@ -79,20 +79,20 @@ function compile(dictionary, actions) {
     this.body = [];
     this.isPlusLoop = false;
 
-    this.execute = function (stack, dictionary, returnStack) {
-      var startIndex = stack.pop();
-      var endIndex = stack.pop();
+    this.execute = function (context) {
+      var startIndex = context.stack.pop();
+      var endIndex = context.stack.pop();
       var output = "";
       var i = startIndex;
 
       while (i < endIndex) {
-        returnStack.push(i);
-        output += executeActions(this.body, stack, dictionary, returnStack);
-        returnStack.pop();
+        context.returnStack.push(i);
+        output += executeActions(this.body, context);
+        context.returnStack.pop();
 
         // +loop increments i by stack value
         if (this.isPlusLoop) {
-          i += stack.pop();
+          i += context.stack.pop();
         } else { // loop increments i by 1
           i++;
         }
@@ -107,20 +107,20 @@ function compile(dictionary, actions) {
     this.parentControlStructure = parentControlStructure;
     this.body = [];
 
-    this.execute = function (stack, dictionary, returnStack) {
+    this.execute = function (context) {
       var output = "";
 
       do {
-        output += executeActions(this.body, stack, dictionary, returnStack);
-      } while (stack.pop() !== TRUE);
+        output += executeActions(this.body, context);
+      } while (context.stack.pop() !== TRUE);
 
       return output;
     };
   }
 
   function Action(action) {
-    this.execute = function (stack, dictionary, returnStack) {
-      return action(stack, dictionary, returnStack);
+    this.execute = function (context) {
+      return action(context);
     };
   }
 
@@ -183,7 +183,7 @@ function compile(dictionary, actions) {
 
   var main = compileControlStructures(actions);
 
-  return function (stack, dictionary, returnStack) {
-    return main.execute(stack, dictionary, returnStack);
+  return function (context) {
+    return main.execute(context);
   };
 }

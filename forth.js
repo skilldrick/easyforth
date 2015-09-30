@@ -5,9 +5,11 @@ var TRUE = -1;
 
 function Forth() {
   // Core structures
-  var stack = Stack('Argument Stack');
-  var returnStack = Stack('Return Stack');
-  var dictionary = Dictionary();
+  var context = {
+    stack: Stack('Argument Stack'),
+    returnStack: Stack('Return Stack'),
+    dictionary: Dictionary()
+  };
 
   function MissingWordError(word) {
     this.message = word + " ? ";
@@ -16,17 +18,17 @@ function Forth() {
   // Convert token into an action that executes that token's behavior
   function tokenToAction(token) {
     var word = token.value;
-    var definition = dictionary.lookup(word);
+    var definition = context.dictionary.lookup(word);
 
     if (token.isStringLiteral) {
-      return function (stack, dictionary, returnStack) {
+      return function (context) {
         return word;
       };
     } else if (definition !== null) {
       return definition;
     } else if (isFinite(word)) {
-      return function (stack, dictionary, returnStack) {
-        stack.push(+word);
+      return function (context) {
+        context.stack.push(+word);
       };
     } else {
       throw new MissingWordError(word);
@@ -52,8 +54,8 @@ function Forth() {
       return action;
     } else {
       // If an action returns undefined, make it return a string instead
-      return function (stack, dictionary, returnStack) {
-        return getString(action(stack, dictionary, returnStack));
+      return function (context) {
+        return getString(action(context));
       };
     }
   }
@@ -69,8 +71,8 @@ function Forth() {
 
   // compile actions into definition and add definition to dictionary
   function compileAndAddToDictionary(name, actions) {
-    var definition = compile(dictionary, actions);
-    dictionary.add(name, definition);
+    var definition = compile(context.dictionary, actions);
+    context.dictionary.add(name, definition);
   }
 
   // Throw if error is not of one of these types
@@ -123,7 +125,7 @@ function Forth() {
       try {
         eachTokenAsAction(tokenizer, function (action) {
           // Execute action and append output
-          output += action(stack, dictionary, returnStack);
+          output += action(context);
         });
       } catch (e) {
         throwIfNotOneOf(e, [MissingWordError, StackUnderflowError]);
@@ -134,12 +136,12 @@ function Forth() {
     }
   }
 
-  addPredefinedWords(dictionary, readLine);
+  addPredefinedWords(context.dictionary, readLine);
 
   return {
     readLine: readLine,
     getStack: function () {
-      return stack.print();
+      return context.stack.print();
     }
   };
 }
