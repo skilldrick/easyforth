@@ -114,32 +114,15 @@ function Forth() {
       currentDefinition = { name: definitionName, actions: [] };
     }
 
-    // TODO: make separate functions for the compile-time and interpret-time bits
-    // Ideally we'd be able to jump between compile-time and interpret time based on : and ;
-    if (currentDefinition) {
-      try {
-        eachTokenAsAction(tokenizer, function (action) {
+    var output = "";
+
+    try {
+      eachTokenAsAction(tokenizer, function (action) {
+        if (currentDefinition) {
           // Add action to list of actions in current definition
           currentDefinition.actions.push(action);
-        });
-
-        // If this line is the end of the definition (it includes ;) compile
-        // the current definition and add it to the dictionary
-        if (tokenizer.isDefinitionEnd()) {
-          compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
-          currentDefinition = null;
-          return "  ok";
-        }
-      } catch (e) {
-        throwIfNotOneOf(e, [MissingWordError, UnbalancedControlStructureError]);
-        currentDefinition = null;
-        return " " + e.message;
-      }
-    } else { // not in definition, i.e. interactive mode
-      var output = "";
-
-      try {
-        eachTokenAsAction(tokenizer, function (action) {
+        } else {
+          // TODO: this should be a separate function
           if (action.code === "variable") {
             createVariable(tokenizer.nextToken().value);
           } else if (action.code === "constant") {
@@ -148,12 +131,22 @@ function Forth() {
             // Execute action and append output
             output += action(context);
           }
-        });
-      } catch (e) {
-        throwIfNotOneOf(e, [MissingWordError, StackUnderflowError]);
-        return " " + e.message;
-      }
+        }
+      });
 
+      // If this line is the end of the definition (it includes ;) compile
+      // the current definition and add it to the dictionary
+      if (tokenizer.isDefinitionEnd()) {
+        compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
+        currentDefinition = null;
+      }
+    } catch (e) {
+      throwIfNotOneOf(e, [MissingWordError, StackUnderflowError, UnbalancedControlStructureError]);
+      currentDefinition = null;
+      return " " + e.message;
+    }
+
+    if (!currentDefinition) { // don't append output while definition is in progress
       return " " + output + " ok";
     }
   }
