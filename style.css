@@ -1,0 +1,52 @@
+.editor {
+  width: 500px;
+  font: 12px monospace;
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.editor .text {
+  height: 303px;
+  overflow-y: scroll;
+}
+
+.editor .stack-viewer {
+  padding: 5px;
+  border: 1px solid black;
+  margin-bottom: 5px;
+  overflow-x: scroll;
+}
+
+/* newlines in output will be treated like new paragraphs */
+.editor .prev-lines p {
+  white-space: pre-wrap;
+  margin: 0;
+  line-height: 1.5em;
+}
+
+.editor .input {
+  height: 1.5em;
+  width: 100%;
+  border: 0;
+  font: 12px monospace;
+  outline: 0;
+  border-bottom: 1px solid black;
+  margin: 0;
+  margin-top: 2px; /* hack to make textarea line up with prev-lines paragraph */
+  resize: none;
+  padding: 0;
+}
+
+.editor .code {
+  color: #333;
+}
+
+.editor .output {
+  color: #999;
+}
+
+
+.github {
+  font: 12px monospace;
+  color: #999;
+}
