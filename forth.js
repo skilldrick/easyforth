@@ -100,6 +100,17 @@ function Forth() {
     });
   }
 
+  function executeRuntimeAction(tokenizer, action) {
+    if (action.code === "variable") {
+      createVariable(tokenizer.nextToken().value);
+    } else if (action.code === "constant") {
+      createConstant(tokenizer.nextToken().value, context.stack.pop());
+    } else {
+      return action(context);
+    }
+    return "";
+  }
+
   // This variable is shared across multiple calls to readLine,
   // as definitions can span multiple lines
   var currentDefinition = null;
@@ -118,19 +129,12 @@ function Forth() {
 
     try {
       eachTokenAsAction(tokenizer, function (action) {
-        if (currentDefinition) {
-          // Add action to list of actions in current definition
+        if (currentDefinition) { // Are we currently defining a definition?
+          // Add action to current definition
           currentDefinition.actions.push(action);
         } else {
-          // TODO: this should be a separate function
-          if (action.code === "variable") {
-            createVariable(tokenizer.nextToken().value);
-          } else if (action.code === "constant") {
-            createConstant(tokenizer.nextToken().value, context.stack.pop());
-          } else {
-            // Execute action and append output
-            output += action(context);
-          }
+          // Execute action and append output
+          output += executeRuntimeAction(tokenizer, action);
         }
       });
 
@@ -141,7 +145,12 @@ function Forth() {
         currentDefinition = null;
       }
     } catch (e) {
-      throwIfNotOneOf(e, [MissingWordError, StackUnderflowError, UnbalancedControlStructureError]);
+      throwIfNotOneOf(e, [
+        MissingWordError,
+        StackUnderflowError,
+        UnbalancedControlStructureError
+      ]);
+
       currentDefinition = null;
       return " " + e.message;
     }
