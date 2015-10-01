@@ -94,6 +94,12 @@ function Forth() {
     });
   }
 
+  function createConstant(name, value) {
+    context.dictionary.add(name, function (context) {
+      context.stack.push(value);
+    });
+  }
+
   // This variable is shared across multiple calls to readLine,
   // as definitions can span multiple lines
   var currentDefinition = null;
@@ -108,11 +114,8 @@ function Forth() {
       currentDefinition = { name: definitionName, actions: [] };
     }
 
-    if (tokenizer.isVariableDeclaration()) {
-      tokenizer.nextToken(); // drop `variable`
-      createVariable(tokenizer.nextToken().value);
-    }
-
+    // TODO: make separate functions for the compile-time and interpret-time bits
+    // Ideally we'd be able to jump between compile-time and interpret time based on : and ;
     if (currentDefinition) {
       try {
         eachTokenAsAction(tokenizer, function (action) {
@@ -137,8 +140,14 @@ function Forth() {
 
       try {
         eachTokenAsAction(tokenizer, function (action) {
-          // Execute action and append output
-          output += action(context);
+          if (action.code === "variable") {
+            createVariable(tokenizer.nextToken().value);
+          } else if (action.code === "constant") {
+            createConstant(tokenizer.nextToken().value, stack.pop());
+          } else {
+            // Execute action and append output
+            output += action(context);
+          }
         });
       } catch (e) {
         throwIfNotOneOf(e, [MissingWordError, StackUnderflowError]);
