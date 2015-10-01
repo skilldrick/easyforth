@@ -12,6 +12,10 @@ function Forth() {
     memory: Memory()
   };
 
+  // This variable is shared across multiple calls to readLine,
+  // as definitions can span multiple lines
+  var currentDefinition = null;
+
   function MissingWordError(word) {
     this.message = word + " ? ";
   }
@@ -100,50 +104,54 @@ function Forth() {
     });
   }
 
-  function executeRuntimeAction(tokenizer, action) {
-    if (action.code === "variable") {
-      createVariable(tokenizer.nextToken().value);
-    } else if (action.code === "constant") {
-      createConstant(tokenizer.nextToken().value, context.stack.pop());
+  function startDefinition(name) {
+    currentDefinition = { name: name, actions: [] };
+  }
+
+  function endDefinition() {
+    compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
+    currentDefinition = null;
+  }
+
+  function addActionToCurrentDefinition(action) {
+    if (action.code === ";") {
+      endDefinition();
     } else {
+      currentDefinition.actions.push(action);
+    }
+  }
+
+  function executeRuntimeAction(tokenizer, action) {
+    switch (action.code) {
+    case "variable":
+      createVariable(tokenizer.nextToken().value);
+      break;
+    case "constant":
+      createConstant(tokenizer.nextToken().value, context.stack.pop());
+      break;
+    case ":":
+      startDefinition(tokenizer.nextToken().value);
+      break;
+    default:
       return action(context);
     }
     return "";
   }
 
-  // This variable is shared across multiple calls to readLine,
-  // as definitions can span multiple lines
-  var currentDefinition = null;
-
   // Read a line of input. Return value is output for this line.
   function readLine(line) {
     var tokenizer = Tokenizer(line);
-
-    if (tokenizer.isDefinitionStart()) {
-      tokenizer.nextToken(); // drop :
-      var definitionName = tokenizer.nextToken().value;
-      currentDefinition = { name: definitionName, actions: [] };
-    }
 
     var output = "";
 
     try {
       eachTokenAsAction(tokenizer, function (action) {
         if (currentDefinition) { // Are we currently defining a definition?
-          // Add action to current definition
-          currentDefinition.actions.push(action);
+          addActionToCurrentDefinition(action);
         } else {
-          // Execute action and append output
           output += executeRuntimeAction(tokenizer, action);
         }
       });
-
-      // If this line is the end of the definition (it includes ;) compile
-      // the current definition and add it to the dictionary
-      if (tokenizer.isDefinitionEnd()) {
-        compileAndAddToDictionary(currentDefinition.name, currentDefinition.actions);
-        currentDefinition = null;
-      }
     } catch (e) {
       throwIfNotOneOf(e, [
         MissingWordError,

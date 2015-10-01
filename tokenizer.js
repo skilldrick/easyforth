@@ -6,21 +6,6 @@ function Tokenizer(input) {
   var stringMode = false;
   var whitespace = /\s+/;
   var validToken = /\S+/;
-  var definitionStart = /^\s*:/;
-  var definitionEnd = /;\s*$/;
-  var variableDeclaration = /^\s*variable/i;
-
-  function isDefinitionStart() {
-    return input.match(definitionStart);
-  }
-
-  function isDefinitionEnd() {
-    return input.match(definitionEnd);
-  }
-
-  function isVariableDeclaration() {
-    return input.match(variableDeclaration);
-  }
 
   function skipWhitespace() {
     while (whitespace.test(input[index]) && index < length) {
@@ -86,7 +71,7 @@ function Tokenizer(input) {
       value = processNormalToken();
     }
 
-    if (!value || value === ';') { // don't count end of definition as token
+    if (!value) {
       return null;
     }
 
@@ -101,9 +86,6 @@ function Tokenizer(input) {
   }
 
   return {
-    nextToken: nextToken,
-    isDefinitionStart: isDefinitionStart,
-    isDefinitionEnd: isDefinitionEnd,
-    isVariableDeclaration: isVariableDeclaration,
+    nextToken: nextToken
   };
 }

@@ -361,6 +361,16 @@ function runForthTests() {
   (function () {
     var forth = Forth();
 
+    console.log("Testing : with code before and after");
+    var output = forth.readLine("100 : add-10  10 + ; 200");
+    assertEqual(output, "  ok");
+    forth.readLine("5 add-10");
+    assertEqual(forth.getStack(), "100 200 15 <- Top ");
+  })();
+
+  (function () {
+    var forth = Forth();
+
     console.log("Testing multiline :");
     var output = forth.readLine(": add-20  10 + ");
     assert(!output, "No output should be produced");
