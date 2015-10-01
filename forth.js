@@ -126,7 +126,7 @@ function Forth() {
           if (action.code === "variable") {
             createVariable(tokenizer.nextToken().value);
           } else if (action.code === "constant") {
-            createConstant(tokenizer.nextToken().value, stack.pop());
+            createConstant(tokenizer.nextToken().value, context.stack.pop());
           } else {
             // Execute action and append output
             output += action(context);

@@ -527,6 +527,17 @@ function runForthTests() {
     assertEqual(forth.getStack(), "0 1 100 200 12 <- Top ");
   })();
 
+  (function () {
+    var forth = Forth();
+
+    console.log("Testing constants");
+    var output = forth.readLine('10 constant foo');
+    assertEqual(output, "  ok");
+    forth.readLine('20 constant bar');
+    forth.readLine('foo bar');
+    assertEqual(forth.getStack(), "10 20 <- Top ");
+  })();
+  
 }
 
 // Wow such test runner
