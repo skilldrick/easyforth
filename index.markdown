@@ -64,7 +64,7 @@ stack, even though there's only _one_ element on the stack! This results in a
 3  <span class="output">ok</span>
 +  <span class="output">ok</span>
 +  <span class="output">ok</span>
-+ <span class="output">Stack underflow</span>
++  <span class="output">Stack underflow</span>
 </div>
 
 

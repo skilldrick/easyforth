@@ -164,7 +164,7 @@ function runForthTests() {
     assertEqual(forth.getStack(), "17 <- Top ");
 
     var output = forth.readLine("+");
-    assertEqual(output, " Stack underflow");
+    assertEqual(output, "  Stack underflow");
   })();
 
   (function () {
@@ -387,7 +387,7 @@ function runForthTests() {
 
     console.log("Testing missing words in :");
     var output = forth.readLine(": add-20  10 + foo ");
-    assertEqual(output, " foo ? "); // output error
+    assertEqual(output, "  foo ? "); // output error
     output = forth.readLine("5 5 + .");
     assertEqual(output, " 10  ok"); // output because definition has finished
   })();
@@ -397,7 +397,7 @@ function runForthTests() {
 
     console.log("Testing missing words in interpreter");
     var output = forth.readLine("10 10 + foo ");
-    assertEqual(output, " foo ? "); // output error
+    assertEqual(output, "  foo ? "); // output error
   })();
 
   (function () {

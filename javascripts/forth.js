@@ -160,7 +160,7 @@ function Forth() {
       ]);
 
       currentDefinition = null;
-      return " " + e.message;
+      return "  " + e.message;
     }
 
     if (!currentDefinition) { // don't append output while definition is in progress
