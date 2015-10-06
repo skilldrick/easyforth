@@ -1,8 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
-
 body {
   padding:50px;
-  font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font:16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight:300;
 }
 
@@ -57,17 +55,14 @@ blockquote {
 }
 
 code, pre {
-  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  font-family:monospace;
   color:#333;
-  font-size:12px;
+  font-size:14px;
 }
 
 pre {
-  padding:8px 15px;
-  background: #f8f8f8;
-  border-radius:5px;
-  border:1px solid #e5e5e5;
   overflow-x: auto;
+  margin-left: 1em;
 }
 
 table {

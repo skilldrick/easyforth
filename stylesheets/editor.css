@@ -1,8 +1,12 @@
+.editor-text {
+  font: 14px monospace;
+}
+
 .editor {
   width: 588px;
-  font: 12px monospace;
   padding: 5px;
   border: 1px solid black;
+  margin-bottom: 20px;
 }
 
 .editor .text {
@@ -10,11 +14,26 @@
   overflow-y: scroll;
 }
 
-.editor .stack-viewer {
+.editor .stack-viewer, .stack {
   padding: 5px;
   border: 1px solid black;
   margin-bottom: 5px;
   overflow-x: scroll;
+}
+
+/* This is used in the book for showing the stack */
+.stack {
+  border: 0;
+  margin-bottom: 20px;
+  margin-left: 1em;
+}
+
+/* This is used in the book for showing a preview of the editor */
+.editor-preview {
+  margin-left: 1em;
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  line-height: 1.5em;
 }
 
 /* newlines in output will be treated like new paragraphs */
@@ -28,7 +47,6 @@
   height: 1.5em;
   width: 100%;
   border: 0;
-  font: 12px monospace;
   outline: 0;
   border-bottom: 1px solid black;
   margin: 0;
@@ -37,16 +55,10 @@
   padding: 0;
 }
 
-.editor .code {
+.code {
   color: #333;
 }
 
-.editor .output {
-  color: #999;
-}
-
-
-.github {
-  font: 12px monospace;
+.output {
   color: #999;
 }
