@@ -1,9 +1,9 @@
 'use strict';
 
-function Editor(selector) {
+function Editor(selectorOrElement) {
   var forth = new Forth();
 
-  var $editor = $(selector);
+  var $editor = $(selectorOrElement);
   var $text = $editor.find(".text");
   var $prevLines = $text.find(".prev-lines");
   var $input = $text.find(".input");
@@ -48,4 +48,6 @@ function Editor(selector) {
   });
 }
 
-var editor = Editor(".editor");
+$(".editor").each(function (i, el) {
+  Editor(el);
+});
