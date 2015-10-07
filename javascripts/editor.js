@@ -7,6 +7,7 @@ function Editor(selectorOrElement) {
   var $text = $editor.find(".text");
   var $prevLines = $text.find(".prev-lines");
   var $input = $text.find(".input");
+  var $window = $(window);
 
   function addLine(code, output) {
     var $codeSpan = $("<span>").addClass("code").text(code);
@@ -43,6 +44,16 @@ function Editor(selectorOrElement) {
   $editor.click(function (e) {
     // Don't include clicks on prev lines or we won't be able to select that text
     if ($(e.target).closest('.prev-lines').length === 0) {
+      $input.focus();
+    }
+  });
+
+  $window.scroll(function () {
+    var inputTop = $input.offset().top;
+    var scrollTop = $window.scrollTop();
+    var windowHeight = $window.height();
+    var inputInWindow = inputTop > scrollTop && inputTop < scrollTop + windowHeight;
+    if (inputInWindow) {
       $input.focus();
     }
   });
