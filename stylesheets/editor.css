@@ -11,14 +11,13 @@
 
 .editor .text {
   height: 303px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .editor .stack-viewer, .stack {
   padding: 5px;
   border: 1px solid black;
   margin-bottom: 5px;
-  overflow-x: scroll;
 }
 
 /* This is used in the book for showing the stack */
