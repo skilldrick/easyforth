@@ -87,7 +87,8 @@ following into the interpreter:
 {% include editor.html %}
 
 One of the nice things about Forth is that the order of operations is
-completely based on their order in the program: first we push 5 to the stack,
-then two, then add them and push the result, then push 10 to the stack, then
-multiply 7 and 10. Because of this, there's no need for parentheses to group
-operators with lower precedence.
+completely based on their order in the program. For example, when executing `5
+2 + 10 *`, the interpreter pushes 5 to the stack, then 2, then adds them and
+pushes the result, then pushes 10 to the stack, then multiplies 7 and 10. Because
+of this, there's no need for parentheses to group operators with lower
+precedence.
