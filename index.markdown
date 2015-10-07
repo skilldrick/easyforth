@@ -22,13 +22,11 @@ together, the `+` procedure takes the top two numbers off the stack, adds them,
 and puts the result back on the stack.
 
 Let's take a look at an example. Type (don't copy-paste) the following into the
-interpreter right below where it says `( Welcome to Forth )`:
+interpreter, typing Enter after each line.
 
     1
     2
     3
-
-When I include code like this, just type it as-is, pressing enter/return after each line.
 
 {% include editor.html %}
 
@@ -36,12 +34,12 @@ You should see this at the top of the editor window:
 
 {% include stack.html stack="1 2 3 <- Top" %}
 
-Every time you type something followed by the enter key, the Forth interpreter
+Every time you type a line followed by the Enter key, the Forth interpreter
 executes it, and appends the string `ok` to let you know there were no errors. You should
-also notice that as you press enter on each line, the area at the top fills up with numbers.
+also notice that as you press Enter on each line, the area at the top fills up with numbers.
 That area is our visualization of the stack.
 
-Now, into the same interpreter, type a single `+` followed by the enter key. The top two
+Now, into the same interpreter, type a single `+` followed by the Enter key. The top two
 elements on the stack, `2` and `3`, have been replaced by `5`.
 
 {% include stack.html stack="1 5 <- Top" %}
@@ -54,7 +52,7 @@ At this point, your editor window should look like this:
 +  <span class="output">ok</span>
 </div>
 
-Type `+` again and press enter, and the top element will be replaced by 6. If
+Type `+` again and press Enter, and the top two elements will be replaced by 6. If
 you type `+` one more time, Forth will try to pop the top two elements off the
 stack, even though there's only _one_ element on the stack! This results in a
 `Stack underflow` error:
@@ -67,4 +65,13 @@ stack, even though there's only _one_ element on the stack! This results in a
 +  <span class="output">Stack underflow</span>
 </div>
 
+Forth doesn't force you to type every token as a separate line. Type the
+following, followed by the Enter key:
 
+    123 456 +
+
+{% include editor.html %}
+
+The stack should now look like this:
+
+{% include stack.html stack="579 <- Top" %}
