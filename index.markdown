@@ -15,11 +15,11 @@ you're used to, so it's a perfect language to broaden your coding horizons.
 
 <h2 id="adding">Adding some numbers</h2>
 
-The thing that separates Forth from most other languages you're likely to have used
-is its use of the stack. In Forth, everything revolves around the stack. Any time
-you type a number, it gets pushed onto the stack. If you want to add two numbers
-together, the `+` procedure takes the top two numbers off the stack, adds them,
-and puts the result back on the stack.
+The thing that separates Forth from most other languages is its use of the
+stack. In Forth, everything revolves around the stack. Any time you type a
+number, it gets pushed onto the stack. If you want to add two numbers together,
+typing `+` takes the top two numbers off the stack, adds them, and puts
+the result back on the stack.
 
 Let's take a look at an example. Type (don't copy-paste) the following into the
 interpreter, typing Enter after each line.
@@ -75,3 +75,19 @@ following, followed by the Enter key:
 The stack should now look like this:
 
 {% include stack.html stack="579 <- Top" %}
+
+This style, where the operator appears after the operands, is known as
+[Reverse-Polish
+notation](https://en.wikipedia.org/wiki/Reverse_Polish_notation). Let's try
+something a bit more complicated, and calculate `10 * (5 + 2)`. Type the
+following into the interpreter:
+
+    5 2 + 10 *
+
+{% include editor.html %}
+
+One of the nice things about Forth is that the order of operations is
+completely based on their order in the program: first we push 5 to the stack,
+then two, then add them and push the result, then push 10 to the stack, then
+multiply 7 and 10. Because of this, there's no need for parentheses to group
+operators with lower precedence.
