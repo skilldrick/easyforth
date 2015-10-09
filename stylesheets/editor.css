@@ -5,18 +5,22 @@
 .editor {
   width: 100%;
   padding: 5px;
-  border: 1px solid black;
+  border: 1px solid #888;
   margin-bottom: 20px;
 }
 
 .editor .text {
-  height: 303px;
+  height: 300px;
   overflow-y: auto;
+}
+
+.editor.small .text {
+  height: 150px;
 }
 
 .editor .stack-viewer, .stack {
   padding: 5px;
-  border: 1px solid black;
+  border: 1px solid #888;
   margin-bottom: 5px;
 }
 
@@ -47,7 +51,7 @@
   width: 100%;
   border: 0;
   outline: 0;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #888;
   margin: 0;
   margin-top: 2px; /* hack to make textarea line up with prev-lines paragraph */
   resize: none;
