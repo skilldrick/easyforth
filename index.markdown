@@ -139,7 +139,7 @@ is very straightforward so it only comes with a relatively small number of words
 are still enough to complete most tasks. Here are some of the words, grouped by type.
 
 
-### Stack Manipulation
+<h3 id="stack">Stack Manipulation</h3>
 
 First, let's look at some words for manipulating the elements at the top of the stack.
 
