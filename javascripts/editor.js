@@ -7,6 +7,7 @@ function Editor(selectorOrElement) {
   var $text = $editor.find(".text");
   var $prevLines = $text.find(".prev-lines");
   var $input = $text.find(".input");
+  var $stack = $editor.find(".stack-viewer");
   var $window = $(window);
 
   function addLine(code, output) {
@@ -25,7 +26,7 @@ function Editor(selectorOrElement) {
       addLine(codeLine, output);
     });
 
-    $(".stack-viewer").text(forth.getStack());
+    $stack.text(forth.getStack());
     $input.val("");
   }
 
