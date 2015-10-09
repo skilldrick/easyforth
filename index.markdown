@@ -13,7 +13,7 @@ Every new programming language you learn helps you think about problems in new w
 Forth is super easy to learn, but it requires you to think in a different way than
 you're used to, so it's a perfect language to broaden your coding horizons.
 
-<h2 id="adding">Adding some numbers</h2>
+<h2 id="adding">Adding Some Numbers</h2>
 
 The thing that separates Forth from most other languages is its use of the
 stack. In Forth, everything revolves around the stack. Any time you type a
