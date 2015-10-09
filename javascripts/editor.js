@@ -48,15 +48,18 @@ function Editor(selectorOrElement) {
     }
   });
 
-  $window.scroll(function () {
-    var inputTop = $input.offset().top;
-    var scrollTop = $window.scrollTop();
-    var windowHeight = $window.height();
-    var inputInWindow = inputTop > scrollTop && inputTop < scrollTop + windowHeight;
-    if (inputInWindow) {
-      $input.focus();
-    }
-  });
+  var isMobile = window.matchMedia("only screen and (max-width: 720px)").matches;
+  if (!isMobile) {
+    $window.scroll(function () {
+      var inputTop = $input.offset().top;
+      var scrollTop = $window.scrollTop();
+      var windowHeight = $window.height();
+      var inputInWindow = inputTop > scrollTop && inputTop < scrollTop + windowHeight;
+      if (inputInWindow) {
+        $input.focus();
+      }
+    });
+  }
 }
 
 $(".editor").each(function (i, el) {
