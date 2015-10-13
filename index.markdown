@@ -3,8 +3,8 @@ layout: default
 ---
 
 <div markdown="1" class="toc">
-* toc
-{:toc}
+  * toc
+  {:toc}
 </div>
 
 
@@ -19,6 +19,9 @@ is still used today for certain applications.
 Every new programming language you learn helps you think about problems in new ways.
 Forth is super easy to learn, but it requires you to think in a different way than
 you're used to, so it's a perfect language to broaden your coding horizons.
+
+I'm going to assume that you know at least one other programming language, and have
+a basic idea of how stacks work as a data structure.
 
 ## Adding Some Numbers
 
@@ -200,7 +203,9 @@ will result in this:
 
 ### `rot`
 
-Finally, `rot` "rotates" the top _three_ elements of the stack. The third element from the top of the stack gets moved to the top of the stack, push the other two elements down.
+Finally, `rot` "rotates" the top _three_ elements of the stack. The third
+element from the top of the stack gets moved to the top of the stack, push the
+other two elements down.
 
     1 2 3 rot
 
@@ -210,4 +215,86 @@ gives you:
 
 {% include editor.html size="small"%}
 
-## Playing With Output
+## Generating Output
+
+### `.` (period)
+
+The simplest output word in Forth is `.`. You can use `.` to output the top of
+the stack in the output of the current line. For example, try running this
+(make sure to include all the spaces!):
+
+    1 . 2 . 3 . 4 5 6 . . .
+
+{% include editor.html size="small"%}
+
+You should see this:
+
+<div class="editor-preview editor-text">1 . 2 . 3 . 4 5 6 . . . <span class="output">1 2 3 6 5 4  ok</span></div>
+
+Going through this in order, we push `1`, then pop it off and output it. Then
+we do the same with `2` and `3`. Next we push `4`, `5`, and `6` onto the stack.
+We then pop them off and output them one-by-one. That's why the last three
+numbers in the output are reversed: the stack is last in, first out.
+
+### `emit`
+
+`emit` can be used to output numbers as ascii characters. Just like `.` outputs
+the number at the top of the stack, `emit` outputs that number as an ascii
+character. For example:
+
+     33 119 111 87 emit emit emit emit
+
+{% include editor.html size="small"%}
+
+I won't give the output here so as to not ruin the surprise. This could also be
+written as:
+
+    87 emit 111 emit 119 emit 33 emit
+
+A difference between `.` and `emit` is that the latter doesn't output any space
+after each character, enabling you to build up arbitrary strings of output.
+
+### `cr`
+
+`cr` is short for carriage return - it simply outputs a newline:
+
+    cr 100 . cr 200 . cr 300 .
+
+{% include editor.html size="small"%}
+
+This will output:
+
+<div class="editor-preview editor-text">cr 100 . cr 200 . cr 300 .<span class="output">
+100
+200
+300  ok</span></div>
+
+### `."`
+
+Finally we have `."` - a special word for outputting strings. The `."` word works
+differently inside definitions to interactive mode. `."` marks the beginning of
+a string to output, and the end of the string is marked by `"`. The closing `"`
+isn't a word, and so doesn't need to be space-delimited. Here's an example:
+
+    : say-hello  ." Hello there!" ;
+    say-hello
+
+{% include editor.html size="small"%}
+
+You should see the following output
+
+<div class="editor-preview editor-text">say-hello <span class="output">Hello there! ok</span></div>
+
+We can combine `."`, `.`, `cr`, and `emit` to build up more complex output:
+
+    : print-stack-top  cr dup ." The top of the stack is " .
+      cr ." which looks like '" dup emit ." ' in ascii  " ;
+    48 print-stack-top
+
+{% include editor.html size="small"%}
+
+Running this should give you the following output:
+
+<div class="editor-preview editor-text">48 print-stack-top <span class="output">
+The top of the stack is 48
+which looks like '0' in ascii   ok</span></div>
