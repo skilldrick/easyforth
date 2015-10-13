@@ -2,7 +2,14 @@
 layout: default
 ---
 
-<h2 id="intro">Introduction</h2>
+<div markdown="1" class="toc">
+* toc
+{:toc}
+</div>
+
+
+
+## Introduction
 
 This ebook is here to teach you a programming language called Forth. Forth is a
 language unlike most others. It's not functional or object oriented, it doesn't
@@ -13,7 +20,7 @@ Every new programming language you learn helps you think about problems in new w
 Forth is super easy to learn, but it requires you to think in a different way than
 you're used to, so it's a perfect language to broaden your coding horizons.
 
-<h2 id="adding">Adding Some Numbers</h2>
+## Adding Some Numbers
 
 The thing that separates Forth from most other languages is its use of the
 stack. In Forth, everything revolves around the stack. Any time you type a
@@ -94,7 +101,7 @@ of this, there's no need for parentheses to group operators with lower
 precedence.
 
 
-<h2 id="words">Defining Words</h2>
+Defining Words
 
 The syntax of Forth is extremely straightforward. Forth code is interpreted as
 a series of space-delimited words. Almost all non-whitespace characters are valid
@@ -132,18 +139,16 @@ As you've hopefully figured out, our `foo` word simply adds 100 to the value on
 top of the stack. It's not very interesting, but it should give you an idea of
 how simple definitions work.
 
-<h2 id="predefined">Predefined Words</h2>
-
 Most Forth systems come with a large library of predefined words. This JavaScript Forth
 is very straightforward so it only comes with a relatively small number of words, but there
-are still enough to complete most tasks. Here are some of the words, grouped by type.
+are still enough to complete most tasks.
 
 
-<h3 id="stack">Stack Manipulation</h3>
+## Stack Manipulation
 
 First, let's look at some words for manipulating the elements at the top of the stack.
 
-#### `dup`
+### `dup`
 
 `dup` is short for "duplicate" - it duplicates the top element of the stack. For example,
 try this out:
@@ -156,7 +161,7 @@ You should end up with the following stack:
 
 {% include stack.html stack="1 2 3 3" %}
 
-#### `drop`
+### `drop`
 
 `drop` simply drops the top element of the stack. Running:
 
@@ -168,7 +173,7 @@ gives you a stack of:
 
 {% include editor.html size="small"%}
 
-#### `swap`
+### `swap`
 
 `swap`, as you may have guessed, swaps the top two elements of the stack. For example:
 
@@ -180,7 +185,7 @@ will give you:
 
 {% include editor.html size="small"%}
 
-#### `over`
+### `over`
 
 `over` is a bit less obvious: it takes the second element from the top of the
 stack and duplicates it to the top of the stack. Running this:
@@ -193,7 +198,7 @@ will result in this:
 
 {% include editor.html size="small"%}
 
-#### `rot`
+### `rot`
 
 Finally, `rot` "rotates" the top _three_ elements of the stack. The third element from the top of the stack gets moved to the top of the stack, push the other two elements down.
 
@@ -205,3 +210,4 @@ gives you:
 
 {% include editor.html size="small"%}
 
+## Playing With Output
