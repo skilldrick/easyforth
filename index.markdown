@@ -193,7 +193,7 @@ will give you:
 `over` is a bit less obvious: it takes the second element from the top of the
 stack and duplicates it to the top of the stack. Running this:
 
-    1 2 3 dup
+    1 2 3 over
 
 will result in this:
 
