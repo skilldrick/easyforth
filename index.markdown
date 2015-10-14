@@ -298,3 +298,96 @@ Running this should give you the following output:
 <div class="editor-preview editor-text">48 print-stack-top <span class="output">
 The top of the stack is 48
 which looks like '0' in ascii   ok</span></div>
+
+
+## Conditionals and Loops
+
+Now onto the really fun stuff! Forth, just like most other languages, has
+conditionals and loops for controlling the flow of your program. To understand
+how they work, however, first we need to understand booleans in Forth.
+
+### Booleans
+
+There's actually no boolean type in Forth. The number `0` is treated as false,
+and any other number is true, although the canonical true value is `-1` (all
+boolean operators return `0` or `-1`).
+
+To test if two numbers are equal, you can use `=`:
+
+    3 4 = .
+    5 5 = .
+
+This should output:
+
+<div class="editor-preview editor-text">3 4 = . <span class="output">0  ok</span>
+5 5 = . <span class="output">-1  ok</span></div>
+
+{% include editor.html size="small"%}
+
+You can use `<` and `>` for less than and greater than. `<` checks to see if the
+second item from the top of the stack is less than the top item of the stack, and
+vice versa for `>`:
+
+    3 4 < .
+    3 4 > .
+
+<div class="editor-preview editor-text">3 4 < . <span class="output">-1  ok</span>
+3 4 > . <span class="output">0  ok</span></div>
+
+{% include editor.html size="small"%}
+
+The boolean operators And, Or, and Not are available as `and`, `or`, and `invert`:
+
+    3 4 < 20 30 < and .
+    3 4 < 20 30 > or .
+    3 4 < invert .
+
+The first line is the equivalent of `3 < 4 && 20 < 30` in a C-like language.
+The second line is the equivalent of `3 < 4 || 20 > 30`. The third line is the
+equivalent of `!(3 < 4)`.
+
+{% include editor.html size="small"%}
+
+### `if then`
+
+Now we can finally get onto conditionals. Conditionals in Forth can only be used
+inside definitions. The simplest conditional statement in Forth is `if then`. This
+construction is equivalent to a standard `if` statement in most languages. Here's
+an example of a definition using `if then`:
+
+    : buzz?  5 = if ." Buzz" then ;
+    3 buzz?
+    4 buzz?
+    5 buzz?
+
+{% include editor.html size="small"%}
+
+This will output:
+
+<div class="editor-preview editor-text">3 buzz?<span class="output">  ok</span>
+4 buzz?<span class="output">  ok</span>
+5 buzz?<span class="output"> Buzz ok</span></div>
+
+It's important to note that the `then` word marks the end of the `if` statement.
+This makes it equivalent to `fi` in Bash or `end` in Ruby, for example.
+
+### `if else then`
+
+`if else then` is equivalent to an `if/else` statement in most languages. Here's
+an example of its use:
+
+    : is-it-zero?  0 = if ." Yes!" else ." No!" then ;
+    0 is-it-zero?
+    1 is-it-zero?
+    2 is-it-zero?
+
+{% include editor.html size="small"%}
+
+This outputs:
+
+<div class="editor-preview editor-text">0 is-it-zero?<span class="output"> Yes! ok</span>
+1 is-it-zero?<span class="output"> No! ok</span>
+2 is-it-zero?<span class="output"> No! ok</span></div>
+
+This time, the if clause (consequent) is everything between `if` and `else`,
+and the else clause (alternative) is everything between `else` and `then`.

@@ -66,12 +66,17 @@ function addPredefinedWords(dictionary, readLine) {
 
   dictionary.add("and", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
-    context.stack.push(a !== FALSE && b !== FALSE ? TRUE : FALSE);
+    context.stack.push(b & a);
   });
 
   dictionary.add("or", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
-    context.stack.push(a !== FALSE || b !== FALSE ? TRUE : FALSE);
+    context.stack.push(b | a);
+  });
+
+  dictionary.add("invert", function (context) {
+    // invert is bitwise not
+    context.stack.push(~context.stack.pop());
   });
 
   dictionary.add("i", function (context) {
