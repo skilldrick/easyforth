@@ -342,7 +342,7 @@ The boolean operators And, Or, and Not are available as `and`, `or`, and `invert
     3 4 < 20 30 > or .
     3 4 < invert .
 
-The first line is the equivalent of `3 < 4 && 20 < 30` in a C-like language.
+The first line is the equivalent of `3 < 4 && 20 < 30` in a C-based language.
 The second line is the equivalent of `3 < 4 || 20 > 30`. The third line is the
 equivalent of `!(3 < 4)`.
 
@@ -350,12 +350,17 @@ equivalent of `!(3 < 4)`.
 
 ### `if then`
 
-Now we can finally get onto conditionals. Conditionals in Forth can only be used
-inside definitions. The simplest conditional statement in Forth is `if then`. This
-construction is equivalent to a standard `if` statement in most languages. Here's
-an example of a definition using `if then`:
+Now we can finally get onto conditionals. Conditionals in Forth can only be
+used inside definitions. The simplest conditional statement in Forth is `if
+then`. This construction is equivalent to a standard `if` statement in most
+languages. Here's an example of a definition using `if then`. In this example,
+we're also using the `mod` word, which returns the modulo of the top two
+numbers on the stack. In this case, the top number is 5, and the other is
+whatever was placed on the stack before calling `buzz?`. Therefore, `5 mod 0 =`
+is a boolean expression that checks to see if the top of the stack is divisible
+by 5.
 
-    : buzz?  5 = if ." Buzz" then ;
+    : buzz?  5 mod 0 = if ." Buzz" then ;
     3 buzz?
     4 buzz?
     5 buzz?
@@ -391,3 +396,70 @@ This outputs:
 
 This time, the if clause (consequent) is everything between `if` and `else`,
 and the else clause (alternative) is everything between `else` and `then`.
+
+### `do loop`
+
+`do loop` in Forth most closely resembles a `for` loop in most C-based languages.
+In the body of a `do loop`, the special word `i` pushes the current loop index
+onto the stack.
+
+The top two values on the stack give the starting value (inclusive) and ending
+value (exclusive) for the `i` value. The starting value is taken from the top
+of the stack. Here's an example:
+
+    : loop-test  10 0 do i . loop ;
+    loop-test
+
+{% include editor.html size="small"%}
+
+This should output:
+
+<div class="editor-preview editor-text">loop-test<span class="output"> 0 1 2 3 4 5 6 7 8 9  ok</span></div>
+
+The expression `10 0 do i . loop` is roughly equivalent to:
+
+    for (int i = 0; i < 10; i++) {
+      print(i);
+    }
+
+### Fizz Buzz
+
+We can write the classic Fizz Buzz program easily using a `do loop`:
+
+    : fizz?  3 mod 0 = dup if ." Fizz" then ;
+    : buzz?  5 mod 0 = dup if ." Buzz" then ;
+    : fizz-buzz?  dup fizz? swap buzz? or invert ;
+    : do-fizz-buzz  25 1 do cr i fizz-buzz? if i . then loop ;
+    do-fizz-buzz
+
+{% include editor.html %}
+
+`fizz?` checks to see if the top of the stack is divisible by 3. If it is, it
+outputs the string "Fizz" and returns (pushes onto the stack) the flag `-1`,
+meaning true. If the number on top of the stack was not divisible by 3 it
+outputs nothing and returns the flag `0`, meaning false. This is achieved by
+`dup`-ing the boolean returned by `=` before the `if then`, leaving a copy of
+that boolean on the stack when the word finishes executing (`if` consumes the
+top one).
+
+`buzz?` does the same thing but with 5, and the string "Buzz".
+
+`fizz-buzz?` calls `dup` to duplicate the value on top of the stack, then calls
+`fizz?`. After calling `dup fizz?`, the top of the stack consists of the
+original value and the boolean returned by `fizz?`. `swap` swaps these, so the
+original top-of-stack value is back on top. Next we call `buzz?`, which
+replaces the top-of-stack value with a boolean flag. Now the top two values on
+the stack are booleans representing whether the number was divisible by 3 or 5.
+Next, `or` checks to see if either of these is true, and `invert` negates this
+value. The body of `fizz-buzz?` (forgetting output) is roughly equivalent to:
+
+    !(x % 3 == 0 || x % 5 == 0)
+
+Therefore, `fizz-buzz?` returns a boolean indicating whether a number should be
+printed.  Finally, `do-fizz-buzz` loops from 1 to 25, calling `fizz-buzz?` on `i`,
+and outputting `i` if `fizz-buzz?` returns true.
+
+This is by far the most complex program we've looked at so far. If you're having
+trouble understanding how it works, have a play with the `fizz?` and `buzz?`
+words in the interactive console. For example, what happens when you call
+`9 fizz?`? What about `8 fizz?`? How is the stack affected by these calls?
