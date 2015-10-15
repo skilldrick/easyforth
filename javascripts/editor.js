@@ -17,6 +17,10 @@ function Editor(selectorOrElement) {
     $newLine.appendTo($prevLines);
   }
 
+  function updateStack() {
+    $stack.text(forth.getStack());
+  }
+
   function readInput() {
     var code = $input.val();
 
@@ -26,7 +30,7 @@ function Editor(selectorOrElement) {
       addLine(codeLine, output);
     });
 
-    $stack.text(forth.getStack());
+    updateStack();
     $input.val("");
   }
 
@@ -61,6 +65,8 @@ function Editor(selectorOrElement) {
       }
     });
   }
+
+  updateStack();
 }
 
 $(".editor").each(function (i, el) {
