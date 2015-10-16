@@ -39,7 +39,7 @@ typing `+` takes the top two numbers off the stack, adds them, and puts
 the result back on the stack.
 
 Let's take a look at an example. Type (don't copy-paste) the following into the
-interpreter, typing Enter after each line.
+interpreter, typing `Enter` after each line.
 
     1
     2
@@ -47,16 +47,15 @@ interpreter, typing Enter after each line.
 
 {% include editor.html %}
 
-You should see this at the top of the editor window:
+Every time you type a line followed by the `Enter` key, the Forth interpreter
+executes that line, and appends the string `ok` to let you know there were no
+errors. You should also notice that as you execute each line, the area at the
+top fills up with numbers. That area is our visualization of the stack. It
+should look like this:
 
 {% include stack.html stack="1 2 3" %}
 
-Every time you type a line followed by the Enter key, the Forth interpreter
-executes it, and appends the string `ok` to let you know there were no errors. You should
-also notice that as you press Enter on each line, the area at the top fills up with numbers.
-That area is our visualization of the stack.
-
-Now, into the same interpreter, type a single `+` followed by the Enter key. The top two
+Now, into the same interpreter, type a single `+` followed by the `Enter` key. The top two
 elements on the stack, `2` and `3`, have been replaced by `5`.
 
 {% include stack.html stack="1 5" %}
@@ -69,7 +68,7 @@ At this point, your editor window should look like this:
 +  <span class="output">ok</span>
 </div>
 
-Type `+` again and press Enter, and the top two elements will be replaced by 6. If
+Type `+` again and press `Enter`, and the top two elements will be replaced by 6. If
 you type `+` one more time, Forth will try to pop the top two elements off the
 stack, even though there's only _one_ element on the stack! This results in a
 `Stack underflow` error:
@@ -83,11 +82,11 @@ stack, even though there's only _one_ element on the stack! This results in a
 </div>
 
 Forth doesn't force you to type every token as a separate line. Type the
-following, followed by the Enter key:
+following into the next editor, followed by the `Enter` key:
 
     123 456 +
 
-{% include editor.html %}
+{% include editor.html size="small"%}
 
 The stack should now look like this:
 
@@ -101,66 +100,68 @@ following into the interpreter:
 
     5 2 + 10 *
 
-{% include editor.html %}
+{% include editor.html size="small"%}
 
 One of the nice things about Forth is that the order of operations is
 completely based on their order in the program. For example, when executing `5
 2 + 10 *`, the interpreter pushes 5 to the stack, then 2, then adds them and
-pushes the result, then pushes 10 to the stack, then multiplies 7 and 10. Because
-of this, there's no need for parentheses to group operators with lower
+pushes the resulting 7, then pushes 10 to the stack, then multiplies 7 and 10.
+Because of this, there's no need for parentheses to group operators with lower
 precedence.
 
 
-Defining Words
+## Defining Words
 
 The syntax of Forth is extremely straightforward. Forth code is interpreted as
 a series of space-delimited words. Almost all non-whitespace characters are valid
 in words. When the Forth interpreter reads a word, it checks to see if a
 definition exists in an internal structure known as the Dictionary. If it is
 found, that definition is executed. Otherwise, the word is assumed to be a
-number, and it is pushed onto the stack. If the word is not able to be
-converted to a number, an error occurs.
+number, and it is pushed onto the stack. If the word cannot be converted to a
+number, an error occurs.
 
 You can try that out yourself below. Type `foo` (an unrecognized word)
 and press enter.
 
-{% include editor.html %}
+{% include editor.html size="small"%}
 
 You should see something like this:
 
 <div class="editor-preview editor-text">foo  <span class="output">foo ?</span></div>
 
-We can create our own definition of `foo`, using two special words called `:` and `;`.
-`:` is our way of telling Forth we want to create a definition. The first word after the `:`
-becomes the definition name, and the rest of the words (until the `;`) make up
-the body of the definition. It's conventional to include two spaces between the name and the
-body of the definition. Try entering the following:
+`foo ?` means that Forth was unable to find a definition for `foo`, and it
+wasn't a valid number.
+
+We can create our own definition of `foo` using two special words called `:`
+(colon) and `;` (semicolon).  `:` is our way of telling Forth we want to create
+a definition. The first word after the `:` becomes the definition name, and the
+rest of the words (until the `;`) make up the body of the definition. It's
+conventional to include two spaces between the name and the body of the
+definition. Try entering the following:
 
     : foo  100 + ;
     1000 foo
     foo foo foo
 
-(Be careful to include a space before the `;` word. Because Forth words are
-space delimited, `+;` is a perfectly valid word, and is not treated as two separate words.)
+**Warning:** A common mistake is to miss out the space before the `;` word. Because Forth
+words are space delimited and can contain most characters, `+;` is a perfectly
+valid word and is not parsed as two separate words.
 
-{% include editor.html %}
+{% include editor.html size="small"%}
 
 As you've hopefully figured out, our `foo` word simply adds 100 to the value on
 top of the stack. It's not very interesting, but it should give you an idea of
 how simple definitions work.
 
-Most Forth systems come with a large library of predefined words. This JavaScript Forth
-is very straightforward so it only comes with a relatively small number of words, but there
-are still enough to complete most tasks.
-
 
 ## Stack Manipulation
 
-First, let's look at some words for manipulating the elements at the top of the stack.
+Now we can start taking a look at some of Forth's predefined words. First,
+let's look at some words for manipulating the elements at the top of the stack.
 
 ### `dup`
 
-`dup` is short for "duplicate" - it duplicates the top element of the stack. For example,
+`dup` is short for "duplicate" -- it duplicates the top element of the stack. For example,
 try this out:
 
     1 2 3 dup
@@ -211,8 +212,8 @@ will result in this:
 ### `rot`
 
 Finally, `rot` "rotates" the top _three_ elements of the stack. The third
-element from the top of the stack gets moved to the top of the stack, push the
-other two elements down.
+element from the top of the stack gets moved to the top of the stack, pushing
+the other two elements down.
 
     1 2 3 rot
 
@@ -223,6 +224,8 @@ gives you:
 {% include editor.html size="small"%}
 
 ## Generating Output
+
+Next, let's look at some words for outputting text to the console.
 
 ### `.` (period)
 
@@ -258,12 +261,12 @@ written as:
 
     87 emit 111 emit 119 emit 33 emit
 
-A difference between `.` and `emit` is that the latter doesn't output any space
-after each character, enabling you to build up arbitrary strings of output.
+Unlike `.`, `emit` doesn't output any space after each character, enabling you
+to build up arbitrary strings of output.
 
 ### `cr`
 
-`cr` is short for carriage return - it simply outputs a newline:
+`cr` is short for carriage return -- it simply outputs a newline:
 
     cr 100 . cr 200 . cr 300 .
 
@@ -278,7 +281,7 @@ This will output:
 
 ### `."`
 
-Finally we have `."` - a special word for outputting strings. The `."` word works
+Finally we have `."` -- a special word for outputting strings. The `."` word works
 differently inside definitions to interactive mode. `."` marks the beginning of
 a string to output, and the end of the string is marked by `"`. The closing `"`
 isn't a word, and so doesn't need to be space-delimited. Here's an example:
@@ -309,9 +312,9 @@ which looks like '0' in ascii   ok</span></div>
 
 ## Conditionals and Loops
 
-Now onto the really fun stuff! Forth, just like most other languages, has
-conditionals and loops for controlling the flow of your program. To understand
-how they work, however, first we need to understand booleans in Forth.
+Now onto the fun stuff! Forth, like most other languages, has conditionals and
+loops for controlling the flow of your program. To understand how they work,
+however, first we need to understand booleans in Forth.
 
 ### Booleans
 
@@ -349,9 +352,13 @@ The boolean operators And, Or, and Not are available as `and`, `or`, and `invert
     3 4 < 20 30 > or .
     3 4 < invert .
 
-The first line is the equivalent of `3 < 4 && 20 < 30` in a C-based language.
-The second line is the equivalent of `3 < 4 || 20 > 30`. The third line is the
+The first line is the equivalent of `3 < 4 & 20 < 30` in a C-based language.
+The second line is the equivalent of `3 < 4 | 20 > 30`. The third line is the
 equivalent of `!(3 < 4)`.
+
+`and`, `or`, and `invert` are all bitwise operations. For well-formed flags
+(`0` and `-1`) they'll work as expected, but they'll give incorrect results for
+arbitrary numbers.
 
 {% include editor.html size="small"%}
 
@@ -359,13 +366,12 @@ equivalent of `!(3 < 4)`.
 
 Now we can finally get onto conditionals. Conditionals in Forth can only be
 used inside definitions. The simplest conditional statement in Forth is `if
-then`. This construction is equivalent to a standard `if` statement in most
-languages. Here's an example of a definition using `if then`. In this example,
-we're also using the `mod` word, which returns the modulo of the top two
-numbers on the stack. In this case, the top number is 5, and the other is
-whatever was placed on the stack before calling `buzz?`. Therefore, `5 mod 0 =`
-is a boolean expression that checks to see if the top of the stack is divisible
-by 5.
+then`, which is equivalent to a standard `if` statement in most languages.
+Here's an example of a definition using `if then`. In this example, we're also
+using the `mod` word, which returns the modulo of the top two numbers on the
+stack. In this case, the top number is 5, and the other is whatever was placed
+on the stack before calling `buzz?`. Therefore, `5 mod 0 =` is a boolean
+expression that checks to see if the top of the stack is divisible by 5.
 
     : buzz?  5 mod 0 = if ." Buzz" then ;
     3 buzz?
@@ -467,9 +473,10 @@ Logically, the body of `fizz-buzz?` is equivalent to:
 
     !(x % 3 == 0 || x % 5 == 0)
 
-Therefore, `fizz-buzz?` returns a boolean indicating whether a number should be
-printed.  Finally, `do-fizz-buzz` loops from 1 to 25, calling `fizz-buzz?` on `i`,
-and outputting `i` if `fizz-buzz?` returns true.
+Therefore, `fizz-buzz?` returns a boolean indicating if the argument is not
+divisible by 3 or 5, and thus should be printed.  Finally, `do-fizz-buzz` loops
+from 1 to 25, calling `fizz-buzz?` on `i`, and outputting `i` if `fizz-buzz?`
+returns true.
 
 If you're having trouble figuring out what's going on inside `fizz-buzz?`, the
 example below might help you to understand how it works. All we're doing here
@@ -511,3 +518,6 @@ Here's the same thing but starting with 5:
     buzz?     0 -1 <- Top
     or        -1 <- Top
     invert    0 <- Top
+
+In this case the original top-of-stack value was divisible by 5, so nothing
+should be printed.

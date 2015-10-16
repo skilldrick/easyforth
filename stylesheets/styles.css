@@ -64,7 +64,7 @@ code {
   margin: 0 0.1em;
 }
 
-/* Reset for code blocks */
+/* Reset margin for code blocks */
 pre code {
   margin: 0;
 }
