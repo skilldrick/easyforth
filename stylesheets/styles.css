@@ -59,6 +59,10 @@ code, pre {
   color:#333;
 }
 
+code {
+  margin: 0 0.1em;
+}
+
 pre {
   overflow-x: auto;
   margin-left: 1em;
