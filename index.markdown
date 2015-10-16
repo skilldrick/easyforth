@@ -8,17 +8,24 @@ layout: default
 </div>
 
 
-
 ## Introduction
 
-This ebook is here to teach you a programming language called Forth. Forth is a
-language unlike most others. It's not functional or object oriented, it doesn't
-have type-checking, and it has almost no syntax. It was written in the 70s, but
-is still used today for certain applications.
+This small ebook is here to teach you a programming language called Forth. Forth is a
+language unlike most others. It's not functional _or_ object oriented, it doesn't
+have type-checking, and it basically has zero syntax. It was written in the 70s, but
+is still used today for
+[certain applications](http://www.forth.com/resources/apps/more-applications.html).
 
-Every new programming language you learn helps you think about problems in new ways.
-Forth is super easy to learn, but it requires you to think in a different way than
-you're used to, so it's a perfect language to broaden your coding horizons.
+Why would you want to learn such an odd language? Every new programming
+language you learn helps you think about problems in new ways. Forth is very
+easy to learn, but it requires you to think in a different way than you're used
+to. That makes it a perfect language to broaden your coding horizons.
+
+This book includes a simple implementation of Forth I wrote in JavaScript. It's by
+no means perfect, and is missing a lot of the functionality you'd expect in a real
+Forth system. It's just here to give you an easy way to try out the examples. (If
+you're a Forth expert, please
+[contribute here](https://github.com/skilldrick/easyforth) and make it better!)
 
 I'm going to assume that you know at least one other programming language, and have
 a basic idea of how stacks work as a data structure.
