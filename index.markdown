@@ -376,6 +376,9 @@ This will output:
 It's important to note that the `then` word marks the end of the `if` statement.
 This makes it equivalent to `fi` in Bash or `end` in Ruby, for example.
 
+Another important thing to realize is that `if` consumes the top value on the
+stack when it checks to see if it's true or false.
+
 ### `if else then`
 
 `if else then` is equivalent to an `if/else` statement in most languages. Here's
@@ -424,7 +427,8 @@ The expression `10 0 do i . loop` is roughly equivalent to:
 
 ### Fizz Buzz
 
-We can write the classic Fizz Buzz program easily using a `do loop`:
+We can write the classic [Fizz Buzz](https://en.wikipedia.org/wiki/Fizz_buzz)
+program easily using a `do loop`:
 
     : fizz?  3 mod 0 = dup if ." Fizz" then ;
     : buzz?  5 mod 0 = dup if ." Buzz" then ;
@@ -434,24 +438,25 @@ We can write the classic Fizz Buzz program easily using a `do loop`:
 
 {% include editor.html %}
 
-`fizz?` checks to see if the top of the stack is divisible by 3. If it is, it
-outputs the string "Fizz" and returns (pushes onto the stack) the flag `-1`,
-meaning true. If the number on top of the stack was not divisible by 3 it
-outputs nothing and returns the flag `0`, meaning false. This is achieved by
-`dup`-ing the boolean returned by `=` before the `if then`, leaving a copy of
-that boolean on the stack when the word finishes executing (`if` consumes the
-top one).
+`fizz?` checks to see if the top of the stack is divisible by 3 using `3 mod 0
+=`. It then uses `dup` to duplicate this result. The top copy of the value is
+consumed by `if`.  The second copy is left on the stack and acts as the return
+value of `fizz?`.
 
-`buzz?` does the same thing but with 5, and the string "Buzz".
+If the number on top of the stack is divisible by 3, the string `"Fizz"` will
+be output, otherwise there will be no output.
+
+`buzz?` does the same thing but with 5, and outputs the string `"Buzz"`.
 
 `fizz-buzz?` calls `dup` to duplicate the value on top of the stack, then calls
-`fizz?`. After calling `dup fizz?`, the top of the stack consists of the
-original value and the boolean returned by `fizz?`. `swap` swaps these, so the
-original top-of-stack value is back on top. Next we call `buzz?`, which
-replaces the top-of-stack value with a boolean flag. Now the top two values on
-the stack are booleans representing whether the number was divisible by 3 or 5.
-Next, `or` checks to see if either of these is true, and `invert` negates this
-value. The body of `fizz-buzz?` (forgetting output) is roughly equivalent to:
+`fizz?`, converting the top copy into a boolean. After this, the top of the
+stack consists of the original value, and the boolean returned by `fizz?`.
+`swap` swaps these, so the original top-of-stack value is back on top, and the
+boolean is underneath. Next we call `buzz?`, which replaces the top-of-stack
+value with a boolean flag. Now the top two values on the stack are booleans
+representing whether the number was divisible by 3 or 5.  After this, we call
+`or` to see if either of these is true, and `invert` to negate this value.
+Logically, the body of `fizz-buzz?` is equivalent to:
 
     !(x % 3 == 0 || x % 5 == 0)
 
@@ -459,7 +464,43 @@ Therefore, `fizz-buzz?` returns a boolean indicating whether a number should be
 printed.  Finally, `do-fizz-buzz` loops from 1 to 25, calling `fizz-buzz?` on `i`,
 and outputting `i` if `fizz-buzz?` returns true.
 
-This is by far the most complex program we've looked at so far. If you're having
-trouble understanding how it works, have a play with the `fizz?` and `buzz?`
-words in the interactive console. For example, what happens when you call
-`9 fizz?`? What about `8 fizz?`? How is the stack affected by these calls?
+If you're having trouble figuring out what's going on inside `fizz-buzz?`, the
+example below might help you to understand how it works. All we're doing here
+is executing each word of the definition of `fizz-buzz?` on a separate line. As
+you execute each line, watch the stack to see how it changes:
+
+    : fizz?  3 mod 0 = dup if ." Fizz" then ;
+    : buzz?  5 mod 0 = dup if ." Buzz" then ;
+    4
+    dup
+    fizz?
+    swap
+    buzz?
+    or
+    invert
+
+{% include editor.html %}
+
+Here's how each line affects the stack:
+
+    4         4 <- Top
+    dup       4 4 <- Top
+    fizz?     4 0 <- Top
+    swap      0 4 <- Top
+    buzz?     0 0 <- Top
+    or        0 <- Top
+    invert    -1 <- Top
+
+Remember, the final value on the stack is the return value of the `fizz-buzz?`
+word. In this case, it's true, because the number was not divisible by 3 or 5,
+and so _should_ be printed.
+
+Here's the same thing but starting with 5:
+
+    5         5 <- Top
+    dup       5 5 <- Top
+    fizz?     5 0 <- Top
+    swap      0 5 <- Top
+    buzz?     0 -1 <- Top
+    or        -1 <- Top
+    invert    0 <- Top
