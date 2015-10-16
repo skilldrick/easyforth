@@ -59,8 +59,14 @@ code, pre {
   color:#333;
 }
 
+/* Give inline code snippets a bit of breathing room */
 code {
   margin: 0 0.1em;
+}
+
+/* Reset for code blocks */
+pre code {
+  margin: 0;
 }
 
 pre {
