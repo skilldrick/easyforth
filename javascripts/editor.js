@@ -26,8 +26,11 @@ function Editor(selectorOrElement) {
 
     // handle multiple lines - this will only come up when text is pasted
     code.split("\n").forEach(function (codeLine) {
-      var output = forth.readLine(codeLine) || "";
-      addLine(codeLine, output);
+      // This will break if multiple lines are pasted and one of them
+      // contains a command that will pause execution of that line
+      forth.readLine(codeLine, function (output) {
+        addLine(codeLine, output);
+      });
     });
 
     updateStack();

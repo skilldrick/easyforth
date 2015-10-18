@@ -97,8 +97,9 @@ function Forth() {
     return "";
   }
 
-  // Read a line of input. Return value is output for this line.
-  function readLine(line) {
+  // Read a line of input. Callback is called with output for this line.
+  function readLine(line, cb) {
+    var done = cb || function () {};
     var tokenizer = Tokenizer(line);
 
     var output = [];
@@ -116,11 +117,14 @@ function Forth() {
       }
     } catch (e) {
       currentDefinition = null;
-      return "  " + e.message;
+      done("  " + e.message);
+      return;
     }
 
     if (!currentDefinition) { // don't append output while definition is in progress
-      return " " + output.join("") + " ok";
+      done(" " + output.join("") + " ok");
+    } else {
+      done();
     }
   }
 
