@@ -136,14 +136,22 @@ function runTokenizerTests() {
   })();
 }
 
+function collectOutput(func, input) {
+  var output = [];
+  func(input, function (o) {
+    output.push(o)
+  });
+  return output.join("");
+}
+
 function runForthTests() {
   (function () {
     var forth = Forth();
 
     console.log("Testing readLine");
-    var output = forth.readLine("10 20 30");
+    var output = collectOutput(forth.readLine, "10 20 30");
     assertEqual(forth.getStack(), "10 20 30 <- Top ");
-    assertEqual(output, "  ok");
+    assertEqual(output, " ok");
 
     console.log("Testing funky space");
     forth.readLine("100\t200    300  ");
@@ -163,8 +171,8 @@ function runForthTests() {
     forth.readLine("+");
     assertEqual(forth.getStack(), "17 <- Top ");
 
-    var output = forth.readLine("+");
-    assertEqual(output, "  Stack underflow");
+    var output = collectOutput(forth.readLine, "+");
+    assertEqual(output, " Stack underflow");
   })();
 
   (function () {
@@ -293,66 +301,66 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing .");
-    var output = forth.readLine("1 2 3 .");
+    var output = collectOutput(forth.readLine, "1 2 3 .");
     assertEqual(forth.getStack(), "1 2 <- Top ");
-    assertEqual(output, " 3  ok");
+    assertEqual(output, "3  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing .s");
-    var output = forth.readLine("1 2 3 .s");
+    var output = collectOutput(forth.readLine, "1 2 3 .s");
     assertEqual(forth.getStack(), "1 2 3 <- Top ");
-    assertEqual(output, " \n1 2 3 <- Top  ok");
+    assertEqual(output, "\n1 2 3 <- Top  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing cr");
-    var output = forth.readLine("1 2 . cr .");
+    var output = collectOutput(forth.readLine, "1 2 . cr .");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 2 \n1  ok");
+    assertEqual(output, "2 \n1  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing space");
-    var output = forth.readLine("1 2 . space space .");
+    var output = collectOutput(forth.readLine, "1 2 . space space .");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 2   1  ok");
+    assertEqual(output, "2   1  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing spaces");
-    var output = forth.readLine("1 2 . 5 spaces .");
+    var output = collectOutput(forth.readLine, "1 2 . 5 spaces .");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 2      1  ok");
+    assertEqual(output, "2      1  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing emit");
-    var output = forth.readLine("99 emit");
+    var output = collectOutput(forth.readLine, "99 emit");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " c ok");
+    assertEqual(output, "c ok");
 
-    output = forth.readLine("108 111 111 99 emit emit emit emit");
+    output = collectOutput(forth.readLine, "108 111 111 99 emit emit emit emit");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " cool ok");
+    assertEqual(output, "cool ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing :");
-    var output = forth.readLine(": add-10  10 + ;");
-    assertEqual(output, "  ok");
+    var output = collectOutput(forth.readLine, ": add-10  10 + ;");
+    assertEqual(output, " ok");
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "15 <- Top ");
   })();
@@ -362,8 +370,8 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing : with code before and after");
-    var output = forth.readLine("100 : add-10  10 + ; 200");
-    assertEqual(output, "  ok");
+    var output = collectOutput(forth.readLine, "100 : add-10  10 + ; 200");
+    assertEqual(output, " ok");
     forth.readLine("5 add-10");
     assertEqual(forth.getStack(), "100 200 15 <- Top ");
   })();
@@ -372,12 +380,12 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing multiline :");
-    var output = forth.readLine(": add-20  10 + ");
+    var output = collectOutput(forth.readLine, ": add-20  10 + ");
     assert(!output, "No output should be produced");
-    output = forth.readLine(" 5 + ");
+    output = collectOutput(forth.readLine, " 5 + ");
     assert(!output, "No output should be produced");
-    output = forth.readLine(" 5 + ; ");
-    assertEqual(output, "  ok"); // output ok after definition
+    output = collectOutput(forth.readLine, " 5 + ; ");
+    assertEqual(output, " ok"); // output ok after definition
     forth.readLine("5 add-20");
     assertEqual(forth.getStack(), "25 <- Top ");
   })();
@@ -386,18 +394,18 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing missing words in :");
-    var output = forth.readLine(": add-20  10 + foo ");
-    assertEqual(output, "  foo ? "); // output error
-    output = forth.readLine("5 5 + .");
-    assertEqual(output, " 10  ok"); // output because definition has finished
+    var output = collectOutput(forth.readLine, ": add-20  10 + foo ");
+    assertEqual(output, " foo ? "); // output error
+    output = collectOutput(forth.readLine, "5 5 + .");
+    assertEqual(output, "10  ok"); // output because definition has finished
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing missing words in interpreter");
-    var output = forth.readLine("10 10 + foo ");
-    assertEqual(output, "  foo ? "); // output error
+    var output = collectOutput(forth.readLine, "10 10 + foo ");
+    assertEqual(output, " foo ? "); // output error
   })();
 
   (function () {
@@ -433,9 +441,9 @@ function runForthTests() {
     console.log("Testing simple nested if/else/then with output");
     forth.readLine(': foo  0 if ." if1 " 0 else ." else1 "');
     forth.readLine('  -1 if ." if2 " 1 else ." else2 " 2 then then ; ');
-    var output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), "1 <- Top ");
-    assertEqual(output, " else1 if2  ok");
+    assertEqual(output, "else1 if2  ok");
   })();
 
   (function () {
@@ -451,14 +459,14 @@ function runForthTests() {
     forth.readLine('                    ." error "');
     forth.readLine('            then then then then then drop ;');
 
-    var output = forth.readLine('23 eggsize');
-    assertEqual(output, " medium  ok");
+    var output = collectOutput(forth.readLine, '23 eggsize');
+    assertEqual(output, "medium  ok");
 
-    output = forth.readLine('29 eggsize');
-    assertEqual(output, " extra large  ok");
+    output = collectOutput(forth.readLine, '29 eggsize');
+    assertEqual(output, "extra large  ok");
 
-    output = forth.readLine('31 eggsize');
-    assertEqual(output, " error  ok");
+    output = collectOutput(forth.readLine, '31 eggsize');
+    assertEqual(output, "error  ok");
 
     assertEqual(forth.getStack(), " <- Top ");
   })();
@@ -467,11 +475,11 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing do loop");
-    var output = forth.readLine(': foo  4 0 do ." hello! " i . loop ; ');
-    assertEqual(output, "  ok");
-    output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, ': foo  4 0 do ." hello! " i . loop ; ');
+    assertEqual(output, " ok");
+    output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " hello! 0 hello! 1 hello! 2 hello! 3  ok");
+    assertEqual(output, "hello! 0 hello! 1 hello! 2 hello! 3  ok");
   })();
 
   (function () {
@@ -479,9 +487,9 @@ function runForthTests() {
 
     console.log("Testing do loop");
     forth.readLine(': foo  4 0 do ." hello! " loop ; ');
-    var output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " hello! hello! hello! hello!  ok");
+    assertEqual(output, "hello! hello! hello! hello!  ok");
   })();
 
   (function () {
@@ -489,9 +497,9 @@ function runForthTests() {
 
     console.log("Testing nested do loop");
     forth.readLine(': foo  3 0 do 2 0 do i . j . ."  " loop loop ; ');
-    var output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 0 0  1 0  0 1  1 1  0 2  1 2   ok");
+    assertEqual(output, "0 0  1 0  0 1  1 1  0 2  1 2   ok");
   })();
 
   (function () {
@@ -499,9 +507,9 @@ function runForthTests() {
 
     console.log("Testing do +loop");
     forth.readLine(': foo  128 1 do i . i +loop ; ');
-    var output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 1 2 4 8 16 32 64  ok");
+    assertEqual(output, "1 2 4 8 16 32 64  ok");
   })();
 
   (function () {
@@ -509,17 +517,17 @@ function runForthTests() {
 
     console.log("Testing begin until");
     forth.readLine(': foo  10 begin dup . 1- dup 0= until drop ; ');
-    var output = forth.readLine("foo");
+    var output = collectOutput(forth.readLine, "foo");
     assertEqual(forth.getStack(), " <- Top ");
-    assertEqual(output, " 10 9 8 7 6 5 4 3 2 1  ok");
+    assertEqual(output, "10 9 8 7 6 5 4 3 2 1  ok");
   })();
 
   (function () {
     var forth = Forth();
 
     console.log("Testing variables");
-    var output = forth.readLine('variable foo');
-    assertEqual(output, "  ok");
+    var output = collectOutput(forth.readLine, 'variable foo');
+    assertEqual(output, " ok");
     forth.readLine('variable bar');
     forth.readLine('foo bar');
     // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
@@ -541,13 +549,12 @@ function runForthTests() {
     var forth = Forth();
 
     console.log("Testing constants");
-    var output = forth.readLine('10 constant foo');
-    assertEqual(output, "  ok");
+    var output = collectOutput(forth.readLine, '10 constant foo');
+    assertEqual(output, " ok");
     forth.readLine('20 constant bar');
     forth.readLine('foo bar');
     assertEqual(forth.getStack(), "10 20 <- Top ");
   })();
-  
 }
 
 // Wow such test runner

@@ -10,11 +10,17 @@ function Editor(selectorOrElement) {
   var $stack = $editor.find(".stack-viewer");
   var $window = $(window);
 
-  function addLine(code, output) {
+  function addLine(code) {
     var $codeSpan = $("<span>").addClass("code").text(code);
-    var $outputSpan = $("<span>").addClass("output").text(output);
-    var $newLine = $("<p>").append($codeSpan, $outputSpan);
+    var $spacer = $("<span> </span>");
+    var $newLine = $("<p>").append($codeSpan, $spacer);
     $newLine.appendTo($prevLines);
+    return $newLine;
+  }
+
+  function addOutput($line, output) {
+    var $outputSpan = $("<span>").addClass("output").text(output);
+    $line.append($outputSpan);
   }
 
   function updateStack() {
@@ -26,10 +32,10 @@ function Editor(selectorOrElement) {
 
     // handle multiple lines - this will only come up when text is pasted
     code.split("\n").forEach(function (codeLine) {
-      // This will break if multiple lines are pasted and one of them
-      // contains a command that will pause execution of that line
+      var $line = addLine(codeLine);
+
       forth.readLine(codeLine, function (output) {
-        addLine(codeLine, output);
+        addOutput($line, output);
       });
     });
 

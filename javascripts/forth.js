@@ -99,10 +99,9 @@ function Forth() {
 
   // Read a line of input. Callback is called with output for this line.
   function readLine(line, cb) {
-    var done = cb || function () {};
+    var output = cb || function () {};
     var tokenizer = Tokenizer(line);
 
-    var output = [];
     var nextToken;
 
     try {
@@ -112,19 +111,17 @@ function Forth() {
         if (currentDefinition) { // Are we currently defining a definition?
           addActionToCurrentDefinition(action);
         } else {
-          output.push(executeRuntimeAction(tokenizer, action));
+          output(executeRuntimeAction(tokenizer, action));
         }
       }
     } catch (e) {
       currentDefinition = null;
-      done("  " + e.message);
+      output(" " + e.message);
       return;
     }
 
     if (!currentDefinition) { // don't append output while definition is in progress
-      done(" " + output.join("") + " ok");
-    } else {
-      done();
+      output(" ok");
     }
   }
 
