@@ -99,38 +99,73 @@ function Forth() {
 
   // Read a line of input. Callback is called with output for this line.
   function readLine(line, cb) {
-    var output = cb || function () {};
-    var tokenizer = Tokenizer(line);
+    return new Promise(function (resolve, reject) {
+      var output = cb || function () {};
+      var tokenizer = Tokenizer(line);
 
-    var nextToken;
+      function processTokens() {
+        var nextToken;
 
-    try {
-      while (nextToken = tokenizer.nextToken()) {
-        var action = tokenToAction(nextToken)
+        while (nextToken = tokenizer.nextToken()) {
+          var action = tokenToAction(nextToken)
 
-        if (currentDefinition) { // Are we currently defining a definition?
-          addActionToCurrentDefinition(action);
-        } else {
-          output(executeRuntimeAction(tokenizer, action));
+          if (currentDefinition) { // Are we currently defining a definition?
+            addActionToCurrentDefinition(action);
+          } else {
+            output(executeRuntimeAction(tokenizer, action));
+            /*
+            // this is proof of concept to show that we can break execution of
+            // processTokens and resume later (needed for key input)
+            setTimeout(function () {
+              processTokensWithCatch();
+            }, 0);
+            break;
+            */
+          }
+        }
+
+        if (!nextToken) { // we didn't break out of the loop, so must be done
+          if (!currentDefinition) { // don't append output while definition is in progress
+            output(" ok");
+          }
+          resolve();
         }
       }
-    } catch (e) {
-      currentDefinition = null;
-      output(" " + e.message);
-      return;
-    }
 
-    if (!currentDefinition) { // don't append output while definition is in progress
-      output(" ok");
-    }
+      function processTokensWithCatch() {
+        try {
+          processTokens();
+        } catch (e) {
+          currentDefinition = null;
+          output(" " + e.message);
+          resolve();
+        }
+      }
+
+      processTokensWithCatch();
+    });
   }
 
-  addPredefinedWords(context.dictionary, readLine);
+  function readLines(codeLines, lineCallback, outputCallback) {
+    // Use reduce to execute promises in sequence
+    return codeLines.reduce(function (promise, codeLine) {
+      return promise.then(function () {
+        lineCallback && lineCallback(codeLine);
+        return readLine(codeLine, outputCallback);
+      });
+    }, Promise.resolve());
+  }
 
-  return {
-    readLine: readLine,
-    getStack: function () {
-      return context.stack.print();
-    }
-  };
+  // because readLines is async, addPredefinedWords is async too
+  var promise = addPredefinedWords(context.dictionary, readLines);
+
+  return promise.then(function () {
+    return {
+      readLine: readLine,
+      readLines: readLines,
+      getStack: function () {
+        return context.stack.print();
+      }
+    };
+  });
 }

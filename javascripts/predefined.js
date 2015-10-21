@@ -1,4 +1,4 @@
-function addPredefinedWords(dictionary, readLine) {
+function addPredefinedWords(dictionary, readLines) {
   function controlCode(code) {
     return {
       isControlCode: true,
@@ -150,23 +150,25 @@ function addPredefinedWords(dictionary, readLine) {
     context.memory.allot(context.stack.pop());
   });
 
-  readLine(": cells  1 * ;");
-  readLine(": cr  10 emit ;");
-  readLine(": space  32 emit ;");
-  readLine(": spaces  0 do space loop ;");
-  readLine(": 0=  0 = ;");
-  readLine(": 0<  0 < ;");
-  readLine(": 0>  0 > ;");
-  readLine(": ?dup  dup if dup then ;");
-  readLine(": 2dup  over over ;");
-  readLine(": 1+  1 + ;");
-  readLine(": 1-  1 - ;");
-  readLine(": 2+  2 + ;");
-  readLine(": 2-  2 - ;");
-  readLine(": 2*  2 * ;");
-  readLine(": 2/  2 / ;");
-  readLine(": negate  -1 * ;");
-  readLine(": abs  dup 0< if negate then ;");
-  readLine(": min  2dup < if drop else swap drop then ;");
-  readLine(": max  2dup < if swap drop else drop then ;");
+  return readLines([
+    ": cells  1 * ;",
+    ": cr  10 emit ;",
+    ": space  32 emit ;",
+    ": spaces  0 do space loop ;",
+    ": 0=  0 = ;",
+    ": 0<  0 < ;",
+    ": 0>  0 > ;",
+    ": ?dup  dup if dup then ;",
+    ": 2dup  over over ;",
+    ": 1+  1 + ;",
+    ": 1-  1 - ;",
+    ": 2+  2 + ;",
+    ": 2-  2 - ;",
+    ": 2*  2 * ;",
+    ": 2/  2 / ;",
+    ": negate  -1 * ;",
+    ": abs  dup 0< if negate then ;",
+    ": min  2dup < if drop else swap drop then ;",
+    ": max  2dup < if swap drop else drop then ;"
+  ]);
 }
