@@ -16,6 +16,13 @@ function Forth() {
   // as definitions can span multiple lines
   var currentDefinition = null;
 
+  // Need to know if `key` is waiting for a key to be pressed
+  var waitingForKey = false;
+
+  // This is set within readLine as a callback to continue processing tokens
+  // once a key has been pressed
+  var afterKeyInput;
+
   function MissingWordError(word) {
     this.message = word + " ? ";
   }
@@ -91,6 +98,9 @@ function Forth() {
     case ":":
       startDefinition(tokenizer.nextToken().value);
       break;
+    case "key":
+      waitingForKey = true;
+      break;
     default:
       return action(context);
     }
@@ -100,7 +110,7 @@ function Forth() {
   // Read a line of input. Callback is called with output for this line.
   function readLine(line, cb) {
     return new Promise(function (resolve, reject) {
-      var output = cb || function () {};
+      var addOutput = cb || function () {};
       var tokenizer = Tokenizer(line);
 
       function processTokens() {
@@ -112,21 +122,18 @@ function Forth() {
           if (currentDefinition) { // Are we currently defining a definition?
             addActionToCurrentDefinition(action);
           } else {
-            output(executeRuntimeAction(tokenizer, action));
-            /*
-            // this is proof of concept to show that we can break execution of
-            // processTokens and resume later (needed for key input)
-            setTimeout(function () {
-              processTokensWithCatch();
-            }, 0);
-            break;
-            */
+            addOutput(executeRuntimeAction(tokenizer, action));
+
+            if (waitingForKey) {
+              afterKeyInput = processTokensWithCatch;
+              break;
+            }
           }
         }
 
         if (!nextToken) { // we didn't break out of the loop, so must be done
           if (!currentDefinition) { // don't append output while definition is in progress
-            output(" ok");
+            addOutput(" ok");
           }
           resolve();
         }
@@ -137,7 +144,7 @@ function Forth() {
           processTokens();
         } catch (e) {
           currentDefinition = null;
-          output(" " + e.message);
+          addOutput(" " + e.message);
           resolve();
         }
       }
@@ -156,6 +163,12 @@ function Forth() {
     }, Promise.resolve());
   }
 
+  function keydown(keyCode) {
+    waitingForKey = false;
+    context.stack.push(keyCode);
+    afterKeyInput();
+  }
+
   // because readLines is async, addPredefinedWords is async too
   var promise = addPredefinedWords(context.dictionary, readLines);
 
@@ -163,8 +176,12 @@ function Forth() {
     return {
       readLine: readLine,
       readLines: readLines,
+      keydown: keydown,
       getStack: function () {
         return context.stack.print();
+      },
+      isWaitingForKey: function () {
+        return waitingForKey;
       }
     };
   });

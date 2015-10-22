@@ -58,6 +58,12 @@
   padding: 0;
 }
 
+/* Fake hiding the input (if it's actually hidden it can't accept input) */
+.editor .input.hide {
+  border-bottom: none;
+  color: #fff;
+}
+
 .code {
   color: #333;
 }

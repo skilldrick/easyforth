@@ -8,7 +8,7 @@ function addPredefinedWords(dictionary, readLines) {
 
   [
     ":", ";", "if", "else", "then", "do", "loop",
-    "+loop", "begin", "until", "variable", "constant"
+    "+loop", "begin", "until", "variable", "constant", "key"
   ].forEach(function (code) {
     dictionary.add(code, controlCode(code));
   });

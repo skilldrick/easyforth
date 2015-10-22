@@ -33,12 +33,16 @@ function Editor(selectorOrElement) {
 
       var $line;
 
+      $input.addClass('hide');
+
       // Handle multiple lines - this will only come up when text is pasted.
       forth.readLines(codeLines, function (codeLine) {
         $line = addLine(codeLine);
       }, function (output) {
         addOutput($line, output);
         updateStack();
+      }).then(function () {
+        $input.removeClass('hide');
       });
 
       $input.val("");
@@ -49,7 +53,10 @@ function Editor(selectorOrElement) {
     }
 
     $input.on("keydown", function (e) {
-      if (e.keyCode === 13) { // Enter/Return
+      if (forth.isWaitingForKey()) {
+        forth.keydown(e.keyCode);
+        e.preventDefault();
+      } else if (e.keyCode === 13) { // Enter/Return
         e.preventDefault(); // don't actually insert newline
         readInput();
         adjustScroll();
