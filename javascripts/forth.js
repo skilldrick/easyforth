@@ -97,9 +97,15 @@ function Forth() {
       startDefinition(tokenizer.nextToken().value);
       break;
     default:
-      return action(context);
+      var result = action(context);
+      if (result instanceof Promise) {
+        return result;
+      } else {
+        return Promise.resolve(result);
+      }
     }
-    return "";
+
+    return Promise.resolve("");
   }
 
   // Read a line of input. Callback is called with output for this line.
@@ -108,35 +114,39 @@ function Forth() {
       var addOutput = cb || function () {};
       var tokenizer = Tokenizer(line);
 
-      function processTokens() {
-        var nextToken;
+      // processNextToken recursively executes tokens
+      function processNextToken() {
+        var nextToken = tokenizer.nextToken();
 
-        while (nextToken = tokenizer.nextToken()) {
-          var action = tokenToAction(nextToken)
-
-          if (currentDefinition) { // Are we currently defining a definition?
-            addActionToCurrentDefinition(action);
-          } else {
-            addOutput(executeRuntimeAction(tokenizer, action));
-
-            if (context.waitingForKey) {
-              afterKeyInputCallback = processTokensWithCatch;
-              break;
-            }
-          }
-        }
-
-        if (!nextToken) { // we didn't break out of the loop, so must be done
+        if (!nextToken) { // reached end of line
           if (!currentDefinition) { // don't append output while definition is in progress
             addOutput(" ok");
           }
           resolve();
+          return;
+        }
+
+        var action = tokenToAction(nextToken)
+
+        if (currentDefinition) { // Are we currently defining a definition?
+          addActionToCurrentDefinition(action);
+          processTokens();
+        } else {
+          executeRuntimeAction(tokenizer, action).then(function (output) {
+            addOutput(output);
+
+            if (context.waitingForKey) {
+              afterKeyInputCallback = processTokens;
+            } else {
+              processTokens();
+            }
+          });
         }
       }
 
-      function processTokensWithCatch() {
+      function processTokens() {
         try {
-          processTokens();
+          processNextToken();
         } catch (e) {
           currentDefinition = null;
           addOutput(" " + e.message);
@@ -144,7 +154,7 @@ function Forth() {
         }
       }
 
-      processTokensWithCatch();
+      processTokens();
     });
   }
 
