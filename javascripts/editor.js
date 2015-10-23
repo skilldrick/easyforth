@@ -36,11 +36,14 @@ function Editor(selectorOrElement) {
       $input.addClass('hide');
 
       // Handle multiple lines - this will only come up when text is pasted.
-      forth.readLines(codeLines, function (codeLine) {
-        $line = addLine(codeLine);
-      }, function (output) {
-        addOutput($line, output);
-        updateStack();
+      forth.readLines(codeLines, {
+        lineCallback: function (codeLine) {
+          $line = addLine(codeLine);
+        },
+        outputCallback: function (output) {
+          addOutput($line, output);
+          updateStack();
+        }
       }).then(function () {
         $input.removeClass('hide');
       });

@@ -21,7 +21,7 @@ function Forth() {
 
   // This is set within readLine as a callback to continue processing tokens
   // once a key has been pressed
-  var afterKeyInput;
+  var afterKeyInputCallback;
 
   function MissingWordError(word) {
     this.message = word + " ? ";
@@ -125,7 +125,7 @@ function Forth() {
             addOutput(executeRuntimeAction(tokenizer, action));
 
             if (waitingForKey) {
-              afterKeyInput = processTokensWithCatch;
+              afterKeyInputCallback = processTokensWithCatch;
               break;
             }
           }
@@ -153,12 +153,12 @@ function Forth() {
     });
   }
 
-  function readLines(codeLines, lineCallback, outputCallback) {
+  function readLines(codeLines, callbacks) {
     // Use reduce to execute promises in sequence
     return codeLines.reduce(function (promise, codeLine) {
       return promise.then(function () {
-        lineCallback && lineCallback(codeLine);
-        return readLine(codeLine, outputCallback);
+        callbacks && callbacks.lineCallback(codeLine);
+        return readLine(codeLine, callbacks && callbacks.outputCallback);
       });
     }, Promise.resolve());
   }
@@ -166,7 +166,7 @@ function Forth() {
   function keydown(keyCode) {
     waitingForKey = false;
     context.stack.push(keyCode);
-    afterKeyInput();
+    afterKeyInputCallback();
   }
 
   // because readLines is async, addPredefinedWords is async too
