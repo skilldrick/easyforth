@@ -150,6 +150,10 @@ function addPredefinedWords(dictionary, readLines) {
     context.memory.allot(context.stack.pop());
   });
 
+  dictionary.add("key", function (context) {
+    context.waitingForKey = true;
+  });
+
   return readLines([
     ": cells  1 * ;",
     ": cr  10 emit ;",
