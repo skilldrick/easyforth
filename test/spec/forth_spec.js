@@ -284,6 +284,24 @@ describe('Forth', function () {
       });
     });
 
+    describe('input', function () {
+      describe('key', function () {
+        it('pauses execution of line until key is pressed', function (done) {
+          var promise = forth.readLine("1 key 2");
+
+          // Run test in a setTimeout to simulate waiting for keyboard input
+          setTimeout(function () {
+            expect(forth.getStack()).toBe("1 <- Top ");
+            forth.keydown(65);
+            promise.then(function () {
+              expect(forth.getStack()).toBe("1 65 2 <- Top ");
+              done();
+            });
+          }, 5);
+        });
+      });
+    });
+
     describe('defining words', function () {
       describe(': ;', function () {
         it('defines a new word', function (done) {
@@ -549,10 +567,10 @@ describe('Forth', function () {
     });
   });
 
-  function collectOutput(func, input) {
+  function collectOutput(readLine, input) {
     var output = [];
 
-    var promise = func(input, function (o) {
+    var promise = readLine(input, function (o) {
       output.push(o)
     });
 
