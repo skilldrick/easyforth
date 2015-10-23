@@ -10,16 +10,16 @@ function Forth() {
     returnStack: Stack('Return Stack'),
     dictionary: Dictionary(),
     memory: Memory(),
-    waitingForKey: false
+    // This is set when the interpreter is waiting for a key to be pressed
+    waitingForKey: false,
+    // This is set within readLine as a callback to continue processing tokens
+    // once a key has been pressed
+    afterKeyInputCallback: null
   };
 
   // This variable is shared across multiple calls to readLine,
   // as definitions can span multiple lines
   var currentDefinition = null;
-
-  // This is set within readLine as a callback to continue processing tokens
-  // once a key has been pressed
-  var afterKeyInputCallback;
 
   function MissingWordError(word) {
     this.message = word + " ? ";
@@ -136,7 +136,7 @@ function Forth() {
             addOutput(output);
 
             if (context.waitingForKey) {
-              afterKeyInputCallback = processTokens;
+              context.afterKeyInputCallback = processTokens;
             } else {
               processTokens();
             }
@@ -168,12 +168,6 @@ function Forth() {
     }, Promise.resolve());
   }
 
-  function keydown(keyCode) {
-    context.waitingForKey = false;
-    context.stack.push(keyCode);
-    afterKeyInputCallback();
-  }
-
   // because readLines is async, addPredefinedWords is async too
   var promise = addPredefinedWords(context.dictionary, readLines);
 
@@ -182,7 +176,9 @@ function Forth() {
     return {
       readLine: readLine,
       readLines: readLines,
-      keydown: keydown,
+      keydown: function (keyCode) {
+        context.keydown(keyCode);
+      },
       getStack: function () {
         return context.stack.print();
       },

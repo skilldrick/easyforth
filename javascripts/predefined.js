@@ -152,6 +152,14 @@ function addPredefinedWords(dictionary, readLines) {
 
   dictionary.add("key", function (context) {
     context.waitingForKey = true;
+
+    // set callback for when key is pressed
+    context.keydown = function (keyCode) {
+      context.waitingForKey = false;
+      context.keydown = null;
+      context.stack.push(keyCode);
+      context.afterKeyInputCallback();
+    };
   });
 
   return readLines([
