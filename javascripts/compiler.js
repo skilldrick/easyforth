@@ -119,6 +119,8 @@ function compile(dictionary, actions) {
   }
 
   function Action(action) {
+    this.name = action._name; // expose name for easy debugging
+
     this.execute = function (context) {
       return action(context);
     };

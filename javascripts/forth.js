@@ -25,21 +25,26 @@ function Forth() {
     this.message = word + " ? ";
   }
 
+  function namedFunction(name, func) {
+    func._name = name;
+    return func;
+  }
+
   // Convert token into an action that executes that token's behavior
   function tokenToAction(token) {
     var word = token.value;
     var definition = context.dictionary.lookup(word);
 
     if (token.isStringLiteral) {
-      return function (context) {
+      return namedFunction("String: " + word, function (context) {
         return word;
-      };
+      });
     } else if (definition !== null) {
       return definition;
     } else if (isFinite(word)) {
-      return function (context) {
+      return namedFunction("Number: " + word, function (context) {
         context.stack.push(+word);
-      };
+      });
     } else {
       throw new MissingWordError(word);
     }
@@ -49,21 +54,25 @@ function Forth() {
     };
   }
 
+  function addToDictionary(name, definition) {
+    context.dictionary.add(name, namedFunction(name, definition));
+  }
+
   // compile actions into definition and add definition to dictionary
   function compileAndAddToDictionary(name, actions) {
     var definition = compile(context.dictionary, actions);
-    context.dictionary.add(name, definition);
+    addToDictionary(name, definition);
   }
 
   function createVariable(name) {
     var pointer = context.memory.addVariable(name);
-    context.dictionary.add(name, function (context) {
+    addToDictionary(name, function (context) {
       context.stack.push(pointer);
     });
   }
 
   function createConstant(name, value) {
-    context.dictionary.add(name, function (context) {
+    addToDictionary(name, function (context) {
       context.stack.push(value);
     });
   }
@@ -169,7 +178,7 @@ function Forth() {
   }
 
   // because readLines is async, addPredefinedWords is async too
-  var promise = addPredefinedWords(context.dictionary, readLines);
+  var promise = addPredefinedWords(addToDictionary, readLines);
 
   // because addPredefinedWords is async, Forth is async
   return promise.then(function () {

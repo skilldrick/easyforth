@@ -1,4 +1,4 @@
-function addPredefinedWords(dictionary, readLines) {
+function addPredefinedWords(addToDictionary, readLines) {
   function controlCode(code) {
     return {
       isControlCode: true,
@@ -10,147 +10,147 @@ function addPredefinedWords(dictionary, readLines) {
     ":", ";", "if", "else", "then", "do", "loop",
     "+loop", "begin", "until", "variable", "constant", "key"
   ].forEach(function (code) {
-    dictionary.add(code, controlCode(code));
+    addToDictionary(code, controlCode(code));
   });
 
-  dictionary.add(".",  function (context) {
+  addToDictionary(".",  function (context) {
     return context.stack.pop() + " ";
   });
 
-  dictionary.add(".s", function (context) {
+  addToDictionary(".s", function (context) {
     return "\n" + context.stack.print();
   });
 
-  dictionary.add("+", function (context) {
+  addToDictionary("+", function (context) {
     context.stack.push(context.stack.pop() + context.stack.pop());
   });
 
-  dictionary.add("-", function (context) {
+  addToDictionary("-", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b - a);
   });
 
-  dictionary.add("*", function (context) {
+  addToDictionary("*", function (context) {
     context.stack.push(context.stack.pop() * context.stack.pop());
   });
 
-  dictionary.add("/", function (context) {
+  addToDictionary("/", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("/mod", function (context) {
+  addToDictionary("/mod", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(Math.floor(b % a));
     context.stack.push(Math.floor(b / a));
   });
 
-  dictionary.add("mod", function (context) {
+  addToDictionary("mod", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(Math.floor(b % a));
   });
 
-  dictionary.add("=", function (context) {
+  addToDictionary("=", function (context) {
     context.stack.push(context.stack.pop() === context.stack.pop() ? TRUE : FALSE);
   });
 
-  dictionary.add("<", function (context) {
+  addToDictionary("<", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b < a ? TRUE : FALSE);
   });
 
-  dictionary.add(">", function (context) {
+  addToDictionary(">", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b > a ? TRUE : FALSE);
   });
 
-  dictionary.add("and", function (context) {
+  addToDictionary("and", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b & a);
   });
 
-  dictionary.add("or", function (context) {
+  addToDictionary("or", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b | a);
   });
 
-  dictionary.add("invert", function (context) {
+  addToDictionary("invert", function (context) {
     // invert is bitwise not
     context.stack.push(~context.stack.pop());
   });
 
-  dictionary.add("i", function (context) {
+  addToDictionary("i", function (context) {
     context.stack.push(context.returnStack.peek(1));
   });
 
-  dictionary.add("j", function (context) {
+  addToDictionary("j", function (context) {
     context.stack.push(context.returnStack.peek(2));
   });
 
   // I don't understand the difference between i and r@
   // http://www.forth.com/starting-forth/sf5/sf5.html
-  dictionary.add("r@", function (context) {
+  addToDictionary("r@", function (context) {
     context.stack.push(context.returnStack.peek(1));
   });
 
-  dictionary.add(">r", function (context) {
+  addToDictionary(">r", function (context) {
     context.returnStack.push(context.stack.pop());
   });
 
-  dictionary.add("r>", function (context) {
+  addToDictionary("r>", function (context) {
     context.stack.push(context.returnStack.pop());
   });
 
-  dictionary.add("emit", function (context) {
+  addToDictionary("emit", function (context) {
     return String.fromCharCode(context.stack.pop());
   });
 
-  dictionary.add("swap", function (context) {
+  addToDictionary("swap", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(a);
     context.stack.push(b);
   });
 
-  dictionary.add("dup", function (context) {
+  addToDictionary("dup", function (context) {
     var a = context.stack.pop();
     context.stack.push(a);
     context.stack.push(a);
   });
 
-  dictionary.add("over", function (context) {
+  addToDictionary("over", function (context) {
     var a = context.stack.pop(), b = context.stack.pop();
     context.stack.push(b);
     context.stack.push(a);
     context.stack.push(b);
   });
 
-  dictionary.add("rot", function (context) {
+  addToDictionary("rot", function (context) {
     var a = context.stack.pop(), b = context.stack.pop(), c = context.stack.pop();
     context.stack.push(b);
     context.stack.push(a);
     context.stack.push(c);
   });
 
-  dictionary.add("drop", function (context) {
+  addToDictionary("drop", function (context) {
     context.stack.pop();
   });
 
-  dictionary.add("!", function (context) {
+  addToDictionary("!", function (context) {
     var address = context.stack.pop();
     var value = context.stack.pop();
     context.memory.setValue(address, value);
   });
 
-  dictionary.add("@", function (context) {
+  addToDictionary("@", function (context) {
     var address = context.stack.pop();
     context.stack.push(context.memory.getValue(address));
   });
 
-  dictionary.add("allot", function (context) {
+  addToDictionary("allot", function (context) {
     context.memory.allot(context.stack.pop());
   });
 
-  dictionary.add("key", function (context) {
+  addToDictionary("key", function (context) {
     context.waitingForKey = true;
 
     // set callback for when key is pressed
