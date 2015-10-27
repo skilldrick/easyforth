@@ -1,8 +1,5 @@
 'use strict';
 
-var FALSE = 0;
-var TRUE = -1;
-
 function Forth() {
   // Core structures
   var context = {
@@ -168,13 +165,14 @@ function Forth() {
   }
 
   function readLines(codeLines, callbacks) {
-    // Use reduce to execute promises in sequence
-    return codeLines.reduce(function (promise, codeLine) {
-      return promise.then(function () {
+    var promiseFunctions = codeLines.map(function (codeLine) {
+      return function () {
         callbacks && callbacks.lineCallback(codeLine);
         return readLine(codeLine, callbacks && callbacks.outputCallback);
-      });
-    }, Promise.resolve());
+      };
+    });
+
+    return executeInSequence(promiseFunctions); // defined in shared.js
   }
 
   // because readLines is async, addPredefinedWords is async too
