@@ -45,7 +45,7 @@ function compile(dictionary, actions) {
   function executeActions(actions, context) {
     function next(remainingActions) {
       if (remainingActions.length === 0) { // no actions left to execute
-        return "";
+        return;
       } else {
         return remainingActions[0].execute(context).then(function (o) {
           context.addOutput(o);
@@ -101,14 +101,11 @@ function compile(dictionary, actions) {
       var startIndex = context.stack.pop();
       var endIndex = context.stack.pop();
       var i = startIndex;
-      var output = [];
-
 
       var nextIteration = function () {
         if (i < endIndex) {
           context.returnStack.push(i);
           return executeActions(this.body, context).then(function (o) {
-            output.push(o);
             context.returnStack.pop();
 
             // +loop increments i by stack value
@@ -121,7 +118,7 @@ function compile(dictionary, actions) {
             return nextIteration();
           }.bind(this));
         } else {
-          return output.join("");
+          return;
         }
       }.bind(this);
 
@@ -135,13 +132,10 @@ function compile(dictionary, actions) {
     this.body = [];
 
     this.execute = function (context) {
-      var output = [];
-
       var nextIteration = function () {
         return executeActions(this.body, context).then(function (o) {
-          output.push(o);
           if (context.stack.pop() === TRUE) {
-            return output.join("");
+            return;
           } else {
             return nextIteration();
           }
