@@ -43,11 +43,13 @@ function UnbalancedControlStructureError() {
 
 function compile(dictionary, actions) {
   function executeActions(actions, context) {
-    var output = actions.map(function (action) {
-      return action.execute(context);
+    var actionPromises = actions.map(function (action) {
+      return function () {
+        return action.execute(context); // this must return a future
+      };
     });
 
-    return output.join("");
+    return executeInSequence(actionPromises);
   }
 
   function Main() {
@@ -82,23 +84,32 @@ function compile(dictionary, actions) {
     this.execute = function (context) {
       var startIndex = context.stack.pop();
       var endIndex = context.stack.pop();
-      var output = "";
       var i = startIndex;
+      var output = [];
 
-      while (i < endIndex) {
-        context.returnStack.push(i);
-        output += executeActions(this.body, context);
-        context.returnStack.pop();
 
-        // +loop increments i by stack value
-        if (this.isPlusLoop) {
-          i += context.stack.pop();
-        } else { // loop increments i by 1
-          i++;
+      var nextIteration = function () {
+        if (i < endIndex) {
+          context.returnStack.push(i);
+          return executeActions(this.body, context).then(function (o) {
+            output.push(o);
+            context.returnStack.pop();
+
+            // +loop increments i by stack value
+            if (this.isPlusLoop) {
+              i += context.stack.pop();
+            } else { // loop increments i by 1
+              i++;
+            }
+
+            return nextIteration();
+          }.bind(this));
+        } else {
+          return output.join("");
         }
-      }
+      }.bind(this);
 
-      return output;
+      return nextIteration();
     };
   }
 
@@ -108,13 +119,20 @@ function compile(dictionary, actions) {
     this.body = [];
 
     this.execute = function (context) {
-      var output = "";
+      var output = [];
 
-      do {
-        output += executeActions(this.body, context);
-      } while (context.stack.pop() !== TRUE);
+      var nextIteration = function () {
+        return executeActions(this.body, context).then(function (o) {
+          output.push(o);
+          if (context.stack.pop() === TRUE) {
+            return output.join("");
+          } else {
+            return nextIteration();
+          }
+        });
+      }.bind(this);
 
-      return output;
+      return nextIteration();
     };
   }
 
@@ -122,7 +140,9 @@ function compile(dictionary, actions) {
     this.name = action._name; // expose name for easy debugging
 
     this.execute = function (context) {
-      return action(context);
+      return new Promise(function (resolve) {
+        resolve(action(context));
+      });
     };
   }
 
