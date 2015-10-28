@@ -51,7 +51,18 @@ function compile(dictionary, actions) {
       } else {
         return remainingActions[0].execute(context).then(function (o) {
           output.push(o);
-          return next(remainingActions.slice(1));
+
+          if (context.waitingForKey) {
+            return new Promise(function (resolve) {
+              context.afterKeyInputCallback = function () {
+                return next(remainingActions.slice(1)).then(function () {
+                  resolve();
+                });
+              };
+            });
+          } else {
+            return next(remainingActions.slice(1));
+          }
         });
       }
     }
