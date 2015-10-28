@@ -43,13 +43,20 @@ function UnbalancedControlStructureError() {
 
 function compile(dictionary, actions) {
   function executeActions(actions, context) {
-    var actionPromises = actions.map(function (action) {
-      return function () {
-        return action.execute(context); // this must return a future
-      };
-    });
+    var output = [];
 
-    return executeInSequence(actionPromises);
+    function next(remainingActions) {
+      if (remainingActions.length === 0) { // no actions left to execute
+        return output.join("");
+      } else {
+        return remainingActions[0].execute(context).then(function (o) {
+          output.push(o);
+          return next(remainingActions.slice(1));
+        });
+      }
+    }
+
+    return next(actions);
   }
 
   function Main() {
