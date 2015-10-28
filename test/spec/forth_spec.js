@@ -300,6 +300,24 @@ describe('Forth', function () {
           }, 5);
         });
 
+        it('calls output callback appropriately before and after key press', function (done) {
+          var output = [];
+
+          var promise = forth.readLine("1 . key . 2 .", function (o) {
+            output.push(o);
+          });
+
+          // Run test in a setTimeout to simulate waiting for keyboard input
+          setTimeout(function () {
+            expect(output.join("")).toBe("1 ");
+            forth.keydown(65);
+            promise.then(function () {
+              expect(output.join("")).toBe("1 65 2  ok");
+              done();
+            });
+          }, 5);
+        });
+
         describe('in definition', function () {
           it('pauses execution of line until key is pressed', function (done) {
             var promise = forth.readLine(": foo  1 key 2 ;").then(function () {
@@ -312,6 +330,26 @@ describe('Forth', function () {
               forth.keydown(65);
               promise.then(function () {
                 expect(forth.getStack()).toBe("1 65 2 <- Top ");
+                done();
+              });
+            }, 5);
+          });
+
+          it('calls output callback appropriately before and after key press', function (done) {
+            var output = [];
+
+            var promise = forth.readLine(": foo  2 . key . 3 . ;").then(function () {
+              return forth.readLine("1 . foo 4 .", function (o) {
+                output.push(o);
+              });
+            });
+
+            // Run test in a setTimeout to simulate waiting for keyboard input
+            setTimeout(function () {
+              expect(output.join("")).toBe("1 2 ");
+              forth.keydown(65);
+              promise.then(function () {
+                expect(output.join("")).toBe("1 2 65 3 4  ok");
                 done();
               });
             }, 5);

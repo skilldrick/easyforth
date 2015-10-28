@@ -118,9 +118,9 @@ function Forth() {
   }
 
   // Read a line of input. Callback is called with output for this line.
-  function readLine(line, cb) {
+  function readLine(line, outputCallback) {
     return new Promise(function (resolve, reject) {
-      var addOutput = cb || function () {};
+      context.addOutput = outputCallback || function () {};
       var tokenizer = Tokenizer(line);
 
       // processNextToken recursively executes tokens
@@ -129,7 +129,7 @@ function Forth() {
 
         if (!nextToken) { // reached end of line
           if (!currentDefinition) { // don't append output while definition is in progress
-            addOutput(" ok");
+            context.addOutput(" ok");
           }
           resolve();
           return;
@@ -141,8 +141,9 @@ function Forth() {
           addActionToCurrentDefinition(action);
           processTokens();
         } else {
+
           executeRuntimeAction(tokenizer, action).then(function (output) {
-            addOutput(output);
+            context.addOutput(output);
 
             if (context.waitingForKey && !context.afterKeyInputCallback) {
               context.afterKeyInputCallback = processTokens;
@@ -158,7 +159,7 @@ function Forth() {
           processNextToken();
         } catch (e) {
           currentDefinition = null;
-          addOutput(" " + e.message);
+          context.addOutput(" " + e.message);
           resolve();
         }
       }

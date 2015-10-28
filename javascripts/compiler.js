@@ -43,14 +43,12 @@ function UnbalancedControlStructureError() {
 
 function compile(dictionary, actions) {
   function executeActions(actions, context) {
-    var output = [];
-
     function next(remainingActions) {
       if (remainingActions.length === 0) { // no actions left to execute
-        return output.join("");
+        return "";
       } else {
         return remainingActions[0].execute(context).then(function (o) {
-          output.push(o);
+          context.addOutput(o);
 
           if (context.waitingForKey) {
             return new Promise(function (resolve) {
