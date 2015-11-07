@@ -1,8 +1,8 @@
 'use strict';
 
 function Editor(selectorOrElement) {
-  // Forth() returns a promise of forth
-  Forth().then(function (forth) {
+  // Forth takes a callback that is passed a forth
+  Forth(function (forth) {
     var $editor = $(selectorOrElement);
     var $text = $editor.find(".text");
     var $prevLines = $text.find(".prev-lines");
@@ -44,7 +44,7 @@ function Editor(selectorOrElement) {
           addOutput($line, output);
           updateStack();
         }
-      }).then(function () {
+      }, function () {
         $input.removeClass('hide');
       });
 

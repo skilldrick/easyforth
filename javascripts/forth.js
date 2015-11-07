@@ -3,7 +3,7 @@
 var FALSE = 0;
 var TRUE = -1;
 
-function Forth() {
+function Forth(next) {
   // Core structures
   var context = {
     stack: Stack('Argument Stack'),
@@ -94,7 +94,7 @@ function Forth() {
     }
   }
 
-  function executeRuntimeAction(tokenizer, action) {
+  function executeRuntimeAction(tokenizer, action, next) {
     switch (action.code) {
     case "variable":
       createVariable(tokenizer.nextToken().value);
@@ -106,108 +106,93 @@ function Forth() {
       startDefinition(tokenizer.nextToken().value);
       break;
     default:
-      var result = action(context);
-      if (result instanceof Promise) {
-        return result;
+      if (action.length == 2) { // has next callback
+        action(context, next);
       } else {
-        return Promise.resolve(result);
+        next(action(context));
       }
+      return;
     }
 
-    return Promise.resolve("");
+    next("");
   }
 
   // Read a line of input. Callback is called with output for this line.
-  function readLine(line, outputCallback) {
-    return new Promise(function (resolve, reject) {
-      context.addOutput = outputCallback || function () {};
-      var tokenizer = Tokenizer(line);
+  function readLine(line, outputCallback, next) {
+    if (!next) {
+      next = outputCallback;
+      outputCallback = null;
+    }
+    context.addOutput = outputCallback || function () {};
+    var tokenizer = Tokenizer(line);
 
-      // processNextToken recursively executes tokens
-      function processNextToken() {
-        var nextToken = tokenizer.nextToken();
+    // processNextToken recursively executes tokens
+    function processNextToken() {
+      var nextToken = tokenizer.nextToken();
 
-        if (!nextToken) { // reached end of line
-          if (!currentDefinition) { // don't append output while definition is in progress
-            context.addOutput(" ok");
+      if (!nextToken) { // reached end of line
+        if (!currentDefinition) { // don't append output while definition is in progress
+          context.addOutput(" ok");
+        }
+        next();
+        return;
+      }
+
+      var action = tokenToAction(nextToken)
+
+      if (currentDefinition) { // Are we currently defining a definition?
+        addActionToCurrentDefinition(action);
+        processTokens();
+      } else {
+
+        executeRuntimeAction(tokenizer, action, function (output) {
+          context.addOutput(output);
+
+          if (context.waitingForKey && !context.afterKeyInputCallback) {
+            context.afterKeyInputCallback = processTokens;
+          } else {
+            processTokens();
           }
-          resolve();
-          return;
-        }
-
-        var action = tokenToAction(nextToken)
-
-        if (currentDefinition) { // Are we currently defining a definition?
-          addActionToCurrentDefinition(action);
-          processTokens();
-        } else {
-
-          executeRuntimeAction(tokenizer, action).then(function (output) {
-            context.addOutput(output);
-
-            if (context.waitingForKey && !context.afterKeyInputCallback) {
-              context.afterKeyInputCallback = processTokens;
-            } else {
-              processTokens();
-            }
-          });
-        }
+        });
       }
-
-      function processTokens() {
-        try {
-          processNextToken();
-        } catch (e) {
-          currentDefinition = null;
-          context.addOutput(" " + e.message);
-          resolve();
-        }
-      }
-
-      processTokens();
-    });
-  }
-
-  // Takes an array of nullary functions that return promises and executes them in series,
-  // collecting the output from each, and finally resolving with the combined output
-  function executeInSequence(promiseFunctions, outputCallback) {
-    var output = [];
-
-    // Takes a promise and returns a promise that collects the output of the original
-    // promise. New promise resolves with joined output.
-    function addOutput(promise) {
-      return promise.then(function (o) {
-        // TODO: will need outputCallback later probably :P
-        outputCallback && outputCallback(o);
-        output.push(o);
-        return output.join("");
-      });
     }
 
-    return promiseFunctions.reduce(function (promise, promiseFunction) {
-      return promise.then(function () {
-        return addOutput(promiseFunction());
-      });
-    }, Promise.resolve());
+    function processTokens() {
+      try {
+        processNextToken();
+      } catch (e) {
+        currentDefinition = null;
+        context.addOutput(" " + e.message);
+        next();
+      }
+    }
+
+    processTokens();
   }
 
-  function readLines(codeLines, callbacks) {
-    var promiseFunctions = codeLines.map(function (codeLine) {
-      return function () {
-        callbacks && callbacks.lineCallback(codeLine);
-        return readLine(codeLine, callbacks && callbacks.outputCallback);
-      };
-    });
+  function readLines(codeLines, callbacks, next) {
+    if (callbacks && !next) {
+      next = callbacks;
+      callbacks = null;
+    }
 
-    return executeInSequence(promiseFunctions); // defined in shared.js
+    if (codeLines.length == 0) {
+      next();
+      return;
+    }
+
+    var codeLine = codeLines[0]
+
+    callbacks && callbacks.lineCallback(codeLine);
+    readLine(codeLine, callbacks && callbacks.outputCallback, function () {
+      readLines(codeLines.slice(1), callbacks, next);
+    });
   }
 
   // because readLines is async, addPredefinedWords is async too
-  var promise = addPredefinedWords(addToDictionary, readLines);
-
-  // because addPredefinedWords is async, Forth is async
-  return promise.then(function () {
-    return {
+  addPredefinedWords(addToDictionary, readLines, function () {
+    // because addPredefinedWords is async, Forth is async
+    next({
       readLine: readLine,
       readLines: readLines,
       keydown: function (keyCode) {
@@ -219,6 +204,6 @@ function Forth() {
       isWaitingForKey: function () {
         return context.waitingForKey;
       }
-    };
+    });
   });
 }

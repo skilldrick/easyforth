@@ -42,37 +42,33 @@ function UnbalancedControlStructureError() {
 }
 
 function compile(dictionary, actions) {
-  function executeActions(actions, context) {
-    function next(remainingActions) {
+  function executeActions(actions, context, next) {
+    function nextIteration(remainingActions) {
       if (remainingActions.length === 0) { // no actions left to execute
-        return;
+        next();
       } else {
-        return remainingActions[0].execute(context).then(function (o) {
+        remainingActions[0].execute(context, function (o) {
           context.addOutput(o);
 
           if (context.waitingForKey) {
-            return new Promise(function (resolve) {
-              context.afterKeyInputCallback = function () {
-                return next(remainingActions.slice(1)).then(function () {
-                  resolve();
-                });
-              };
-            });
+            context.afterKeyInputCallback = function () {
+              nextIteration(remainingActions.slice(1));
+            };
           } else {
-            return next(remainingActions.slice(1));
+            nextIteration(remainingActions.slice(1));
           }
         });
       }
     }
 
-    return next(actions);
+    nextIteration(actions);
   }
 
   function Main() {
     this.body = [];
 
-    this.execute = function (context) {
-      return executeActions(this.body, context);
+    this.execute = function (context, next) {
+      executeActions(this.body, context, next);
     };
   }
 
@@ -82,11 +78,11 @@ function compile(dictionary, actions) {
     this.consequent = [];
     this.alternative = [];
 
-    this.execute = function (context) {
+    this.execute = function (context, next) {
       if (context.stack.pop() !== FALSE) {
-        return executeActions(this.consequent, context);
+        executeActions(this.consequent, context, next);
       } else {
-        return executeActions(this.alternative, context);
+        executeActions(this.alternative, context, next);
       }
     };
   }
@@ -97,7 +93,7 @@ function compile(dictionary, actions) {
     this.body = [];
     this.isPlusLoop = false;
 
-    this.execute = function (context) {
+    this.execute = function (context, next) {
       var startIndex = context.stack.pop();
       var endIndex = context.stack.pop();
       var i = startIndex;
@@ -105,7 +101,7 @@ function compile(dictionary, actions) {
       var nextIteration = function () {
         if (i < endIndex) {
           context.returnStack.push(i);
-          return executeActions(this.body, context).then(function (o) {
+          executeActions(this.body, context, function (o) {
             context.returnStack.pop();
 
             // +loop increments i by stack value
@@ -115,14 +111,14 @@ function compile(dictionary, actions) {
               i++;
             }
 
-            return nextIteration();
+            nextIteration();
           }.bind(this));
         } else {
-          return;
+          next();
         }
       }.bind(this);
 
-      return nextIteration();
+      nextIteration();
     };
   }
 
@@ -131,28 +127,30 @@ function compile(dictionary, actions) {
     this.parentControlStructure = parentControlStructure;
     this.body = [];
 
-    this.execute = function (context) {
+    this.execute = function (context, next) {
       var nextIteration = function () {
-        return executeActions(this.body, context).then(function (o) {
+        executeActions(this.body, context, function (o) {
           if (context.stack.pop() === TRUE) {
-            return;
+            next();
           } else {
-            return nextIteration();
+            nextIteration();
           }
         });
       }.bind(this);
 
-      return nextIteration();
+      nextIteration();
     };
   }
 
   function Action(action) {
     this.name = action._name; // expose name for easy debugging
 
-    this.execute = function (context) {
-      return new Promise(function (resolve) {
-        resolve(action(context));
-      });
+    this.execute = function (context, next) {
+      if (action.length == 2) { // has next callback
+        action(context, next);
+      } else {
+        next(action(context));
+      }
     };
   }
 
@@ -215,7 +213,7 @@ function compile(dictionary, actions) {
 
   var main = compileControlStructures(actions);
 
-  return function (context) {
-    return main.execute(context);
+  return function (context, next) {
+    main.execute(context, next);
   };
 }

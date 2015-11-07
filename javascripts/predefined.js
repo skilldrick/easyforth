@@ -1,4 +1,4 @@
-function addPredefinedWords(addToDictionary, readLines) {
+function addPredefinedWords(addToDictionary, readLines, next) {
   function controlCode(code) {
     return {
       isControlCode: true,
@@ -162,7 +162,7 @@ function addPredefinedWords(addToDictionary, readLines) {
     };
   });
 
-  return readLines([
+  readLines([
     ": cells  1 * ;",
     ": cr  10 emit ;",
     ": space  32 emit ;",
@@ -182,5 +182,5 @@ function addPredefinedWords(addToDictionary, readLines) {
     ": abs  dup 0< if negate then ;",
     ": min  2dup < if drop else swap drop then ;",
     ": max  2dup < if swap drop else drop then ;"
-  ]);
+  ], next);
 }
