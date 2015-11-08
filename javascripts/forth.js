@@ -148,7 +148,7 @@ function Forth(next) {
         executeRuntimeAction(tokenizer, action, function (output) {
           context.addOutput(output);
 
-          if (context.waitingForKey && !context.afterKeyInputCallback) {
+          if (context.waitingForKey) {
             context.afterKeyInputCallback = processTokens;
           } else {
             processTokens();

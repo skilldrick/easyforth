@@ -388,10 +388,10 @@ describe('Forth', function () {
         it('calls output callback appropriately before and after key press', function (done) {
           var output = [];
 
-          forth.readLine("1 . key . 2 .", function (o) {
+          forth.readLine("1 . key . 2 . key . 3 .", function (o) {
             output.push(o);
           }, function () {
-            expect(output.join("")).toBe("1 65 2  ok");
+            expect(output.join("")).toBe("1 65 2 66 3  ok");
             done();
           });
 
@@ -399,6 +399,11 @@ describe('Forth', function () {
           setTimeout(function () {
             expect(output.join("")).toBe("1 ");
             forth.keydown(65);
+
+            setTimeout(function () {
+              expect(output.join("")).toBe("1 65 2 ");
+              forth.keydown(66);
+            }, 5);
           }, 5);
         });
 
@@ -446,6 +451,43 @@ describe('Forth', function () {
             setTimeout(function () {
               expect(output.join("")).toBe("1 2 ");
               forth.keydown(65);
+            }, 5);
+          });
+        });
+
+        describe('in loop', function () {
+          it('calls output callback appropriately after each key press', function (done) {
+            var output = [];
+
+            executeInSequence([
+              function () {
+                forth.readLine(": foo  2 . 3 0 do key . loop 3 . ;", this);
+              },
+              function () {
+                forth.readLine("1 . foo 4 .", function (o) {
+                  output.push(o);
+                }, this);
+              },
+              function () {
+                expect(output.join("")).toBe("1 2 65 66 67 3 4  ok");
+                done();
+              }
+            ]);
+
+            // Call keydown in a setTimeout to simulate waiting for keyboard input
+            setTimeout(function () {
+              expect(output.join("")).toBe("1 2 ");
+              forth.keydown(65);
+
+              setTimeout(function () {
+                expect(output.join("")).toBe("1 2 65 ");
+                forth.keydown(66);
+
+                setTimeout(function () {
+                  expect(output.join("")).toBe("1 2 65 66 ");
+                  forth.keydown(67);
+                }, 5);
+              }, 5);
             }, 5);
           });
         });
