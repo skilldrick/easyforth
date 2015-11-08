@@ -30,6 +30,7 @@ you're a Forth expert, please
 I'm going to assume that you know at least one other programming language, and have
 a basic idea of how stacks work as a data structure.
 
+
 ## Adding Some Numbers
 
 The thing that separates Forth from most other languages is its use of the
@@ -222,6 +223,7 @@ gives you:
 {% include stack.html stack="2 3 1" %}
 
 {% include editor.html size="small"%}
+
 
 ## Generating Output
 
@@ -521,3 +523,94 @@ Here's the same thing but starting with 5:
 
 In this case the original top-of-stack value was divisible by 5, so nothing
 should be printed.
+
+
+## Variables and Constants
+
+Forth also allows you to save values in variables and constants. Variables allow
+you to keep track of changing values without having to store them on the stack.
+Constants give you a simple way to refer to a value that won't change.
+
+### Variables
+
+Because the role of local variables is generally played by the stack, variables
+in Forth are used more to store state that may be needed across multiple
+functions.
+
+Defining variables is simple:
+
+    variable balance
+
+This basically associates a particular memory location with the name `balance`.
+`balance` is now a word, and all it does is to push its memory location onto the
+stack:
+
+    variable balance
+    balance
+
+{% include editor.html size="small"%}
+
+You should see the value `1000` on the stack. This Forth implementation arbitrarily
+starts storing variables at the memory location `1000`.
+
+The word `!` stores a value at the memory location referenced by a variable, and the
+word `@` fetches the value from a memory location:
+
+    variable balance
+    123 balance !
+    balance @
+
+{% include editor.html size="small"%}
+
+This time you should see the value `123` on the stack. `123 balance` pushes the
+value and the memory location onto the stack, and `!` stores that value at that
+memory location. Likewise, `@` retrieves the value based on the memory location,
+and pushes that value onto the stack. If you've used C or C++, you can think of
+`balance` as a pointer that is dereferenced by `@`.
+
+The word `?` is defined as `@ .` and it prints the current value of a variable.
+The word `+!` is used to increase the value of a variable by a certain amount
+(like `+=` in C-based languages).
+
+    variable balance
+    123 balance !
+    balance ?
+    50 balance +!
+    balance ?
+
+{% include editor.html size="small"%}
+
+Run this code and you should see:
+
+<div class="editor-preview editor-text">variable balance<span class="output">  ok</span>
+123 balance ! <span class="output"> ok</span>
+balance ? <span class="output">123  ok</span>
+50 balance +! <span class="output"> ok</span>
+balance ? <span class="output">173  ok</span>
+</div>
+
+### Constants
+
+If you have a value that doesn't change, you can store it as a constant. Constants
+are defined in one line, like this:
+
+    42 constant answer
+
+This creates a new constant called `answer` with the value `42`. Unlike variables,
+constants just represent values, rather than memory locations, so there's no need
+to use `@`.
+
+    42 constant answer
+    2 answer *
+
+{% include editor.html size="small"%}
+
+Running this will push the value `84` on the stack. `answer` is treated as if it
+was the number it represents (just like constants and variables in other languages).
+
+
+## Keyboard Input
+
+Forth has a special word called `key`, which is used for accepting keyboard input.
+When the `key` word is executed, execution is paused until a key is pressed. Once
+a key is pressed, the key code of that key is pushed onto the stack.
