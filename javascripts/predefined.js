@@ -163,24 +163,26 @@ function addPredefinedWords(addToDictionary, readLines, next) {
   });
 
   readLines([
-    ": cells  1 * ;",
-    ": cr  10 emit ;",
-    ": space  32 emit ;",
+    ": cells   1 * ;",
+    ": cr      10 emit ;",
+    ": space   32 emit ;",
     ": spaces  0 do space loop ;",
-    ": 0=  0 = ;",
-    ": 0<  0 < ;",
-    ": 0>  0 > ;",
-    ": ?dup  dup if dup then ;",
-    ": 2dup  over over ;",
-    ": 1+  1 + ;",
-    ": 1-  1 - ;",
-    ": 2+  2 + ;",
-    ": 2-  2 - ;",
-    ": 2*  2 * ;",
-    ": 2/  2 / ;",
+    ": 0=      0 = ;",
+    ": 0<      0 < ;",
+    ": 0>      0 > ;",
+    ": ?dup    dup if dup then ;",
+    ": 2dup    over over ;",
+    ": 1+      1 + ;",
+    ": 1-      1 - ;",
+    ": 2+      2 + ;",
+    ": 2-      2 - ;",
+    ": 2*      2 * ;",
+    ": 2/      2 / ;",
     ": negate  -1 * ;",
-    ": abs  dup 0< if negate then ;",
-    ": min  2dup < if drop else swap drop then ;",
-    ": max  2dup < if swap drop else drop then ;"
+    ": abs     dup 0< if negate then ;",
+    ": min     2dup < if drop else swap drop then ;",
+    ": max     2dup < if swap drop else drop then ;",
+    ": ?       @ . ;",
+    ": +!      dup @ rot + swap ! ;"
   ], next);
 }
