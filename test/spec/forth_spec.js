@@ -747,17 +747,17 @@ describe('Forth', function () {
           },
           function () {
             // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
-            expect(forth.getStack()).toBe("0 1 <- Top ");
+            expect(forth.getStack()).toBe("1000 1001 <- Top ");
 
             forth.readLine('100 foo !  200 bar !', this);
           },
           function () {
-            expect(forth.getStack()).toBe("0 1 <- Top ");
+            expect(forth.getStack()).toBe("1000 1001 <- Top ");
 
             forth.readLine('foo @  bar @', this);
           },
           function () {
-            expect(forth.getStack()).toBe("0 1 100 200 <- Top ");
+            expect(forth.getStack()).toBe("1000 1001 100 200 <- Top ");
 
             forth.readLines([
               '10 cells allot',
@@ -766,7 +766,7 @@ describe('Forth', function () {
             ], this);
           },
           function () {
-            expect(forth.getStack()).toBe("0 1 100 200 12 <- Top ");
+            expect(forth.getStack()).toBe("1000 1001 100 200 1012 <- Top ");
             done();
           }
         ]);

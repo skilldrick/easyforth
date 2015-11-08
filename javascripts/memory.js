@@ -1,7 +1,7 @@
 function Memory() {
   var variables = Object.create(null);
   var memArray = [];
-  var _memPointer = 0;
+  var _memPointer = 1000;
 
   function newMemPointer() {
     return _memPointer++;

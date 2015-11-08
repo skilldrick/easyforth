@@ -189,9 +189,7 @@ function Forth(next) {
     });
   }
 
-  // because readLines is async, addPredefinedWords is async too
   addPredefinedWords(addToDictionary, readLines, function () {
-    // because addPredefinedWords is async, Forth is async
     next({
       readLine: readLine,
       readLines: readLines,
