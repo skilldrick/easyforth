@@ -9,8 +9,12 @@ function Editor(selectorOrElement) {
     var $input = $text.find(".input");
     var $stack = $editor.find(".stack-viewer");
     var $window = $(window);
+    var lineBuffer = [""]; // Start line buffer with blank line
+    var selectedLine = null; // Set this to null to reset selected line
 
     function addLine(code) {
+      selectedLine = null;
+      lineBuffer.push(code);
       var $codeSpan = $("<span>").addClass("code").text(code);
       var $spacer = $("<span> </span>");
       var $newLine = $("<p>").append($codeSpan, $spacer);
@@ -55,6 +59,30 @@ function Editor(selectorOrElement) {
       $text.scrollTop($text[0].scrollHeight);
     }
 
+    function selectLine() {
+      $input.val(lineBuffer[selectedLine]);
+    }
+
+    function selectPreviousLine() {
+      if (selectedLine === null || selectedLine === 0) {
+        selectedLine = lineBuffer.length - 1;
+      } else {
+        selectedLine--;
+      }
+
+      selectLine();
+    }
+
+    function selectNextLine() {
+      if (selectedLine === null || selectedLine === lineBuffer.length - 1) {
+        selectedLine = 0;
+      } else {
+        selectedLine++;
+      }
+
+      selectLine();
+    }
+
     $input.on("keydown", function (e) {
       if (forth.isWaitingForKey()) {
         forth.keydown(e.keyCode);
@@ -63,6 +91,12 @@ function Editor(selectorOrElement) {
         e.preventDefault(); // don't actually insert newline
         readInput();
         adjustScroll();
+      } else if (e.keyCode === 38) { // Up
+        e.preventDefault();
+        selectPreviousLine();
+      } else if (e.keyCode == 40) { // Down
+        e.preventDefault();
+        selectNextLine();
       }
     });
 
