@@ -10,11 +10,11 @@ function Forth(next) {
     returnStack: Stack('Return Stack'),
     dictionary: Dictionary(),
     memory: Memory(),
-    // This is set when the interpreter is waiting for a key to be pressed
-    waitingForKey: false,
+    // This is set when the interpreter is waiting for a key to be pressed or sleeping
+    pause: false,
     // This is set within readLine as a callback to continue processing tokens
-    // once a key has been pressed
-    afterKeyInputCallback: null
+    // once a key has been pressed or sleep has finished
+    onContinue: null
   };
 
   // This variable is shared across multiple calls to readLine,
@@ -148,8 +148,8 @@ function Forth(next) {
         executeRuntimeAction(tokenizer, action, function (output) {
           context.addOutput(output);
 
-          if (context.waitingForKey) {
-            context.afterKeyInputCallback = processTokens;
+          if (context.pause) {
+            context.onContinue = processTokens;
           } else {
             processTokens();
           }
@@ -200,7 +200,7 @@ function Forth(next) {
         return context.stack.print();
       },
       isWaitingForKey: function () {
-        return context.waitingForKey;
+        return context.pause && context.keydown;
       }
     });
   });

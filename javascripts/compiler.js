@@ -50,8 +50,8 @@ function compile(dictionary, actions) {
         remainingActions[0].execute(context, function (o) {
           context.addOutput(o);
 
-          if (context.waitingForKey) {
-            context.afterKeyInputCallback = function () {
+          if (context.pause) {
+            context.onContinue = function () {
               nextIteration(remainingActions.slice(1));
             };
           } else {

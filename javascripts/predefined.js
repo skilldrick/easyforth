@@ -151,15 +151,25 @@ function addPredefinedWords(addToDictionary, readLines, next) {
   });
 
   addToDictionary("key", function (context) {
-    context.waitingForKey = true;
+    context.pause = true;
 
     // set callback for when key is pressed
     context.keydown = function (keyCode) {
-      context.waitingForKey = false;
+      context.pause = false;
       context.keydown = null;
       context.stack.push(keyCode);
-      context.afterKeyInputCallback();
+      context.onContinue();
     };
+  });
+
+  addToDictionary("sleep", function (context) {
+    var timeout = context.stack.pop();
+    context.pause = true;
+
+    setTimeout(function () {
+      context.pause = false;
+      context.onContinue();
+    }, timeout);
   });
 
   readLines([

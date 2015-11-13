@@ -494,6 +494,40 @@ describe('Forth', function () {
       });
     });
 
+    describe('sleep', function () {
+      it('pauses execution of line until key is pressed', function (done) {
+        forth.readLine("1 50 sleep 2", function () {
+          expect(forth.getStack()).toBe("1 2 <- Top ");
+          done();
+        });
+
+        setTimeout(function () {
+          expect(forth.getStack()).toBe("1 <- Top ");
+        }, 5);
+      });
+
+      describe('in definition', function () {
+        it('pauses execution of line until key is pressed', function (done) {
+          executeInSequence([
+            function () {
+              forth.readLine(": foo  1 50 sleep 2 ;", this);
+            },
+            function () {
+              forth.readLine("foo", this);
+            },
+            function () {
+              expect(forth.getStack()).toBe("1 2 <- Top ");
+              done();
+            }
+          ]);
+
+          setTimeout(function () {
+            expect(forth.getStack()).toBe("1 <- Top ");
+          }, 5);
+        });
+      });
+    });
+
     describe('defining words', function () {
       describe(': ;', function () {
         it('defines a new word', function (done) {
