@@ -194,13 +194,14 @@ function Forth(next) {
       readLine: readLine,
       readLines: readLines,
       keydown: function (keyCode) {
-        context.keydown(keyCode);
+        context.memory.setValue(context.memory.getVariable("last-key"), keyCode);
+        context.keydown && context.keydown(keyCode);
       },
       getStack: function () {
         return context.stack.print();
       },
-      isWaitingForKey: function () {
-        return context.pause && context.keydown;
+      isPaused: function () {
+        return context.pause;
       }
     });
   });

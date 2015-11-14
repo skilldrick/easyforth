@@ -84,7 +84,7 @@ function Editor(selectorOrElement) {
     }
 
     $input.on("keydown", function (e) {
-      if (forth.isWaitingForKey()) {
+      if (forth.isPaused()) {
         forth.keydown(e.keyCode);
         e.preventDefault();
       } else if (e.keyCode === 13) { // Enter/Return

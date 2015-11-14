@@ -173,6 +173,7 @@ function addPredefinedWords(addToDictionary, readLines, next) {
   });
 
   readLines([
+    "variable  last-key", // create last-key variable for keyboard input
     ": cells   1 * ;",
     ": cr      10 emit ;",
     ": space   32 emit ;",

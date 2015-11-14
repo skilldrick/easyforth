@@ -492,6 +492,29 @@ describe('Forth', function () {
           });
         });
       });
+
+      describe('last-key', function () {
+        it('stores the value of the last key pressed', function (done) {
+          executeInSequence([
+            function () {
+              forth.readLine("last-key @", this);
+            },
+            function () {
+              expect(forth.getStack()).toBe("0 <- Top ");
+
+              forth.readLine("50 sleep last-key @", this);
+            },
+            function () {
+              expect(forth.getStack()).toBe("0 32 <- Top ");
+              done();
+            }
+          ]);
+
+          setTimeout(function () {
+            forth.keydown(32);
+          }, 5);
+        });
+      });
     });
 
     describe('sleep', function () {
@@ -823,17 +846,17 @@ describe('Forth', function () {
           },
           function () {
             // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
-            expect(forth.getStack()).toBe("1000 1001 <- Top ");
+            expect(forth.getStack()).toBe("1001 1002 <- Top ");
 
             forth.readLine('100 foo !  200 bar !', this);
           },
           function () {
-            expect(forth.getStack()).toBe("1000 1001 <- Top ");
+            expect(forth.getStack()).toBe("1001 1002 <- Top ");
 
             forth.readLine('foo @  bar @', this);
           },
           function () {
-            expect(forth.getStack()).toBe("1000 1001 100 200 <- Top ");
+            expect(forth.getStack()).toBe("1001 1002 100 200 <- Top ");
 
             forth.readLines([
               '10 cells allot',
@@ -842,7 +865,7 @@ describe('Forth', function () {
             ], this);
           },
           function () {
-            expect(forth.getStack()).toBe("1000 1001 100 200 1012 <- Top ");
+            expect(forth.getStack()).toBe("1001 1002 100 200 1013 <- Top ");
             done();
           }
         ]);
