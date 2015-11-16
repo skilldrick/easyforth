@@ -7,6 +7,18 @@
   padding: 5px;
   border: 1px solid #888;
   margin-bottom: 20px;
+  position: relative;
+}
+
+.editor.has-canvas .text,
+.editor.has-canvas .stack-viewer {
+  margin-right: 149px;
+}
+
+.editor.has-canvas .canvas {
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 .editor .text {

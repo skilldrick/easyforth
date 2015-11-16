@@ -652,3 +652,6 @@ if the keycode is equal to 32. If it is, we break out of the loop, otherwise we
 loop back to `begin`.
 
 
+## Graphics
+
+{% include editor.html canvas=true %}

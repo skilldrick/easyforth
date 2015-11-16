@@ -8,6 +8,7 @@ function Editor(selectorOrElement) {
     var $prevLines = $text.find(".prev-lines");
     var $input = $text.find(".input");
     var $stack = $editor.find(".stack-viewer");
+    var graphics = Graphics($editor.find(".canvas"));
     var $window = $(window);
     var lineBuffer = [""]; // Start line buffer with blank line
     var selectedLine = null; // Set this to null to reset selected line
@@ -85,9 +86,11 @@ function Editor(selectorOrElement) {
       selectLine();
     }
 
-    forth.setMemoryHandler(function (address, value, baseAddress) {
-      console.log(address - baseAddress, value);
-    });
+    if (graphics) {
+      forth.setMemoryHandler(function (address, value, baseAddress) {
+        graphics.drawPixel(address - baseAddress, value);
+      });
+    }
 
     $input.on("keydown", function (e) {
       if (forth.isPaused()) {

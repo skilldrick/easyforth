@@ -1,7 +1,11 @@
-<div class="editor editor-text {{ include.size }}">
+<div class="editor editor-text {{ include.size }} {% if include.canvas %}has-canvas{% endif %}">
   <div class="stack-viewer">&nbsp;</div>
   <div class="text">
     <div class="prev-lines"></div>
     <textarea class="input editor-text"></textarea>
   </div>
+
+  {% if include.canvas %}
+    <canvas class="canvas" width="144" height="144"></canvas>
+  {% endif %}
 </div>
