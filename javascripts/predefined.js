@@ -139,6 +139,7 @@ function addPredefinedWords(addToDictionary, readLines, next) {
     var address = context.stack.pop();
     var value = context.stack.pop();
     context.memory.setValue(address, value);
+    context.onMemoryChange && context.onMemoryChange(address, value);
   });
 
   addToDictionary("@", function (context) {

@@ -202,6 +202,11 @@ function Forth(next) {
       },
       isPaused: function () {
         return context.pause;
+      },
+      setMemoryHandler: function (cb) {
+        context.onMemoryChange = function (address, value) {
+          cb(address, value, context.memory.getVariable("graphics"));
+        };
       }
     });
   });

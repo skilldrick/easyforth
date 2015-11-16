@@ -85,6 +85,10 @@ function Editor(selectorOrElement) {
       selectLine();
     }
 
+    forth.setMemoryHandler(function (address, value, baseAddress) {
+      console.log(address - baseAddress, value);
+    });
+
     $input.on("keydown", function (e) {
       if (forth.isPaused()) {
         forth.keydown(e.keyCode);
