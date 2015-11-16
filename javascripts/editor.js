@@ -23,8 +23,10 @@ function Editor(selectorOrElement) {
     }
 
     function addOutput($line, output) {
+      if (output == undefined) return;
       var $outputSpan = $("<span>").addClass("output").text(output);
       $line.append($outputSpan);
+      adjustScroll();
     }
 
     function updateStack() {
