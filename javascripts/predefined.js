@@ -173,7 +173,6 @@ function addPredefinedWords(addToDictionary, readLines, next) {
   });
 
   readLines([
-    "variable  last-key", // create last-key variable for keyboard input
     ": cells   1 * ;",
     ": cr      10 emit ;",
     ": space   32 emit ;",
@@ -194,6 +193,10 @@ function addPredefinedWords(addToDictionary, readLines, next) {
     ": min     2dup < if drop else swap drop then ;",
     ": max     2dup < if swap drop else drop then ;",
     ": ?       @ . ;",
-    ": +!      dup @ rot + swap ! ;"
+    ": +!      dup @ rot + swap ! ;",
+
+    "variable  graphics", // start of graphics memory
+    "999 cells allot", // graphics memory takes 1000 cells altogether
+    "variable  last-key", // create last-key variable for keyboard input
   ], next);
 }
