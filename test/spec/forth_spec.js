@@ -848,24 +848,24 @@ describe('Forth', function () {
             // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
             expect(forth.getStack()).toBe("1001 1002 <- Top ");
 
-            forth.readLine('100 foo !  200 bar !', this);
+            forth.readLine('drop drop 100 foo !  200 bar !', this);
           },
           function () {
-            expect(forth.getStack()).toBe("1001 1002 <- Top ");
+            expect(forth.getStack()).toBe(" <- Top ");
 
             forth.readLine('foo @  bar @', this);
           },
           function () {
-            expect(forth.getStack()).toBe("1001 1002 100 200 <- Top ");
+            expect(forth.getStack()).toBe("100 200 <- Top ");
 
             forth.readLines([
-              '10 cells allot',
+              '5 cells allot',
               'variable baz',
               'baz'
             ], this);
           },
           function () {
-            expect(forth.getStack()).toBe("1001 1002 100 200 1013 <- Top ");
+            expect(forth.getStack()).toBe("100 200 1008 <- Top ");
             done();
           }
         ]);
