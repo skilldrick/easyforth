@@ -2,6 +2,7 @@ function Graphics($canvas) {
   if (!$canvas.length) {
     return null;
   }
+
   var canvas = $canvas[0];
   var ctx = canvas.getContext('2d');
   var width = canvas.width;
@@ -10,7 +11,7 @@ function Graphics($canvas) {
   var heightInBlocks = 24;
   var blockSize = width / widthInBlocks;
 
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "#ddd";
   ctx.fillRect(0, 0, width, height);
 
   function drawPixel(offset, value) {
