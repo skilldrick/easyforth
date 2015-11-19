@@ -12,6 +12,7 @@ function Editor(selectorOrElement) {
     var $window = $(window);
     var lineBuffer = [""]; // Start line buffer with blank line
     var selectedLine = null; // Set this to null to reset selected line
+    var inputHidden = false;
 
     function addLine(code) {
       selectedLine = null;
@@ -34,13 +35,23 @@ function Editor(selectorOrElement) {
       $stack.text(forth.getStack());
     }
 
+    function hideInput() {
+      inputHidden = true;
+      $input.addClass('hide');
+    }
+
+    function showInput() {
+      inputHidden = false;
+      $input.removeClass('hide');
+    }
+
     function readInput() {
       var code = $input.val();
       var codeLines = code.split("\n");
 
       var $line;
 
-      $input.addClass('hide');
+      hideInput();
 
       // Handle multiple lines - this will only come up when text is pasted.
       forth.readLines(codeLines, {
@@ -52,7 +63,7 @@ function Editor(selectorOrElement) {
           updateStack();
         }
       }, function () {
-        $input.removeClass('hide');
+        showInput();
       });
 
       $input.val("");
@@ -93,7 +104,7 @@ function Editor(selectorOrElement) {
     }
 
     $input.on("keydown", function (e) {
-      if (forth.isPaused()) {
+      if (inputHidden) { // any time the input is hidden, send keys to forth
         forth.keydown(e.keyCode);
         e.preventDefault();
       } else if (e.keyCode === 13) { // Enter/Return

@@ -10,7 +10,7 @@ function Memory() {
   function addVariable(name) {
     var address = newMemPointer();
     variables[name.toLowerCase()] = address;
-    memArray[address] = 0;
+    memArray[address];
     return getVariable(name);
   }
 
@@ -23,7 +23,7 @@ function Memory() {
   }
 
   function getValue(address) {
-    return memArray[address];
+    return memArray[address] || 0;
   }
 
   function allot(cells) {

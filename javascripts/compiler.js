@@ -138,7 +138,7 @@ function compile(dictionary, actions) {
         });
       }.bind(this);
 
-      nextIteration();
+      setTimeout(nextIteration, 0);
     };
   }
 
