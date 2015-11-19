@@ -4,6 +4,9 @@ variable x-pos
 variable y-pos
 100 cells allot
 
+variable apple-x
+variable apple-y
+
 0 constant left
 1 constant up
 2 constant right
@@ -13,6 +16,7 @@ variable y-pos
 24 constant height
 
 variable direction
+variable length
 
 : convert-x-y  24 * + ;
 : draw ( color x y -- )  convert-x-y graphics + ! ;
@@ -30,10 +34,18 @@ variable direction
   loop ;
 
 : initialize-snake
-  12 x-pos !
-  12 y-pos !
-  \ 4 0 do 12 i y-pos + ! loop ;
+  4 length !
+  length @ 1 + 0 do
+    12 i - x-pos i + !
+    12 y-pos i + !
+  loop
   right direction ! ;
+
+: initialize-apple
+  4 apple-x !
+  4 apple-y ! ;
+
+\ need to add randomness
 
 : initialize
   width 0 do
@@ -41,10 +53,9 @@ variable direction
       j i draw-white
     loop
   loop
-
   draw-walls
-  initialize-snake ;
-
+  initialize-snake
+  initialize-apple ;
 
 : is-horizontal  direction @ dup
   left = swap
@@ -59,12 +70,18 @@ variable direction
 : move-down  1 y-pos +! ;
 : move-right  1 x-pos +! ;
 
-: move-snake  direction @
+: move-snake-head  direction @
   left over  = if move-left else
   up over    = if move-up else
   right over = if move-right else
   down over  = if move-down
   then then then then drop ;
+
+\ Move each segment of the snake forward by one
+: move-snake-tail  length @ 0 do
+    x-pos length @ i - 1 - + @ x-pos length @ i - + !
+    y-pos length @ i - 1 - + @ y-pos length @ i - + !
+  loop ;
 
 : turn-up     is-horizontal if up direction ! then ;
 : turn-left   is-vertical if left direction ! then ;
@@ -86,16 +103,24 @@ variable direction
   convert-x-y graphics + @          \ get color at current position
   0 = ; \ leave boolean flag on stack
 
-: draw-snake  x-pos @ y-pos @ draw-black ;
+: draw-snake
+  length @ 0 do
+    x-pos i + @ y-pos i + @ draw-black
+  loop
+  x-pos length @ + @ y-pos length @ + @ draw-white ;
+
+: eat-apple  1 length +! ;
 
 : game-loop ( -- )
   begin
-    200 sleep
-    check-input
-    move-snake
-    check-collision
+    100 sleep
     draw-snake
-  until ;
+    check-input
+    move-snake-tail
+    move-snake-head
+    check-collision
+  until
+  ." Game Over" ;
 
 : start  initialize game-loop ;
 
