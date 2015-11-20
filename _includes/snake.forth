@@ -1,8 +1,14 @@
-variable x-pos
+variable snake-x-head
 200 cells allot
 
-variable y-pos
+variable snake-y-head
 200 cells allot
+
+: snake-x ( offset -- address )
+  cells snake-x-head + ;
+
+: snake-y ( offset -- address )
+  cells snake-y-head + ;
 
 variable apple-x
 variable apple-y
@@ -18,10 +24,10 @@ variable apple-y
 variable direction
 variable length
 
-: convert-x-y  24 * + ;
+: convert-x-y ( x y -- offset )  24 cells * + ;
 : draw ( color x y -- )  convert-x-y graphics + ! ;
-: draw-white  ( x y -- )  1 rot rot draw ;
-: draw-black  ( x y -- )  0 rot rot draw ;
+: draw-white ( x y -- )  1 rot rot draw ;
+: draw-black ( x y -- )  0 rot rot draw ;
 
 : draw-walls
   width 0 do
@@ -36,8 +42,8 @@ variable length
 : initialize-snake
   4 length !
   length @ 1 + 0 do
-    12 i - x-pos i + !
-    12 y-pos i + !
+    12 i - i snake-x !
+    12 i snake-y !
   loop
   right direction ! ;
 
@@ -62,10 +68,10 @@ variable length
 : is-vertical  direction @ dup
   up = swap down = or ;
 
-: move-up  -1 y-pos +! ;
-: move-left  -1 x-pos +! ;
-: move-down  1 y-pos +! ;
-: move-right  1 x-pos +! ;
+: move-up  -1 snake-y-head +! ;
+: move-left  -1 snake-x-head +! ;
+: move-down  1 snake-y-head +! ;
+: move-right  1 snake-x-head +! ;
 
 : move-snake-head  direction @
   left over  = if move-left else
@@ -76,8 +82,8 @@ variable length
 
 \ Move each segment of the snake forward by one
 : move-snake-tail  length @ -1 do
-    x-pos length @ i - 1 - + @ x-pos length @ i - + !
-    y-pos length @ i - 1 - + @ y-pos length @ i - + !
+    length @ i - 1 - snake-x @ length @ i - snake-x !
+    length @ i - 1 - snake-y @ length @ i - snake-y !
   loop ;
 
 : turn-up     is-horizontal if up direction ! then ;
@@ -85,7 +91,7 @@ variable length
 : turn-down   is-horizontal if down direction ! then ;
 : turn-right  is-vertical if right direction ! then ;
 
-: change-direction  ( key -- )
+: change-direction ( key -- )
   37 over = if turn-left else
   38 over = if turn-up else
   39 over = if turn-right else
@@ -99,7 +105,7 @@ variable length
 : grow-snake  1 length +! ;
 
 \ get random x or y position within playable area
-: random-position  ( -- pos )
+: random-position ( -- pos )
   width 4 - random 2 + ;
 
 : move-apple
@@ -107,17 +113,17 @@ variable length
   random-position random-position
   set-apple-position ;
 
-: check-apple
-  x-pos @ apple-x @ =
-  y-pos @ apple-y @ =
+: check-apple ( -- flag )
+  snake-x-head @ apple-x @ =
+  snake-y-head @ apple-y @ =
   and if
     grow-snake
     move-apple
   then ;
 
-: check-collision
+: check-collision ( -- flag )
   \ get current x/y position
-  x-pos @ y-pos @
+  snake-x-head @ snake-y-head @
 
   \ get color at current position
   convert-x-y graphics + @
@@ -127,10 +133,10 @@ variable length
 
 : draw-snake
   length @ 0 do
-    x-pos i + @ y-pos i + @ draw-black
+    i snake-x @ i snake-y @ draw-black
   loop
-  x-pos length @ + @
-  y-pos length @ + @
+  length @ snake-x @
+  length @ snake-y @
   draw-white ;
 
 : draw-apple

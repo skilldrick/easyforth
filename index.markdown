@@ -110,6 +110,14 @@ pushes the resulting 7, then pushes 10 to the stack, then multiplies 7 and 10.
 Because of this, there's no need for parentheses to group operators with lower
 precedence.
 
+### Stack Effects
+
+Most Forth words affect the stack in some way. Some take values off the stack,
+some leave new values on the stack, and some do a mixture of both. These "stack
+effects" are commonly represented using comments of the form `( before -- after
+)`. For example, `+` is `( n1 n2 -- sum )` - `n1` and `n2` are the top two numbers
+on the stack, and `sum` is the value left on the stack.
+
 
 ## Defining Words
 
@@ -160,7 +168,7 @@ how simple definitions work.
 Now we can start taking a look at some of Forth's predefined words. First,
 let's look at some words for manipulating the elements at the top of the stack.
 
-### `dup`
+### `dup ( n -- n n )`
 
 `dup` is short for "duplicate" -- it duplicates the top element of the stack. For example,
 try this out:
@@ -173,7 +181,7 @@ You should end up with the following stack:
 
 {% include stack.html stack="1 2 3 3" %}
 
-### `drop`
+### `drop ( n -- )`
 
 `drop` simply drops the top element of the stack. Running:
 
@@ -185,7 +193,7 @@ gives you a stack of:
 
 {% include editor.html size="small"%}
 
-### `swap`
+### `swap ( n1 n2 -- n2 n1 )`
 
 `swap`, as you may have guessed, swaps the top two elements of the stack. For example:
 
@@ -197,7 +205,7 @@ will give you:
 
 {% include editor.html size="small"%}
 
-### `over`
+### `over ( n1 n2 -- n1 n2 n1 )`
 
 `over` is a bit less obvious: it takes the second element from the top of the
 stack and duplicates it to the top of the stack. Running this:
@@ -210,7 +218,7 @@ will result in this:
 
 {% include editor.html size="small"%}
 
-### `rot`
+### `rot ( n1 n2 n3 -- n2 n3 n1 )`
 
 Finally, `rot` "rotates" the top _three_ elements of the stack. The third
 element from the top of the stack gets moved to the top of the stack, pushing
@@ -229,7 +237,7 @@ gives you:
 
 Next, let's look at some words for outputting text to the console.
 
-### `.` (period)
+### `. ( n -- )` (period)
 
 The simplest output word in Forth is `.`. You can use `.` to output the top of
 the stack in the output of the current line. For example, try running this
@@ -248,7 +256,7 @@ we do the same with `2` and `3`. Next we push `4`, `5`, and `6` onto the stack.
 We then pop them off and output them one-by-one. That's why the last three
 numbers in the output are reversed: the stack is last in, first out.
 
-### `emit`
+### `emit ( c -- )`
 
 `emit` can be used to output numbers as ascii characters. Just like `.` outputs
 the number at the top of the stack, `emit` outputs that number as an ascii
@@ -266,7 +274,7 @@ written as:
 Unlike `.`, `emit` doesn't output any space after each character, enabling you
 to build up arbitrary strings of output.
 
-### `cr`
+### `cr ( -- )`
 
 `cr` is short for carriage return -- it simply outputs a newline:
 
@@ -281,7 +289,7 @@ This will output:
 200
 300  ok</span></div>
 
-### `."`
+### `." ( -- )`
 
 Finally we have `."` -- a special word for outputting strings. The `."` word works
 differently inside definitions to interactive mode. `."` marks the beginning of
@@ -609,6 +617,48 @@ Running this will push the value `84` on the stack. `answer` is treated as if it
 was the number it represents (just like constants and variables in other languages).
 
 
+## Arrays
+
+Forth doesn't exactly support arrays, but it does allow you to allocate a zone of
+contiguous memory, a lot like arrays in C. To allocate this memory, use the `allot`
+word.
+
+    variable numbers
+    3 cells allot
+    10 numbers 0 cells + !
+    20 numbers 1 cells + !
+    30 numbers 2 cells + !
+    40 numbers 3 cells + !
+
+{% include editor.html size="small"%}
+
+This example creates a memory location called `numbers`, and reserves three extra
+memory cells after this location, giving a total of four memory cells. (`cells`
+just multiplies by the cell-width, which is 1 in this implementation.)
+
+`numbers 0 +` gives the address of the first cell in the array. `10 numbers 0 + !`
+stores the value `10` in the first cell of the array.
+
+We can easily write words to simplify array access:
+
+    variable numbers
+    3 cells allot
+    : number  ( offset -- addr )  cells numbers + ;
+
+    10 0 number !
+    20 1 number !
+    30 2 number !
+    40 3 number !
+
+    2 number ?
+
+{% include editor.html size="small"%}
+
+`number` takes an offset into `numbers` and returns the memory address at that
+offset. `30 2 number !` stores `30` at offset `2` in `numbers`, and `2 number ?`
+prints the value at offset `2` in `numbers`.
+
+
 ## Keyboard Input
 
 Forth has a special word called `key`, which is used for accepting keyboard input.
@@ -652,6 +702,60 @@ if the keycode is equal to 32. If it is, we break out of the loop, otherwise we
 loop back to `begin`.
 
 
-## Graphics
+## Snake!
+
+Now it's time to put it all together and make a game! Rather than having you type
+all the code, I've pre-loaded it into the editor.
+
+Before we look at the code, try playing the game. To start the game, execute the
+word `start`. Then use the arrow keys to move the snake. If you lose, you can run
+`start` again.
 
 {% include editor.html canvas=true game=true %}
+
+Before we delve too deeply into this code, two disclaimers. First, this is terrible
+Forth code. I'm by no means a Forth expert, so there's probably all kinds of things
+I'm doing in completely the wrong way. Second, this game uses a few non-standard
+techniques in order to interface with JavaScript. I'll go through these now.
+
+### Non-Standard Additions
+
+#### The Canvas
+
+You may have noticed that this editor is different from the others: it has an HTML5
+Canvas element built in. I've created a very simple memory-mapped interface for
+drawing onto this canvas. The canvas is split up into 24 x 24 "pixels" which can
+be black or white. The first pixel is found at the memory address given by the
+variable `graphics`, and the rest of the pixels are offsets from the variable. So,
+for example, to draw a white pixel in the top-left corner you could run
+
+    1 graphics !
+
+{% include editor.html size="small" canvas=true %}
+
+The game uses the following words to draw to the canvas:
+
+    : convert-x-y ( x y -- offset )  24 cells * + ;
+    : draw ( color x y -- )  convert-x-y graphics + ! ;
+    : draw-white ( x y -- )  1 rot rot draw ;
+    : draw-black ( x y -- )  0 rot rot draw ;
+
+For example, `3 4 draw-white` draws a white pixel at the coordinates (3, 4).
+
+#### Non-Blocking Keyboard Input
+
+The Forth word `key` blocks, so is unsuitable for a game like this. I've added
+a variable called `last-key` which always holds the value of the last key to be
+pressed. `last-key` is only updated while the interpreter is running Forth code.
+
+#### Random Number Generation
+
+The Forth standard doesn't define a way of generating random numbers, so I've
+added a word called `random ( range -- n )` that takes a range and returns a
+random number from 0 to range - 1. For example, `3 random` could
+return `0`, `1`, or `2`.
+
+#### `sleep ( ms -- )`
+
+Finally, I've added a blocking `sleep` word that pauses execution for the
+number of milliseconds given.
