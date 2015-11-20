@@ -11,7 +11,7 @@ function Graphics($canvas) {
   var heightInBlocks = 24;
   var blockSize = width / widthInBlocks;
 
-  ctx.fillStyle = "#ddd";
+  ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, width, height);
 
   function drawPixel(offset, value) {

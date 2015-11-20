@@ -846,7 +846,7 @@ describe('Forth', function () {
           },
           function () {
             // this is testing an implementation detail, i.e. the particular memory addresses Memory uses
-            expect(forth.getStack()).toBe("2001 2002 <- Top ");
+            expect(forth.getStack()).toBe("1577 1578 <- Top ");
 
             forth.readLine('drop drop 100 foo !  200 bar !', this);
           },
@@ -865,7 +865,7 @@ describe('Forth', function () {
             ], this);
           },
           function () {
-            expect(forth.getStack()).toBe("100 200 2008 <- Top ");
+            expect(forth.getStack()).toBe("100 200 1584 <- Top ");
             done();
           }
         ]);
