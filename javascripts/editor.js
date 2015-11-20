@@ -141,6 +141,11 @@ function Editor(selectorOrElement) {
     }
 
     updateStack();
+
+    // If input is pre-filled, run it on-load
+    if ($input.val()) {
+      readInput();
+    }
   });
 }
 

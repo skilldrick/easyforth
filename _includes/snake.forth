@@ -1,8 +1,8 @@
 variable x-pos
-100 cells allot
+200 cells allot
 
 variable y-pos
-100 cells allot
+200 cells allot
 
 variable apple-x
 variable apple-y
@@ -41,11 +41,9 @@ variable length
   loop
   right direction ! ;
 
-: initialize-apple
-  4 apple-x !
-  4 apple-y ! ;
+: set-apple-position apple-x ! apple-y ! ;
 
-\ need to add randomness
+: initialize-apple  4 4 set-apple-position ;
 
 : initialize
   width 0 do
@@ -62,8 +60,7 @@ variable length
   right = or ;
 
 : is-vertical  direction @ dup
-  up = swap
-  down = or ;
+  up = swap down = or ;
 
 : move-up  -1 y-pos +! ;
 : move-left  -1 x-pos +! ;
@@ -78,7 +75,7 @@ variable length
   then then then then drop ;
 
 \ Move each segment of the snake forward by one
-: move-snake-tail  length @ 0 do
+: move-snake-tail  length @ -1 do
     x-pos length @ i - 1 - + @ x-pos length @ i - + !
     y-pos length @ i - 1 - + @ y-pos length @ i - + !
   loop ;
@@ -99,29 +96,58 @@ variable length
   last-key @ change-direction
   0 last-key ! ;
 
-: check-collision  x-pos @ y-pos @  \ get current x/y position
-  convert-x-y graphics + @          \ get color at current position
-  0 = ; \ leave boolean flag on stack
+: grow-snake  1 length +! ;
+
+\ get random x or y position within playable area
+: random-position  ( -- pos )
+  width 4 - random 2 + ;
+
+: move-apple
+  apple-x @ apple-y @ draw-white
+  random-position random-position
+  set-apple-position ;
+
+: check-apple
+  x-pos @ apple-x @ =
+  y-pos @ apple-y @ =
+  and if
+    grow-snake
+    move-apple
+  then ;
+
+: check-collision
+  \ get current x/y position
+  x-pos @ y-pos @
+
+  \ get color at current position
+  convert-x-y graphics + @
+
+  \ leave boolean flag on stack
+  0 = ;
 
 : draw-snake
   length @ 0 do
     x-pos i + @ y-pos i + @ draw-black
   loop
-  x-pos length @ + @ y-pos length @ + @ draw-white ;
+  x-pos length @ + @
+  y-pos length @ + @
+  draw-white ;
 
-: eat-apple  1 length +! ;
+: draw-apple
+  apple-x @ apple-y @ draw-black ;
+
 
 : game-loop ( -- )
   begin
-    100 sleep
     draw-snake
+    draw-apple
+    100 sleep
     check-input
     move-snake-tail
     move-snake-head
+    check-apple
     check-collision
   until
   ." Game Over" ;
 
 : start  initialize game-loop ;
-
-start

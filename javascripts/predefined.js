@@ -173,6 +173,11 @@ function addPredefinedWords(addToDictionary, readLines, next) {
     }, timeout);
   });
 
+  addToDictionary("random", function (context) {
+    var range = context.stack.pop();
+    context.stack.push(Math.floor(Math.random() * range));
+  });
+
   readLines([
     ": cells   1 * ;",
     ": cr      10 emit ;",

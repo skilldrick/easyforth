@@ -654,4 +654,4 @@ loop back to `begin`.
 
 ## Graphics
 
-{% include editor.html canvas=true %}
+{% include editor.html canvas=true game=true %}
