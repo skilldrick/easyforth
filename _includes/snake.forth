@@ -1,14 +1,8 @@
 variable snake-x-head
-200 cells allot
+500 cells allot
 
 variable snake-y-head
-200 cells allot
-
-: snake-x ( offset -- address )
-  cells snake-x-head + ;
-
-: snake-y ( offset -- address )
-  cells snake-y-head + ;
+500 cells allot
 
 variable apple-x
 variable apple-y
@@ -23,6 +17,12 @@ variable apple-y
 
 variable direction
 variable length
+
+: snake-x ( offset -- address )
+  cells snake-x-head + ;
+
+: snake-y ( offset -- address )
+  cells snake-y-head + ;
 
 : convert-x-y ( x y -- offset )  24 cells * + ;
 : draw ( color x y -- )  convert-x-y graphics + ! ;
@@ -61,13 +61,6 @@ variable length
   initialize-snake
   initialize-apple ;
 
-: is-horizontal  direction @ dup
-  left = swap
-  right = or ;
-
-: is-vertical  direction @ dup
-  up = swap down = or ;
-
 : move-up  -1 snake-y-head +! ;
 : move-left  -1 snake-x-head +! ;
 : move-down  1 snake-y-head +! ;
@@ -81,10 +74,18 @@ variable length
   then then then then drop ;
 
 \ Move each segment of the snake forward by one
-: move-snake-tail  length @ -1 do
-    length @ i - 1 - snake-x @ length @ i - snake-x !
-    length @ i - 1 - snake-y @ length @ i - snake-y !
-  loop ;
+: move-snake-tail  0 length @ do
+    i snake-x @ i 1 + snake-x !
+    i snake-y @ i 1 + snake-y !
+  -1 +loop ;
+
+: is-horizontal  direction @ dup
+  left = swap
+  right = or ;
+
+: is-vertical  direction @ dup
+  up = swap
+  down = or ;
 
 : turn-up     is-horizontal if up direction ! then ;
 : turn-left   is-vertical if left direction ! then ;
@@ -102,8 +103,6 @@ variable length
   last-key @ change-direction
   0 last-key ! ;
 
-: grow-snake  1 length +! ;
-
 \ get random x or y position within playable area
 : random-position ( -- pos )
   width 4 - random 2 + ;
@@ -113,12 +112,14 @@ variable length
   random-position random-position
   set-apple-position ;
 
-: check-apple ( -- flag )
+: grow-snake  1 length +! ;
+
+: check-apple
   snake-x-head @ apple-x @ =
   snake-y-head @ apple-y @ =
   and if
-    grow-snake
     move-apple
+    grow-snake
   then ;
 
 : check-collision ( -- flag )

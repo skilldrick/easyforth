@@ -543,7 +543,7 @@ Constants give you a simple way to refer to a value that won't change.
 
 Because the role of local variables is generally played by the stack, variables
 in Forth are used more to store state that may be needed across multiple
-functions.
+words.
 
 Defining variables is simple:
 
@@ -740,7 +740,9 @@ The game uses the following words to draw to the canvas:
     : draw-white ( x y -- )  1 rot rot draw ;
     : draw-black ( x y -- )  0 rot rot draw ;
 
-For example, `3 4 draw-white` draws a white pixel at the coordinates (3, 4).
+For example, `3 4 draw-white` draws a white pixel at the coordinates (3, 4). The
+y coordinate is multiplied by 24 to get the row, then the x coordinated is added
+to get the column.
 
 #### Non-Blocking Keyboard Input
 
@@ -759,3 +761,306 @@ return `0`, `1`, or `2`.
 
 Finally, I've added a blocking `sleep` word that pauses execution for the
 number of milliseconds given.
+
+### The Game Code
+
+Now we can work through the code from start to finish.
+
+#### Variables and Constants
+
+The start of the code just sets up some variables and constants:
+
+    variable snake-x-head
+    500 cells allot
+
+    variable snake-y-head
+    500 cells allot
+
+    variable apple-x
+    variable apple-y
+
+    0 constant left
+    1 constant up
+    2 constant right
+    3 constant down
+
+    24 constant width
+    24 constant height
+
+    variable direction
+    variable length
+
+`snake-x-head` and `snake-y-head` are memory locations used to store the x and
+y coordinates of the head of the snake. 500 cells of memory are alloted after
+these two locations to store the coordinates of the tail of the snake.
+
+Next we define two words for accessing memory locations representing the body
+of the snake.
+
+    : snake-x ( offset -- address )
+      cells snake-x-head + ;
+
+    : snake-y ( offset -- address )
+      cells snake-y-head + ;
+
+Just like the `number` word earlier, these two words are used to access
+elements in the arrays of snake segments. After this come some words for
+drawing to the canvas, described above.
+
+We use constants to refer to the four directions (`left`, `up`, `right`, and
+`down`), and a variable `direction` to store the current direction.
+
+#### Initialization
+
+After this we initialize everything:
+
+    : draw-walls
+      width 0 do
+        i 0 draw-black
+        i height 1 - draw-black
+      loop
+      height 0 do
+        0 i draw-black
+        width 1 - i draw-black
+      loop ;
+
+    : initialize-snake
+      4 length !
+      length @ 1 + 0 do
+        12 i - i snake-x !
+        12 i snake-y !
+      loop
+      right direction ! ;
+
+    : set-apple-position apple-x ! apple-y ! ;
+
+    : initialize-apple  4 4 set-apple-position ;
+
+    : initialize
+      width 0 do
+        height 0 do
+          j i draw-white
+        loop
+      loop
+      draw-walls
+      initialize-snake
+      initialize-apple ;
+
+`draw-walls` uses two `do/loop`s to draw the horizontal and vertical walls,
+respectively.
+
+`initialize-snake` sets the `length` variable to `4`, then loops from `0` to
+`length + 1` filling in the starting snake positions. The snake positions are
+always kept one longer than the length so we can grow the snake easily.
+
+`set-apple-position` and `initialize-apple` set the initial position of the
+apple to (4,4).
+
+Finally, `initialize` fills everything in white and calls the three
+initialization words.
+
+#### Moving the Snake
+
+Here's the code for moving the snake based on the current value of `direction`:
+
+    : move-up  -1 snake-y-head +! ;
+    : move-left  -1 snake-x-head +! ;
+    : move-down  1 snake-y-head +! ;
+    : move-right  1 snake-x-head +! ;
+
+    : move-snake-head  direction @
+      left over  = if move-left else
+      up over    = if move-up else
+      right over = if move-right else
+      down over  = if move-down
+      then then then then drop ;
+
+    \ Move each segment of the snake forward by one
+    : move-snake-tail  0 length @ do
+        i snake-x @ i 1 + snake-x !
+        i snake-y @ i 1 + snake-y !
+      -1 +loop ;
+
+`move-up`, `move-left`, `move-down`, and `move-right` just add or subtract one
+from the x or y coordinate of the snake head. `move-snake-head` inspects the
+value of `direction` and calls the appropriate `move-*` word. This `over = if`
+pattern is an idiomatic way of doing case statements in Forth.
+
+`move-snake-tail` goes through the array of snake positions backwards, copying
+each value forward by 1 cell. This is called before we move the snake head, to
+move each segment of the snake forward one space. It uses a `do/+loop`, a
+variation of a `do/loop` that pops the stack on every iteration and adds that
+value to the next index, instead of incrementing by 1 each time. So `0 length @
+do -1 +loop` loops from `length` to `0` in increments of `-1`.
+
+#### Keyboard Input
+
+The next section of code takes the keyboard input and changes the snake direction
+if appropriate.
+
+    : is-horizontal  direction @ dup
+      left = swap
+      right = or ;
+
+    : is-vertical  direction @ dup
+      up = swap
+      down = or ;
+
+    : turn-up     is-horizontal if up direction ! then ;
+    : turn-left   is-vertical if left direction ! then ;
+    : turn-down   is-horizontal if down direction ! then ;
+    : turn-right  is-vertical if right direction ! then ;
+
+    : change-direction ( key -- )
+      37 over = if turn-left else
+      38 over = if turn-up else
+      39 over = if turn-right else
+      40 over = if turn-down
+      then then then then drop ;
+
+    : check-input
+      last-key @ change-direction
+      0 last-key ! ;
+
+`is-horizontal` and `is-vertical` check the current status of the `direction`
+variable to see if it's a horizontal or vertical direction.
+
+The `turn-*` words are used to set a new direction, but use `is-horizontal` and
+`is-vertical` to check the current direction first to see if the new direction
+is valid. For example, if the snake is moving horizontally, setting a new
+direction of `left` or `right` doesn't make sense.
+
+`change-direction` takes a key and calls the appropriate `turn-*` word if the
+key was one of the arrow keys. `check-input` does the work of getting the last
+key from the `last-key` pseudo-variable, calling `change-direction`, then setting
+`last-key` to 0 to indicate that the most recent keypress has been dealt with.
+
+#### The Apple
+
+The next code is used for checking to see if the apple has been eaten, and if so,
+moving it to a new (random) location. Also, if the apple has been eaten we grow
+the snake.
+
+    \ get random x or y position within playable area
+    : random-position ( -- pos )
+      width 4 - random 2 + ;
+
+    : move-apple
+      apple-x @ apple-y @ draw-white
+      random-position random-position
+      set-apple-position ;
+
+    : grow-snake  1 length +! ;
+
+    : check-apple ( -- flag )
+      snake-x-head @ apple-x @ =
+      snake-y-head @ apple-y @ =
+      and if
+        move-apple
+        grow-snake
+      then ;
+
+`random-position` generates a random x or y coordinate in the range of `2` to
+`width - 2`. This prevents the apple from ever appearing right next to the wall.
+
+`move-apple` erases the current apple (using `draw-white`) then creates a new
+pair of x/y coordinates for the apple using `random-position` twice. Finally,
+it calls `set-apple-position` to move the apple to the new coordinates.
+
+`grow-snake` simply adds one to the `length` variable.
+
+`check-apple` compares the x/y coordinates of the apple and the snake head to
+see if they're the same (using `=` twice and `and` to combine the two
+booleans). If the coordinates are the same, we call `move-apple` to move the
+apple to a new position and `grow-snake` to make the snake 1 segment longer.
+
+#### Collision Detection
+
+Next we see if the snake has collided with the walls or itself.
+
+    : check-collision ( -- flag )
+      \ get current x/y position
+      snake-x-head @ snake-y-head @
+
+      \ get color at current position
+      convert-x-y graphics + @
+
+      \ leave boolean flag on stack
+      0 = ;
+
+`check-collision` checks to see if the new snake head position is already black
+(this word is called _after_ updating the snake's position but _before_ drawing
+it at the new position). We leave a boolean on the stack to say whether a
+collision has occured or not.
+
+#### Drawing the Snake and Apple
+
+The next two words are responsible for drawing the snake and apple.
+
+    : draw-snake
+      length @ 0 do
+        i snake-x @ i snake-y @ draw-black
+      loop
+      length @ snake-x @
+      length @ snake-y @
+      draw-white ;
+
+    : draw-apple
+      apple-x @ apple-y @ draw-black ;
+
+`draw-snake` loops through each cell in the snake arrays, drawing a black pixel
+for each one. After that it draws a white pixel at an offset of `length`. The
+last part of the tail is at `length - 1` into the array so `length` holds the
+previous last tail segment.
+
+`draw-apple` simply draws a black pixel at the apple's current location.
+
+#### The Game Loop
+
+The game loop constantly loops until a collision occurs, calling each of the
+words defined above in turn.
+
+: game-loop ( -- )
+  begin
+    draw-snake
+    draw-apple
+    100 sleep
+    check-input
+    move-snake-tail
+    move-snake-head
+    check-apple
+    check-collision
+  until
+  ." Game Over" ;
+
+: start  initialize game-loop ;
+
+The `begin/until` loop uses the boolean returned by `check-collision` to see
+whether to continue looping or to exit the loop. When the loop is exited the
+string `"Game Over"` is printed. We use `100 sleep` to pause for 100 ms every
+iteration, making the game run at rougly 10 fps.
+
+`start` just calls `initialize` to reset everything, then kicks off `game-loop`.
+Because all the initialization happens in the `initialize` word, you can call
+`start` again after game over.
+
+------
+
+And that's it! Hopefully all the code in the game made sense. If not, you can
+try running individual words to see their effect on the stack and/or on the
+variables.
+
+
+## The End
+
+Forth is actually much more powerful than what I've taught here (and what I
+implemented in my interpreter). A true Forth system allows you to modify how
+the compiler works and create new defining words, allowing you to completely
+customize your environment and create your own languages within Forth.
+
+A great resource for learning the full power of Forth is the short book
+["Starting Forth"](http://www.forth.com/starting-forth/) by Leo Brodie. It's
+available for free online and teaches you all the fun stuff I left out. It also
+has a good set of exercises for you to test out your knowledge. You'll need to
+download a copy of [SwiftForth](http://www.forth.com/swiftforth/dl.html) to run
+the code though.
