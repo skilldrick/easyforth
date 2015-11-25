@@ -60,9 +60,9 @@ function Editor(selectorOrElement) {
         },
         outputCallback: function (output) {
           addOutput($line, output);
-          updateStack();
         }
       }, function () {
+        updateStack();
         showInput();
       });
 
