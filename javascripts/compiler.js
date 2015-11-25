@@ -98,8 +98,10 @@ function compile(dictionary, actions) {
       var endIndex = context.stack.pop();
       var i = startIndex;
 
+      var forwards = endIndex > startIndex;
+
       var nextIteration = function () {
-        if (i < endIndex) {
+        if ((forwards && i < endIndex) || (!forwards && i >= endIndex)) {
           context.returnStack.push(i);
           executeActions(this.body, context, function (o) {
             context.returnStack.pop();
