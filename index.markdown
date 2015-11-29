@@ -1020,20 +1020,20 @@ previous last tail segment.
 The game loop constantly loops until a collision occurs, calling each of the
 words defined above in turn.
 
-: game-loop ( -- )
-  begin
-    draw-snake
-    draw-apple
-    100 sleep
-    check-input
-    move-snake-tail
-    move-snake-head
-    check-apple
-    check-collision
-  until
-  ." Game Over" ;
+    : game-loop ( -- )
+      begin
+        draw-snake
+        draw-apple
+        100 sleep
+        check-input
+        move-snake-tail
+        move-snake-head
+        check-apple
+        check-collision
+      until
+      ." Game Over" ;
 
-: start  initialize game-loop ;
+    : start  initialize game-loop ;
 
 The `begin/until` loop uses the boolean returned by `check-collision` to see
 whether to continue looping or to exit the loop. When the loop is exited the
