@@ -10,15 +10,15 @@ function Dictionary() {
   // Missing key returns null
   function lookup(key) {
     key = key.toLowerCase();
-    var item = dict.find(function (item) {
-      return item[0] === key;
-    });
-
-    if (item === undefined) {
-      return null;
-    } else {
-      return item[1];
+    
+    var item;
+    for (var i = 0; i < dict.length; i++) {
+      item = dict[i];
+      if (item[0] === key) {
+        return item[1];
+      }
     }
+    return null;
   }
 
   return {
