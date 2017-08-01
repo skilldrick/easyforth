@@ -3,7 +3,7 @@
 var FALSE = 0;
 var TRUE = -1;
 
-function Forth(next) {
+function Michelson(next) {
   // Core structures
   var context = {
     stack: Stack('Argument Stack'),
