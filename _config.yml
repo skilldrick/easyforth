@@ -1,5 +1,0 @@
-safe: true
-lsi: false
-highlighter: pygments
-kramdown:
-  toc_levels: 1..2
