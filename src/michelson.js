@@ -198,7 +198,7 @@ function Michelson(next) {
         context.keydown && context.keydown(keyCode);
       },
       getStack: function () {
-        return context.stack.print();
+        return context.stack.getStackArray();
       },
       setMemoryHandler: function (cb) {
         context.onMemoryChange = function (address, value) {
