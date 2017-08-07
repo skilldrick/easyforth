@@ -3,7 +3,7 @@
 var FALSE = 0;
 var TRUE = -1;
 
-function Forth(next) {
+function Michelson(next) {
   // Core structures
   var context = {
     stack: Stack('Argument Stack'),
@@ -198,7 +198,7 @@ function Forth(next) {
         context.keydown && context.keydown(keyCode);
       },
       getStack: function () {
-        return context.stack.print();
+        return context.stack.getStackArray();
       },
       setMemoryHandler: function (cb) {
         context.onMemoryChange = function (address, value) {

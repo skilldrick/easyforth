@@ -1,0 +1,33 @@
+.fill-height {
+	display: inline-flex;
+	height: 100%;
+}
+
+.console-main {
+	padding-top: 22px;
+}
+
+html, body, .Override.container-fluid, .Override .col-lg-3, .Override .col-lg-9, .Override .row, .Override .wrapper
+{
+	height: 99%;
+}
+
+div.wrapper .space {
+	border: 1px solid lightgray;
+	border-radius: 5px;
+	margin: 35px 0px 0px 0px;
+	padding: 20px;
+	height: 96%;
+}
+
+div.stack-item {
+	border: 1px solid green;
+	background: lightgreen;
+	margin-bottom: 2px;
+	text-align: center;
+	border-radius: 5px;
+}
+
+input {
+	margin-bottom: 5px;
+}
