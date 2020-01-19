@@ -682,7 +682,7 @@ Now hit `B`, then `C`, and you should see the following:
 
 Forth has another kind of loop called `begin until`. This works like a `while`
 loop in C-based languages. Every time the word `until` is hit, the interpreter
-checks to see if the top of the stack is non-zero (true). If it is, it jumps
+checks to see if the top of the stack is non-zero (true). If it is false, it jumps
 back to the matching `begin`. If not, execution continues.
 
 Here's an example of using `begin until` to print key codes:
