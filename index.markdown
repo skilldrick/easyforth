@@ -558,8 +558,8 @@ stack:
 
 {% include editor.html size="small"%}
 
-You should see the value `1000` on the stack. This Forth implementation arbitrarily
-starts storing variables at the memory location `1000`.
+You should see the value `1577` on the stack. This Forth implementation arbitrarily
+starts storing variables at the memory location `1577`.
 
 The word `!` stores a value at the memory location referenced by a variable, and the
 word `@` fetches the value from a memory location:
